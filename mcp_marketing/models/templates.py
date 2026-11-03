@@ -36,7 +36,7 @@ class TemplateVersion(Base):
     )
     version: Mapped[int] = mapped_column(primary_key=True)
     variables: Mapped[list[Any]] = mapped_column(server_default="[]")
-    blocks: Mapped[list[Any]]
+    blocks: Mapped[dict[str, Any]]
     subtasks: Mapped[list[Any]] = mapped_column(server_default="[]")
     outline: Mapped[dict[str, Any]]
     created_at: Mapped[datetime] = ts_default()

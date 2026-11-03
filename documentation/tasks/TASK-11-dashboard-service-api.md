@@ -45,17 +45,23 @@ Memungkinkan MCP mengelola project, task, blok, dan komentar **di luar agent run
 - Klien typed untuk semua endpoint, header `X-MCP-Agent-Id` dari `client.dashboard_agent_id`, error mapping (404 → `NOT_FOUND`, 422 → `VALIDATION_ERROR`/`HIERARCHY_DEPTH_EXCEEDED`, 409 → `CONFLICT`, 429 → `RATE_LIMITED`).
 
 ## Checklist Implementasi
-- [ ] (Dashboard) Modul `mcp-api`: guard, controller, DTO Zod di `shared/schemas/mcp-api.schema.ts`.
-- [ ] (Dashboard) Reuse service yang ada (tasks, blocks, comments, timeline) — tanpa duplikasi aturan.
-- [ ] (Dashboard) Swagger `/api/docs` memuat endpoint baru; `.env.example` tidak berubah (pakai `MCP_SERVICE_TOKEN`).
-- [ ] (Dashboard) Seed `MCP_Assistant`.
-- [ ] (Dashboard) Update `M1_MCP_INTEGRATION.md` → contract 1.1 (§6.1 Service API).
-- [ ] (MCP) `service_api.py` + test.
+- [x] (Dashboard) Modul `mcp-api`: guard, controller, DTO Zod di `shared/schemas/mcp-api.schema.ts`.
+- [x] (Dashboard) Reuse service yang ada (tasks, blocks, comments, timeline) — tanpa duplikasi aturan.
+- [x] (Dashboard) Swagger `/api/docs` memuat endpoint baru; `.env.example` tidak berubah (pakai `MCP_SERVICE_TOKEN`).
+- [x] (Dashboard) Seed demo `MCP_Assistant` (`mcp_agent_key=assistant`) di workspace Marketing Demo; `dashboard_agent_id` klien MCP dapat menunjuk ke UUID deterministik `00000000-0000-4000-8000-000000000203`.
+- [x] (Dashboard) Update `M1_MCP_INTEGRATION.md` → contract 1.1 (§6.1 Service API).
+- [x] (MCP) `service_api.py` + test.
 
 ## Pengujian
 - (Dashboard, jest + supertest) token salah → 401; agent dari workspace lain → 404; `PATCH tasks/:id` dengan assignee → 422; kedalaman 4 → 422 `HIERARCHY_DEPTH_EXCEEDED`; activity log ber-aktor agent; event Socket.IO terkirim.
 - (Dashboard) Blok invalid → 400 dengan indeks operasi.
 - (MCP, `-m contract`) alur UC-06 & UC-07 terhadap Dashboard lokal.
+
+### Hasil verifikasi terakhir
+- Dashboard MCP API: 11 unit test lulus; coverage service 89,55% statements / 93,22% lines.
+- Dashboard typecheck produksi lulus; Swagger document test mengonfirmasi route Service API dan autentikasi Bearer.
+- MCP: 239 test lulus, 79 dilewati; Ruff dan mypy modul terkait lulus.
+- Uji integrasi/live UC-06 dan UC-07 belum dijalankan: layanan Dashboard/Redis lokal tidak tersedia. Verifikasi real-time UI dan persetujuan kontrak kedua tim masih menunggu.
 
 ## Acceptance Criteria
 1. Perubahan via Service API tampil real-time di UI Dashboard (< 2 s) dengan label aktor agent.
@@ -66,5 +72,5 @@ Memungkinkan MCP mengelola project, task, blok, dan komentar **di luar agent run
 ## Definition of Done
 - [ ] Checklist & Acceptance Criteria terpenuhi; test Dashboard (unit + integration) lulus, coverage modul ≥ 80%.
 - [ ] Dokumen kontrak 1.1 disetujui kedua tim.
-- [ ] Swagger terbarui; migrasi DB tidak diperlukan (atau terdokumentasi bila ada).
+- [x] Swagger terbarui; migrasi DB tidak diperlukan.
 - [ ] Review backend Dashboard disetujui.

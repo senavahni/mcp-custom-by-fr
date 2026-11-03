@@ -1,0 +1,24 @@
+key: content_calendar_3w
+name: Kalender Konten 3 Minggu
+category: content_calendar
+description: Kalender editorial tiga minggu untuk kanal sosial.
+variables:
+  - {name: brand, type: string, required: true}
+  - {name: start_date, type: date, required: true}
+  - {name: channels, type: list, default: [Instagram, TikTok]}
+blocks:
+  md: |
+    ## Tujuan
+    Meningkatkan awareness {{ brand }} di {{ channels|join(", ") }}.
+    ## Pilar Konten
+    | Pilar | Porsi | Contoh |
+    |---|---|---|
+    | Edukasi | 40% | Tips praktis |
+    | Inspirasi | 30% | Cerita pelanggan |
+    | Promosi | 30% | Penawaran produk |
+    ## Checklist
+    - [ ] Brief kreatif disetujui
+subtasks:
+  - {client_ref: week-1, title: "Minggu 1 — {{ brand }}", offset_days: 0, duration_days: 5, tags: [content], md: "## Ide konten\n- Edukasi produk"}
+  - {client_ref: week-2, title: "Minggu 2 — {{ brand }}", offset_days: 7, duration_days: 5, tags: [content]}
+  - {client_ref: week-3, title: "Minggu 3 — {{ brand }}", offset_days: 14, duration_days: 5, tags: [content]}

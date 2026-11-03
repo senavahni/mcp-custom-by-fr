@@ -1,0 +1,20 @@
+key: social_listening_report
+name: Laporan Social Listening
+category: social_listening
+description: Ringkasan percakapan, tema, sentimen, dan tindak lanjut.
+variables:
+  - {name: brand, type: string, required: true}
+  - {name: period, type: string, required: true}
+blocks:
+  md: |
+    ## Ringkasan
+    Percakapan {{ brand }} selama {{ period }}.
+    ## Tema Percakapan
+    | Tema | Volume | Contoh |
+    |---|---:|---|
+    | Produk | - | - |
+    ## Sentimen
+    - Positif, netral, dan negatif dengan konteks
+    ## Tindak Lanjut
+    - [ ] Pemilik respons ditetapkan
+subtasks: []

@@ -1,0 +1,21 @@
+key: campaign_brief
+name: Brief Kampanye
+category: campaign
+description: Menyusun tujuan, audiens, pesan, kanal, dan ukuran keberhasilan kampanye.
+variables:
+  - {name: brand, type: string, required: true}
+  - {name: objective, type: string, required: true}
+  - {name: audience, type: string, required: true}
+blocks:
+  md: |
+    ## Tujuan
+    {{ objective }}
+    ## Audiens
+    {{ audience }}
+    ## Pesan Utama
+    - Pesan yang relevan dengan {{ brand }}
+    ## Kanal
+    - Kanal utama dan peran masing-masing
+    ## Ukuran Keberhasilan
+    - [ ] KPI dan target disepakati
+subtasks: []

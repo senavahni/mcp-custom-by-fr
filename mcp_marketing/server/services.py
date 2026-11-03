@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from mcp_marketing.services.agent.runtime import AgentRuntime
     from mcp_marketing.services.dashboard.agent_api import AgentApiClient
     from mcp_marketing.services.dashboard.outbox import Outbox
+    from mcp_marketing.services.dashboard.service_api import DashboardServiceApi
     from mcp_marketing.services.llm.gateway_client import GatewayClient
     from mcp_marketing.worker.queue import JobQueue
 
@@ -31,6 +32,7 @@ class Services:
     budgets: BudgetManager
     llm: GatewayClient | None = None
     agent_api: AgentApiClient | None = None
+    service_api: DashboardServiceApi | None = None
     outbox: Outbox | None = None
     jobs: JobQueue | None = None
     runtime: AgentRuntime | None = None

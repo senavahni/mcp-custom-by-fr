@@ -81,6 +81,7 @@ class Outbox:
         task_id: str | None = None,
         allow_inactive: bool = False,
         event_id: str | None = None,
+        use_run_task_id: bool = True,
     ) -> EmittedEvent:
         try:
             clean = validate_event_data(event_type, data)
@@ -111,7 +112,9 @@ class Outbox:
             )
             event_id = event_id or str(uuid.uuid4())
             target_task = (
-                task_id if task_id is not None else (str(run.task_id) if run.task_id else None)
+                task_id
+                if task_id is not None or not use_run_task_id
+                else (str(run.task_id) if run.task_id else None)
             )
             payload = {
                 "contract_version": self.settings.dashboard.contract_version,
@@ -145,6 +148,7 @@ class Outbox:
         *,
         task_id: str | None = None,
         timeout_s: float = 30.0,
+        use_run_task_id: bool = True,
     ) -> dict[str, Any]:
         """Emit lalu tunggu respons Dashboard (`result` untuk peta subtask/conflict blok)."""
         event_id = str(uuid.uuid4())
@@ -152,7 +156,14 @@ class Outbox:
         future: asyncio.Future[dict[str, Any]] = asyncio.get_running_loop().create_future()
         self._waiters[event_id] = future
         try:
-            await self.emit(run_id, event_type, data, task_id=task_id, event_id=event_id)
+            await self.emit(
+                run_id,
+                event_type,
+                data,
+                task_id=task_id,
+                event_id=event_id,
+                use_run_task_id=use_run_task_id,
+            )
             return await asyncio.wait_for(asyncio.shield(future), timeout=timeout_s)
         except TimeoutError:
             raise UpstreamTimeout(

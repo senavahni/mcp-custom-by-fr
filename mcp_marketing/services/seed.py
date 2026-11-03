@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from mcp_marketing.models import AgentProfile, ApiClient, Schedule
 from mcp_marketing.services.agent.profiles import DEFAULT_PROFILES
 from mcp_marketing.services.clients import SYSTEM_DASHBOARD, SYSTEM_KEY_HASH, SYSTEM_KEY_PREFIX
+from mcp_marketing.services.templates.library import seed_templates
 
 DEFAULT_SCHEDULES: tuple[dict[str, Any], ...] = (
     {"name": "cache_cleanup", "cron": "0 * * * *", "job_kind": "cache_cleanup"},
@@ -24,7 +25,7 @@ DEFAULT_SCHEDULES: tuple[dict[str, Any], ...] = (
 
 
 async def seed(session: AsyncSession, *, force: bool = False) -> dict[str, int]:
-    counts = {"agent_profiles": 0, "clients": 0, "schedules": 0}
+    counts = {"agent_profiles": 0, "clients": 0, "schedules": 0, "templates": 0}
     for p in DEFAULT_PROFILES:
         values = {
             "agent_key": p.agent_key,
@@ -64,4 +65,5 @@ async def seed(session: AsyncSession, *, force: bool = False) -> dict[str, int]:
     for s in DEFAULT_SCHEDULES:
         sched = insert(Schedule).values(**s).on_conflict_do_nothing(index_elements=["name"])
         counts["schedules"] += (await session.execute(sched)).rowcount or 0  # type: ignore[attr-defined]
+    counts["templates"] = await seed_templates(session)
     return counts

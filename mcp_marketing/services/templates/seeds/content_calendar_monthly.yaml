@@ -1,0 +1,21 @@
+key: content_calendar_monthly
+name: Kalender Konten Bulanan
+category: content_calendar
+description: Rencana editorial bulanan dengan tema dan kanal pilihan.
+variables:
+  - {name: brand, type: string, required: true}
+  - {name: month, type: string, required: true}
+  - {name: channels, type: list, default: [Instagram, TikTok]}
+blocks:
+  md: |
+    ## Tema Bulan {{ month }}
+    Cerita utama {{ brand }} untuk bulan ini.
+    ## Kanal
+    {{ channels|join(", ") }}
+    ## Evaluasi
+    - [ ] Performa konten ditinjau
+subtasks:
+  - {client_ref: week-1, title: "Pekan 1 — {{ month }}", offset_days: 0, duration_days: 5}
+  - {client_ref: week-2, title: "Pekan 2 — {{ month }}", offset_days: 7, duration_days: 5}
+  - {client_ref: week-3, title: "Pekan 3 — {{ month }}", offset_days: 14, duration_days: 5}
+  - {client_ref: week-4, title: "Pekan 4 — {{ month }}", offset_days: 21, duration_days: 5}

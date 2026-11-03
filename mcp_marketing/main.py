@@ -21,6 +21,7 @@ from mcp_marketing.services.agent.budget_store import db_budget_manager
 from mcp_marketing.services.agent.runtime import AgentRuntime
 from mcp_marketing.services.dashboard.agent_api import AgentApiClient
 from mcp_marketing.services.dashboard.outbox import Outbox
+from mcp_marketing.services.dashboard.service_api import DashboardServiceApi
 from mcp_marketing.services.llm.gateway_client import GatewayClient
 from mcp_marketing.services.results.cache import ResultCache
 from mcp_marketing.services.results.result_store import ResultStore
@@ -48,6 +49,7 @@ def build_services(settings: Settings) -> Services:
     )
     services.llm = GatewayClient(settings, db=db, cache=cache)
     services.agent_api = AgentApiClient(settings, http)
+    services.service_api = DashboardServiceApi(settings, http)
     services.outbox = Outbox(db, http, settings)
     services.jobs = JobQueue(db, default_timeout_s=settings.worker.job_default_timeout_s)
     return services

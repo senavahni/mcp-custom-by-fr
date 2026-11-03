@@ -1,0 +1,21 @@
+key: market_research_plan
+name: Rencana Riset Pasar
+category: market_research
+description: Kerangka riset pasar berbasis pertanyaan dan sumber data.
+variables:
+  - {name: market, type: string, required: true}
+  - {name: question, type: string, required: true}
+blocks:
+  md: |
+    ## Pertanyaan Riset
+    {{ question }}
+    ## Cakupan Pasar
+    {{ market }}
+    ## Metode
+    - Data sekunder dan wawancara terarah
+    ## Temuan
+    - [ ] Bukti dan sumber dicatat
+subtasks:
+  - {client_ref: desk, title: "Riset sekunder: {{ market }}", offset_days: 0, duration_days: 3}
+  - {client_ref: interviews, title: "Wawancara: {{ market }}", offset_days: 3, duration_days: 3, depends_on: [desk]}
+  - {client_ref: synthesis, title: "Sintesis temuan: {{ market }}", offset_days: 7, duration_days: 2, depends_on: [interviews]}

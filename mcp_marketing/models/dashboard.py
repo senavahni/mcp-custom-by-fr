@@ -70,8 +70,10 @@ class Project(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     workspace_id: Mapped[uuid.UUID]
     title: Mapped[str] = mapped_column(String(200))
+    icon: Mapped[str | None] = mapped_column(String(16))
     description: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime]
+    updated_at: Mapped[datetime]
     deleted_at: Mapped[datetime | None]
 
 
@@ -87,6 +89,8 @@ class Task(Base):
     status: Mapped[str] = mapped_column(String(16))
     priority: Mapped[str] = mapped_column(String(16))
     assignee_type: Mapped[str | None] = mapped_column(String(16))
+    assignee_user_id: Mapped[uuid.UUID | None]
+    assignee_agent_id: Mapped[uuid.UUID | None]
     start_date: Mapped[date | None]
     end_date: Mapped[date | None]
     is_milestone: Mapped[bool]

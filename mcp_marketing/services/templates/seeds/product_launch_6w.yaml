@@ -1,0 +1,20 @@
+key: product_launch_6w
+name: Peluncuran Produk 6 Minggu
+category: launch
+description: Tahapan persiapan, teaser, peluncuran, dan evaluasi produk.
+variables:
+  - {name: product, type: string, required: true}
+  - {name: launch_date, type: date, required: true}
+  - {name: audience, type: string, required: true}
+blocks:
+  md: |
+    ## Produk
+    {{ product }} untuk {{ audience }}.
+    ## Metrik
+    - [ ] Target awareness
+    - [ ] Target konversi
+subtasks:
+  - {client_ref: prep, title: "Persiapan {{ product }}", offset_days: 0, duration_days: 5}
+  - {client_ref: teaser, title: "Teaser {{ product }}", offset_days: 7, duration_days: 5}
+  - {client_ref: launch, title: "Peluncuran {{ product }}", offset_days: 28, duration_days: 5}
+  - {client_ref: review, title: "Evaluasi {{ product }}", offset_days: 35, duration_days: 5}

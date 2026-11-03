@@ -2,7 +2,7 @@
 
 Katalog tool, kontrak input/output, aturan hemat token, dan integrasi dengan Dashboard & LLM Gateway.
 
-- **Server name:** `mcp-marketing` · **Spec version dokumen:** `1.0`
+- **Server name:** `mcp-marketing` · **Spec version dokumen:** `1.1`
 - **Dashboard contract:** `1.0` (tool `pm_*`, webhook, Agent API) + `1.1` (Service API, TASK-11 — aditif)
 - Semua schema di bawah adalah ringkasan; sumber kebenaran = model Pydantic di `mcp_marketing/schemas/` (di-export ke `docs/schemas/*.json` oleh `manage.py export-schemas`).
 
@@ -158,26 +158,26 @@ Blok mengikuti `BLOCK_SCHEMAS` Dashboard (`paragraph, heading{level 1–3}, bull
 
 | Tool | Input | Output |
 |---|---|---|
-| `tpl_list` | `category?` (`campaign`, `content_calendar`, `market_research`, `launch`, `social_listening`, `report`, `custom`) | `{cols:[key,name,category,blocks,subtasks,variables], rows}` |
-| `tpl_get` | `template_key, format: outline\|full` | `outline` = daftar heading + subtask (hemat token); `full` = blok JSON |
+| `tpl_list` | `category?` (`campaign`, `content_calendar`, `market_research`, `launch`, `social_listening`, `competitor`, `report`, `custom`) | `{cols:[key,name,category,origin,version], rows}` |
+| `tpl_get` | `template_key, format: outline\|full` | `outline` = daftar heading + subtask (hemat token); `full` = Markdown + metadata subtask |
 | `tpl_render` | `template_key, variables{}, target{type: project_brief\|task\|new_task, project_id, task_id?, parent_task_id?}, mode: preview\|apply, run_id?` | `preview`: outline hasil render + validasi; `apply`: `{blocks_applied, subtasks_created:[{client_ref,id}], target_url}` |
 | `tpl_generate` | `brief (≤ 4.000 char), kind, target?, mode: preview\|apply\|save, language?` | Template baru tervalidasi (LLM `smart`, JSON mode) → preview outline / apply / simpan sebagai `custom` |
-| `tpl_save` | `template{key,name,category,variables,blocks,subtasks}` | `{key, version}` |
+| `tpl_save` | `template{key,name,category,variables,blocks:{md},subtasks}` | `{key, version}` |
 
-Penulisan: dalam run → webhook `agent.block.appended` + `agent.subtask.created`; di luar run → Service API (TASK-11). Validasi blok dilakukan **sebelum** kirim dengan validator Python yang setara Zod Dashboard (TASK-12).
+Penulisan: dalam run → webhook `agent.block.appended` + `agent.subtask.created`; di luar run → Service API (TASK-11). Task baru dalam run hanya boleh berada di bawah task run/turunannya; pembuatan task root dari target Project Brief hanya tersedia di luar run. Run level project boleh mengubah blok Project Brief, tetapi tidak membuat task root. Validasi blok dilakukan **sebelum** kirim dengan validator Python yang setara Zod Dashboard (TASK-12).
 
 ### 4.4 Toolset `task` — Task & Subtask
 
 | Tool | Input | Output | Jalur tulis |
 |---|---|---|---|
-| `task_list` | `project_id, status?[], assignee?, tag?, parent_task_id?, due_before?, fields?, limit, cursor` | `{cols:[id,title,status,priority,start,end,depth,assignee], rows}` | Baca: DB read-only |
+| `task_list` | `project_id, status?[], assignee?, tag?, parent_task_id?, due_before?, fields?, limit≤20, cursor` | `{cols:[id,title,status,priority,start,end,depth,assignee], rows, total, next_cursor}` | Baca: DB read-only |
 | `task_get` | `task_id, include?[blocks_outline, blocks_full, subtasks, comments]` | Snapshot + outline blok (heading + 120 char/blok) | Baca |
-| `task_create` | `project_id, title, parent_task_id?, priority?, start_date?, end_date?, tags?, is_milestone?, initial_blocks?` | `{id, url}` | Run: `agent.subtask.created` (hanya di bawah task run); luar run: Service API |
+| `task_create` | `project_id, parent_task_id?, tasks[{title,priority?,start_date?,end_date?,tags?,is_milestone?,initial_blocks?}]≤20` | `{created:[{client_ref,id}]}` | Run: hanya di bawah task run/turunannya via `agent.subtask.created`; luar run: Service API |
 | `task_update` | `task_id, patch{title?, status?, priority?, start_date?, end_date?, tags?, is_milestone?}` | `{id, updated_fields}` | Service API (assignee **tidak** bisa diubah) |
-| `task_move` | `task_id, new_parent_task_id?, before_task_id?` | `{id, depth}` | Service API (cek kedalaman ≤ 3) |
+| `task_move` | `task_id, new_parent_task_id?, before_task_id?` | `{id, depth}` | Service API (cek kedalaman ≤ 3; dalam run task tujuan dan `before_task_id` harus berada dalam cakupan; task turunan tidak boleh dilepas ke root) |
 | `task_reschedule` | `task_id, start_date, end_date, cascade: bool` | `{updated:[{id,start,end}]}` | Service API |
-| `task_comment` | `task_id\|project_id, content ≤ 10.000, parent_comment_id?, mentions?` | `{comment_id}` | Run: `agent.comment.added`; luar run: Service API |
-| `task_breakdown` | `task_id, max_subtasks≤20, granularity: day\|deliverable, mode: preview\|apply` | Preview daftar subtask (judul, tanggal, durasi) → apply membuat subtask | LLM `fast`→`smart` bila > 8 subtask |
+| `task_comment` | `task_id\|project_id, content ≤ 10.000, parent_comment_id?, mentions?` | `{comment_id}` | Run task-scoped: hanya task dalam cakupan; run project-level: komentar pada project run dengan `task_id: null`; luar run: Service API |
+| `task_breakdown` | `task_id, max_subtasks≤20, granularity: day\|deliverable, mode: preview\|apply` | Preview daftar subtask (judul, tanggal, durasi) → apply membuat subtask | LLM `fast` untuk ≤ 8; `smart` untuk > 8 |
 
 ### 4.5 Toolset `web` — Selenium Scraping
 
@@ -264,7 +264,7 @@ Pipeline analisis selalu: **kumpulkan (job) → hitung (Python) → sampel (T5) 
 
 Batas yang dipatuhi MCP: ≤ 50 operasi blok/event, ≤ 20 subtask/event, kedalaman ≤ 3, body ≤ 1 MB, komentar ≤ 10.000 karakter, `content_json` ≤ 64 KB/blok, satu webhook in-flight per run.
 
-### 5.1 Service API (contract 1.1, diusulkan — TASK-11)
+### 5.1 Service API (contract 1.1, TASK-11)
 Header `Authorization: Bearer <MCP_SERVICE_TOKEN>` + `X-MCP-Agent-Id: <agent uuid>` (aktor). Akses dibatasi workspace agent tersebut.
 
 | Endpoint | Fungsi |

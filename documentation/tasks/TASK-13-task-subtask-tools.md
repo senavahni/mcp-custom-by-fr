@@ -36,18 +36,22 @@ Agent dan klien dapat membaca dan mengatur task/subtask Dashboard (status, prior
 4. `preview` → tabel subtask + total durasi; `apply` → `task_create` batch (≤ 20) + checklist sebagai `initial_blocks`.
 
 ## Checklist Implementasi
-- [ ] Query baca + konversi blok → markdown (`blocks_to_md.py`).
-- [ ] 8 tool + validasi lokal + pemilihan jalur tulis.
-- [ ] Penjadwal hari kerja & dependensi (`services/tasks/scheduler.py`).
-- [ ] Prompt `breakdown.v1`.
-- [ ] Batas workspace untuk klien eksternal (`api_clients.workspace_id`).
+- [x] Query baca + konversi blok → markdown (`blocks_to_md.py`).
+- [x] 8 tool + validasi lokal + pemilihan jalur tulis.
+- [x] Penjadwal hari kerja & dependensi (`services/tasks/scheduler.py`).
+- [x] Prompt `breakdown.v1`.
+- [x] Batas workspace untuk klien eksternal (`api_clients.workspace_id`).
 
 ## Pengujian
 - `task_list` 1.000 task → p95 < 200 ms; output ≤ 1.500 token (20 baris).
 - Jalur tulis: dalam run memakai webhook untuk create/comment, Service API untuk update (mock), luar run Service API.
 - `task_update` pada task di luar run → `FORBIDDEN` bila dipanggil dari agent run.
 - Penjadwal: dependensi siklik → `VALIDATION_ERROR`; 5 subtask 2 hari mulai Kamis → tanggal benar melompati akhir pekan.
-- Contract (Dashboard lokal): UC-07 lengkap.
+- Contract/live UC-07 terhadap Dashboard lokal belum dijalankan; lingkungan Dashboard/Redis tidak tersedia.
+
+### Hasil verifikasi terakhir
+- MCP: 239 test lulus, 79 dilewati; coverage `tools/task.py` 88%; Ruff dan mypy modul terkait lulus.
+- Pembatasan workspace/run dan jalur tools diuji pada unit tests. E2E UC-07 di Timeline Dashboard dan review akhir masih menunggu.
 
 ## Acceptance Criteria
 1. UC-07 berjalan dari Claude Desktop: list → breakdown preview → apply → reschedule cascade, semua tampil di Timeline Dashboard.
@@ -56,5 +60,5 @@ Agent dan klien dapat membaca dan mengatur task/subtask Dashboard (status, prior
 
 ## Definition of Done
 - [ ] Checklist & Acceptance Criteria terpenuhi; coverage ≥ 85%.
-- [ ] MCP_SPEC §4.4 sesuai implementasi.
+- [x] MCP_SPEC §4.4 sesuai implementasi.
 - [ ] Review disetujui.

@@ -61,12 +61,12 @@ subtasks:
 - Input `tpl_generate` ke LLM: brief (≤ 4.000 char) + daftar tipe blok yang didukung (1 baris) + contoh outline singkat 1 template kategori sama (≤ 300 token).
 
 ## Checklist Implementasi
-- [ ] Format YAML + loader seed + 8 template.
-- [ ] Renderer sandboxed + perhitungan tanggal hari kerja.
-- [ ] `md_to_blocks` lengkap + validator.
-- [ ] 5 tool + jalur tulis run/non-run + chunking.
-- [ ] Prompt `tpl_generate.v1` + repair.
-- [ ] Outline cache.
+- [x] Format YAML + loader seed + 8 template.
+- [x] Renderer sandboxed + perhitungan tanggal hari kerja.
+- [x] `md_to_blocks` lengkap + validator.
+- [x] 5 tool + jalur tulis run/non-run + chunking.
+- [x] Prompt `tpl_generate.v1` + repair.
+- [x] Outline cache.
 
 ## Pengujian
 - Semua template seed: render dengan variabel contoh → 100% blok lolos validator; dan (contract) diterima Dashboard.
@@ -74,6 +74,10 @@ subtasks:
 - Sandbox: `{{ ''.__class__ }}` → error, bukan eksekusi.
 - Kedalaman: apply template 2 level ke task depth 2 → `HIERARCHY_DEPTH_EXCEEDED` sebelum menulis apa pun.
 - Live: `tpl_generate` untuk 5 brief berbeda → semua valid ≤ 2 repair; catat token.
+
+### Hasil verifikasi terakhir
+- MCP: 239 test lulus, 79 dilewati; coverage `services/templates/` 93,75% secara keseluruhan (library 99%, parser Markdown 98%, renderer 83%); Ruff dan mypy modul terkait lulus.
+- Contract/live UC-01 dan UC-06 serta review konten template seed oleh tim Marketing belum dilakukan.
 
 ## Acceptance Criteria
 1. `tpl_render(content_calendar_3w, …, target=task, mode=apply)` dalam run menghasilkan dokumen + 3 subtask yang tampil benar di Dashboard (UC-01).
@@ -83,5 +87,5 @@ subtasks:
 
 ## Definition of Done
 - [ ] Checklist & Acceptance Criteria terpenuhi; coverage `services/templates/` ≥ 90%.
-- [ ] Katalog template terdokumentasi di `docs/templates.md` (variabel, outline, contoh).
+- [x] Katalog template terdokumentasi di `docs/templates.md` (variabel, outline, contoh).
 - [ ] Review oleh perwakilan tim Marketing untuk isi template seed.

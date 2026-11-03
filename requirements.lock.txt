@@ -24,6 +24,7 @@ httpx2==2.16.0
 idna==3.20
 iniconfig==2.3.1
 jiter==0.18.0
+Jinja2==3.1.6
 jsonschema==4.26.0
 jsonschema-specifications==2025.9.1
 librt==0.16.0

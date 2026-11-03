@@ -1,0 +1,21 @@
+key: monthly_marketing_report
+name: Laporan Pemasaran Bulanan
+category: report
+description: Laporan KPI, pembelajaran, risiko, dan rekomendasi pemasaran.
+variables:
+  - {name: brand, type: string, required: true}
+  - {name: month, type: string, required: true}
+blocks:
+  md: |
+    ## Ringkasan {{ month }}
+    Kinerja pemasaran {{ brand }}.
+    ## KPI
+    | Metrik | Target | Aktual |
+    |---|---:|---:|
+    | Jangkauan | - | - |
+    | Konversi | - | - |
+    ## Pembelajaran
+    - Hasil dan penyebab yang terverifikasi
+    ## Rekomendasi
+    - [ ] Tindak lanjut memiliki pemilik
+subtasks: []

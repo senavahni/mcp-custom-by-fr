@@ -1,0 +1,23 @@
+key: competitor_analysis
+name: Analisis Kompetitor
+category: competitor
+description: Perbandingan posisi, pesan, kanal, dan peluang kompetitor.
+variables:
+  - {name: brand, type: string, required: true}
+  - {name: competitors, type: list, required: true}
+blocks:
+  md: |
+    ## Merek
+    {{ brand }}
+    ## Kompetitor
+    {{ competitors|join(", ") }}
+    ## Perbandingan
+    | Aspek | Merek | Kompetitor |
+    |---|---|---|
+    | Proposisi nilai | - | - |
+    | Kanal | - | - |
+    ## Peluang
+    - [ ] Hipotesis divalidasi dengan bukti
+subtasks:
+  - {client_ref: collect, title: "Kumpulkan data kompetitor {{ brand }}", offset_days: 0, duration_days: 3}
+  - {client_ref: compare, title: "Bandingkan posisi {{ brand }}", offset_days: 3, duration_days: 2, depends_on: [collect]}

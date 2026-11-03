@@ -14,7 +14,6 @@ from mcp_marketing.schemas.blocks import (
     MAX_TABLE_COLS,
     MAX_TABLE_ROWS,
     BlockValidationError,
-    extract_plain_text,
     is_safe_url,
     validate_block_content,
 )
@@ -28,6 +27,7 @@ _QUOTE = re.compile(r"^\s*>\s?(.*)$")
 _FENCE = re.compile(r"^\s*(```|~~~)\s*([A-Za-z0-9+#._-]*)\s*$")
 _DIVIDER = re.compile(r"^\s*(-{3,}|\*{3,}|_{3,})\s*$")
 _IMAGE = re.compile(r"^\s*!\[([^\]]*)\]\(([^)\s]+)\)\s*$")
+_BOOKMARK = re.compile(r"^\s*\[([^\]]+)\]\(([^)\s]+)\)\s*$")
 _TABLE_ROW = re.compile(r"^\s*\|.*\|\s*$")
 _TABLE_SEP = re.compile(r"^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$")
 _INLINE = re.compile(
@@ -115,7 +115,9 @@ def _cells(line: str) -> list[str]:
 
 
 def _table_blocks(header: list[str], rows: list[list[str]]) -> list[dict[str, Any]]:
-    width = min(MAX_TABLE_COLS, max(len(header), *(len(r) for r in rows)) if rows else len(header))
+    width = max(len(header), *(len(r) for r in rows)) if rows else len(header)
+    if width > MAX_TABLE_COLS:
+        raise ValueError(f"Tabel melebihi batas {MAX_TABLE_COLS} kolom")
 
     def row(cells: list[str]) -> dict[str, Any]:
         padded = (cells + [""] * width)[:width]
@@ -198,6 +200,19 @@ def markdown_to_blocks(markdown: str) -> list[dict[str, Any]]:
             )
             i += 1
             continue
+        bookmark = _BOOKMARK.match(line)
+        if bookmark and is_safe_url(bookmark.group(2), True):
+            flush_paragraph()
+            blocks.append(
+                _block(
+                    "bookmark",
+                    None,
+                    url=bookmark.group(2),
+                    title=bookmark.group(1)[:300],
+                )
+            )
+            i += 1
+            continue
         check = _CHECK.match(line)
         if check:
             flush_paragraph()
@@ -237,23 +252,14 @@ def markdown_to_blocks(markdown: str) -> list[dict[str, Any]]:
         paragraph.append(line)
         i += 1
     flush_paragraph()
-    return [_validated(b) for b in blocks]
+    return [_validated(b, index) for index, b in enumerate(blocks)]
 
 
-def _validated(block: dict[str, Any]) -> dict[str, Any]:
+def _validated(block: dict[str, Any], index: int) -> dict[str, Any]:
     props = {k: v for k, v in block["content_json"].get("props", {}).items() if v is not None}
     raw = {**block["content_json"], "props": props}
     try:
         cleaned = validate_block_content(block["block_type"], raw)
-    except BlockValidationError:
-        # fallback aman: tampilkan sebagai paragraf teks polos
-        text = _plain(block)
-        cleaned = validate_block_content(
-            "paragraph", {"content": [_text(text[:MAX_TEXT_PER_BLOCK], {})]}
-        )
-        return {"block_type": "paragraph", "content_json": cleaned}
+    except BlockValidationError as exc:
+        raise ValueError(f"blok {index}: {exc}") from None
     return {"block_type": block["block_type"], "content_json": cleaned}
-
-
-def _plain(block: dict[str, Any]) -> str:
-    return extract_plain_text(block["block_type"], block["content_json"])

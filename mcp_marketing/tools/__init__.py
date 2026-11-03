@@ -8,6 +8,8 @@ TOOL_MODULES = (
     "job",
     "pm",
     "pm_agent",
+    "tpl",
+    "task",
 )
 
 
