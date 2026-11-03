@@ -1,0 +1,30 @@
+{"q": "Berapa target penjualan cup varian baru?", "doc": "kopi", "expect": "40.000 cup"}
+{"q": "Dari mana asal aren organik yang dipakai?", "doc": "kopi", "expect": "Banten"}
+{"q": "Siapa calon pembeli utama minuman ini dan di mana mereka berada?", "doc": "kopi", "expect": "Sudirman"}
+{"q": "Promo apa yang dijalankan setiap Jumat?", "doc": "kopi", "expect": "beli dua gratis satu"}
+{"q": "Bagaimana pembagian budget untuk influencer dan iklan?", "doc": "kopi", "expect": "45 persen kreator"}
+{"q": "Apa rencana cadangan bila pasokan bahan utama kurang saat hujan?", "doc": "kopi", "expect": "Lampung"}
+{"q": "Berapa banyak creator yang diajak bekerja sama untuk video pendek?", "doc": "kopi", "expect": "sepuluh kreator"}
+{"q": "Berapa harga termurah kopi yang ditawarkan?", "doc": "kopi", "expect": "18 ribu"}
+{"q": "Kenaikan permintaan di aplikasi delivery berapa persen?", "doc": "kopi", "expect": "18 persen"}
+{"q": "Target follower Instagram akhir kampanye?", "doc": "kopi", "expect": "40 ribu"}
+{"q": "Masalah apa yang sering dikeluhkan pembeli tentang botol serum?", "doc": "skincare", "expect": "bocor"}
+{"q": "Berapa unit serum yang ingin dijual saat 11.11?", "doc": "skincare", "expect": "15.000 unit"}
+{"q": "Untuk jenis kulit apa produk ini ditujukan?", "doc": "skincare", "expect": "berminyak"}
+{"q": "Kota mana saja yang jadi sasaran utama?", "doc": "skincare", "expect": "Makassar"}
+{"q": "Kandungan aktif apa saja di dalam serum?", "doc": "skincare", "expect": "zinc"}
+{"q": "Jam berapa sesi jualan langsung diadakan?", "doc": "skincare", "expect": "pukul delapan"}
+{"q": "Siapa yang dilibatkan untuk konten edukasi?", "doc": "skincare", "expect": "dokter kulit"}
+{"q": "Apa izin dan sertifikasi yang sudah dimiliki?", "doc": "skincare", "expect": "BPOM"}
+{"q": "Berapa total dana kampanye serum?", "doc": "skincare", "expect": "120 juta"}
+{"q": "Bagaimana solusi untuk mencegah ulasan buruk soal kemasan?", "doc": "skincare", "expect": "botol pump"}
+{"q": "Di daerah mana cabang baru gym dibuka?", "doc": "gym", "expect": "Dago"}
+{"q": "Berapa persen member lama yang memperpanjang langganan?", "doc": "gym", "expect": "62 persen"}
+{"q": "Berapa jumlah anggota baru yang ditargetkan sebelum buka?", "doc": "gym", "expect": "800 member"}
+{"q": "Berapa maksimal peserta per kelas?", "doc": "gym", "expect": "delapan orang"}
+{"q": "Bagaimana cara gym mengatasi antrean alat?", "doc": "gym", "expect": "aplikasi pemesanan alat"}
+{"q": "Berapa harga early bird per bulan?", "doc": "gym", "expect": "199 ribu"}
+{"q": "Seberapa jauh jangkauan iklan berbasis lokasi?", "doc": "gym", "expect": "tiga kilometer"}
+{"q": "Kapan target audiens biasanya ingin berolahraga?", "doc": "gym", "expect": "pagi"}
+{"q": "Apa risiko utama terhadap jadwal pembukaan?", "doc": "gym", "expect": "renovasi"}
+{"q": "Berapa anggaran promosi pembukaan gym?", "doc": "gym", "expect": "60 juta"}

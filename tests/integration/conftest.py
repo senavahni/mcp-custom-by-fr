@@ -175,16 +175,9 @@ def alembic_config(url: str) -> Config:
     return cfg
 
 
-async def vector_available() -> bool:
-    conn = await asyncpg.connect(admin_test_url())
-    try:
-        return bool(await conn.fetchval("SELECT 1 FROM pg_extension WHERE extname = 'vector'"))
-    finally:
-        await conn.close()
-
-
 async def migrate_target() -> str:
-    return "head" if await vector_available() else "0001_init"
+    # 0002 berjalan juga tanpa pgvector (mode cadangan real[])
+    return "head"
 
 
 @pytest_asyncio.fixture(scope="session")

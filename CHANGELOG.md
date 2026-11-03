@@ -1,5 +1,57 @@
 # Changelog
 
+## 0.4.0-dev — 2026-11-03
+
+### TASK-18 — Tools CRUD database (`db_*`)
+- Registry entitas whitelist (`services/db/entities.py`, 14 entitas sesuai DATABASE §5) + model tulis
+  Pydantic (`competitors`, `watchlists`, `kb_collections`).
+- Query builder aman (`services/db/query.py`): filter terstruktur 12 operator dengan parameter binding dan
+  cek tipe, proyeksi field whitelist, cursor keyset, pembatasan workspace (run/klien), soft delete,
+  `statement_timeout 5s`, hitung maks 10.000 baris.
+- CRUD (`services/db/write.py`): validasi per entitas, optimistic locking `expected_updated_at` →
+  `CONFLICT` + `updated_at` terkini, soft delete default, hard delete khusus admin, entitas inti
+  Dashboard ditolak dengan petunjuk tool (`task_create`/`task_update`/`tpl_render`).
+- `db_sql_readonly` (toolset `db_admin`, admin): validasi `sqlglot` (satu SELECT/UNION, tanpa DML/CTE
+  pengubah data/`FOR UPDATE`/`INTO`, fungsi berbahaya, schema selain `mcp`/`public`, tabel `pg_*`),
+  transaksi `READ ONLY` + timeout 5 s, `LIMIT` dipaksa ≤ 1.000.
+- Tools: `db_entities`, `db_query`, `db_get`, `db_create`, `db_update`, `db_delete`, `db_sql_readonly`.
+- Dependensi baru `sqlglot`. Coverage kini memakai `concurrency = greenlet` (baris setelah `await` pada
+  SQLAlchemy async sebelumnya tidak tercatat).
+
+### TASK-19 — Knowledge base / vector DB (`kb_*`)
+- Chunker markdown-aware (heading → blok → kalimat, breadcrumb, tabel per baris + header diulang,
+  chunk < 30 token digabung), embedder Gateway (`embed-default`) & lokal ONNX (e5-small, prefix
+  `query:`/`passage:`), model dikunci per koleksi.
+- Ingest idempoten (`text`, `url`, `handle` web_pages/social_posts per hari×kata kunci, `report`,
+  `file_text`), sinkron Dashboard inkremental (brief + task, hapus dokumen task terhapus, 0 panggilan
+  embedding bila tidak berubah) + pemicu otomatis saat run dimulai (> 1 jam).
+- Pencarian `vector`/`keyword`/`hybrid` (RRF k=60), filter metadata, gabung chunk berurutan, potong
+  600 karakter di batas kalimat; `pm_query_project_context` menggabungkan Agent API + KB hybrid.
+- Tools: `kb_collections`, `kb_collection_create`, `kb_ingest`, `kb_search`, `kb_delete`,
+  `kb_sync_dashboard`; CLI `download-models`, `kb-reembed`. Panduan:
+  [docs/knowledge-base.md](docs/knowledge-base.md). Set evaluasi `tests/eval/kb/`.
+- **Mode cadangan tanpa pgvector**: `0002_kb_vector` kini berjalan juga tanpa ekstensi (kolom
+  `real[]`, kosinus di aplikasi); `manage.py migrate` mempromosikan ke `vector` + HNSW setelah
+  pgvector dipasang. Cache embedding Gateway dibuat netral tipe (`real[]`).
+- Perbaikan saat eval: mode `keyword` sebelumnya meng-AND semua kata pertanyaan (recall@6 = 0);
+  kini OR kata bermakna tanpa stopword (recall@6 = 0,67 pada set eval).
+- Belum diverifikasi: pgvector/HNSW nyata (p95 50.000 chunk), model ONNX lokal, recall@6 dengan
+  embedding Gateway (target ≥ 0,85, jalankan `KB_EVAL_LIVE=1`).
+- Mode ringan agent (mention/prompt block) kini hanya mendapat tool baca dari toolset `kb`/`pm_agent`.
+
+### TASK-20 — Analisis sentimen (`sentiment_*`)
+- `services/nlp/`: normalisasi + kamus slang ±760 entri + emoji, deteksi bahasa (lingua), model
+  lokal ONNX (batch, process pool), eskalasi LLM `fast` format baris `i|label|skor` dengan parser
+  toleran & retry sekali, aspek (keyword-spotting + LLM), agregasi (distribusi, net, grup, aspek,
+  contoh, perbandingan).
+- Cache `sentiment_results` per teks ternormalisasi + model (analisis ulang = 0 token LLM).
+- Tools `sentiment_analyze` (job; `method=llm` butuh `confirm_cost` setelah estimasi) dan
+  `sentiment_summary` (tanpa LLM, banding handle). Prompt `sentiment_batch.v1`, `aspect_batch.v1`.
+- `download-models --sentiment-repo <repo>` untuk model ONNX sentimen; dependensi runtime
+  `onnxruntime`, `tokenizers`, `huggingface-hub`, `lingua-language-detector` (requirements-ml).
+- **Tertunda**: spike/pemilihan model, set uji 300 teks berlabel, F1 & token per 1.000 teks — lihat
+  [docs/eval/sentiment.md](docs/eval/sentiment.md). Tanpa model, `auto` memakai LLM untuk semua teks.
+
 ## 0.3.0-dev — 2026-11-03
 
 TASK-14 s/d TASK-17 (milestone M3 Data Collection).

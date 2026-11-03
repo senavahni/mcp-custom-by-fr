@@ -57,3 +57,5 @@ disallow_untyped_defs = true
 
 [tool.coverage.run]
 omit = ["tests/*", "migrations/*"]
+# SQLAlchemy async berjalan di greenlet; tanpa ini baris setelah `await session…` tidak tercatat
+concurrency = ["greenlet", "thread"]

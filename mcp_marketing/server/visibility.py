@@ -20,6 +20,7 @@ TOOLSET_DESCRIPTIONS: dict[str, str] = {
     "social": "Crawling X/Twitter & Threads",
     "trends": "Google Trends",
     "db": "CRUD database Dashboard (whitelist)",
+    "db_admin": "SQL read-only bebas (admin)",
     "kb": "Vector DB / knowledge base",
     "analysis": "Sentimen, pasar, campaign, strategi digital",
 }

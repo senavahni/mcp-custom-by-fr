@@ -14,6 +14,8 @@ python scripts/manage.py profile-check riset-x                  # butuh worker b
 python scripts/manage.py profile-list [--all]
 python scripts/manage.py profile-disable <name>
 python scripts/manage.py threads-token-refresh                  # tulis token baru ke .env
+python scripts/manage.py download-models                        # model ONNX lokal (embedding)
+python scripts/manage.py kb-reembed <collection_id>             # koleksi baru, model saat ini
 """
 
 from __future__ import annotations
@@ -49,14 +51,29 @@ def cmd_migrate(args: argparse.Namespace) -> int:
 
     url = get_settings().db.migration_database_url
     target = args.target
-    if target == "head" and not asyncio.run(_vector_installed(url)):
-        print("PERINGATAN: pgvector belum ada -> migrasi sampai 0001_init (lewati 0002_kb_vector)")
-        target = "0001_init"
+    if not asyncio.run(_vector_installed(url)):
+        print(
+            "CATATAN: pgvector belum ada -> KB memakai mode cadangan (embedding real[], tanpa HNSW)"
+        )
     cfg = Config(str(ROOT / "alembic.ini"))
     cfg.attributes["url"] = url
     command.upgrade(cfg, target)
+    if asyncio.run(_promote_vector(url)):
+        print("KB dipromosikan ke pgvector (kolom vector + indeks HNSW)")
     print(f"migrate OK -> {target}")
     return 0
+
+
+async def _promote_vector(url: str) -> bool:
+    from mcp_marketing.services.kb.vector import promote_to_pgvector
+
+    db = Database(url, pool_size=1)
+    try:
+        async with db.engine.begin() as conn:
+            exists = (await conn.execute(text("SELECT to_regclass('mcp.kb_chunks')"))).scalar()
+            return bool(exists) and await promote_to_pgvector(conn)
+    finally:
+        await db.dispose()
 
 
 async def _with_db(fn):  # type: ignore[no-untyped-def]
@@ -357,6 +374,87 @@ def cmd_threads_token_refresh(args: argparse.Namespace) -> int:
     return 0
 
 
+# ------------------------------------------------------------------ model & KB (TASK-19/20)
+def cmd_download_models(args: argparse.Namespace) -> int:
+    from huggingface_hub import hf_hub_download
+
+    from mcp_marketing.services.kb.embedder import LOCAL_FILES, LOCAL_REPO
+
+    nlp = get_settings().nlp
+    if not args.skip_embed:
+        target = nlp.local_embed_model_dir
+        target.mkdir(parents=True, exist_ok=True)
+        for filename in LOCAL_FILES:
+            path = hf_hub_download(repo_id=LOCAL_REPO, filename=filename, local_dir=str(target))
+            print(f"OK {LOCAL_REPO}/{filename} -> {path}")
+        print("Set EMBED_PROVIDER=local untuk koleksi baru (koleksi lama tetap pada modelnya).")
+    if args.sentiment_repo:
+        return _download_sentiment(args.sentiment_repo, nlp.sentiment_model_dir)
+    return 0
+
+
+def _download_sentiment(repo: str, target: Path) -> int:
+    """Model sentimen 3 kelas yang SUDAH diekspor ke ONNX (lihat docs/eval/sentiment.md)."""
+    from huggingface_hub import hf_hub_download
+    from huggingface_hub.errors import EntryNotFoundError
+
+    from mcp_marketing.services.nlp.sentiment_model import MODEL_FILES, model_available
+
+    target.mkdir(parents=True, exist_ok=True)
+    for filename in ("tokenizer.json", "config.json"):
+        hf_hub_download(repo_id=repo, filename=filename, local_dir=str(target))
+    for filename in reversed(MODEL_FILES):  # utamakan versi terkuantisasi
+        try:
+            hf_hub_download(repo_id=repo, filename=filename, local_dir=str(target))
+            break
+        except EntryNotFoundError:
+            continue
+    if not model_available(target):
+        print(f"GAGAL: {repo} tidak berisi model ONNX ({', '.join(MODEL_FILES)})", file=sys.stderr)
+        return 1
+    print(f"OK model sentimen {repo} -> {target}")
+    return 0
+
+
+async def _kb_reembed(collection_id: str) -> tuple[str, int]:
+    from mcp_marketing.main import build_services, close_services
+    from mcp_marketing.models.kb import KbCollection
+    from mcp_marketing.services.kb.embedder import embedder_for
+    from mcp_marketing.services.kb.identity import embed_identity
+    from mcp_marketing.services.kb.store import get_collection, reembed_collection
+    from mcp_marketing.utils.time import now
+
+    settings = get_settings()
+    services = build_services(settings)
+    try:
+        source = await get_collection(services.db, collection_id)
+        model, dim = embed_identity(settings)
+        async with services.db.session() as session:
+            target = KbCollection(
+                name=f"{source.name}@{now():%Y%m%d%H%M}"[:150],
+                description=source.description,
+                workspace_id=source.workspace_id,
+                project_id=source.project_id,
+                embed_model=model,
+                embed_dim=dim,
+            )
+            session.add(target)
+            await session.flush()
+        chunks = await reembed_collection(
+            services.db, source, target, embedder_for(services, model, dim)
+        )
+        return str(target.id), chunks
+    finally:
+        await close_services(services)
+
+
+def cmd_kb_reembed(args: argparse.Namespace) -> int:
+    new_id, chunks = asyncio.run(_kb_reembed(args.collection_id))
+    print(f"Koleksi baru {new_id}: {chunks} chunk di-embed ulang dengan model saat ini.")
+    print("Hapus koleksi lama dengan kb_delete setelah hasil pencarian diverifikasi.")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="CLI MCP Marketing")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -422,6 +520,14 @@ def main(argv: list[str] | None = None) -> int:
     p.set_defaults(fn=cmd_profile_check)
 
     sub.add_parser("threads-token-refresh").set_defaults(fn=cmd_threads_token_refresh)
+
+    p = sub.add_parser("download-models", help="unduh model ONNX lokal")
+    p.add_argument("--sentiment-repo", help="repo HF model sentimen 3 kelas berformat ONNX")
+    p.add_argument("--skip-embed", action="store_true", help="lewati model embedding lokal")
+    p.set_defaults(fn=cmd_download_models)
+    p = sub.add_parser("kb-reembed", help="embed ulang koleksi ke model saat ini")
+    p.add_argument("collection_id")
+    p.set_defaults(fn=cmd_kb_reembed)
 
     args = parser.parse_args(argv)
     return int(args.fn(args))

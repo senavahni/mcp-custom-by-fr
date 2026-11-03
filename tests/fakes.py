@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import asyncio
 import copy
+import hashlib
 import json
+import math
+import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
@@ -180,3 +183,56 @@ class FakeGateway:
 
     def client(self) -> httpx2.AsyncClient:
         return httpx2.AsyncClient(transport=httpx2.MockTransport(self.handler))
+
+
+class HashEmbedder:
+    """Embedder deterministik untuk test KB: bag-of-words di-hash ke `dim` slot, dinormalisasi.
+
+    Teks yang berbagi kata mendapat kosinus tinggi, sehingga pencarian vector bisa diuji tanpa
+    Gateway. `calls` mencatat jumlah teks per panggilan (verifikasi idempotensi).
+    """
+
+    def __init__(self, dim: int = 1536, model: str = "embed-default") -> None:
+        self.dim = dim
+        self.model = model
+        self.calls: list[int] = []
+
+    @property
+    def texts_embedded(self) -> int:
+        return sum(self.calls)
+
+    def vector(self, text: str) -> list[float]:
+        vec = [0.0] * self.dim
+        for word in re.findall(r"\w+", text.lower()):
+            slot = int(hashlib.sha256(word.encode()).hexdigest(), 16) % self.dim
+            vec[slot] += 1.0
+        norm = math.sqrt(sum(v * v for v in vec)) or 1.0
+        return [v / norm for v in vec]
+
+    async def embed(self, texts: list[str], kind: str) -> list[list[float]]:
+        self.calls.append(len(texts))
+        return [self.vector(t) for t in texts]
+
+
+class SentimentLLM:
+    """Menjawab baris sentimen; `drop` = nomor baris yang dihilangkan pada panggilan pertama."""
+
+    def __init__(self, drop: set[int] | None = None) -> None:
+        self.drop = drop or set()
+        self.calls: list[str] = []
+
+    async def chat(self, purpose: str, messages: list[dict[str, Any]], **kw: Any) -> ChatResult:
+        content = messages[0]["content"]
+        self.calls.append(content)
+        out = []
+        for match in re.finditer(r"^(\d+)\|(?:(\w+)\|)?(.*)$", content, re.M):
+            n = int(match.group(1))
+            if n in self.drop and len(self.calls) == 1:
+                continue
+            body = match.group(3)
+            label = "neg" if re.search(r"kecewa|mahal|terlambat|buruk", body) else "pos"
+            if match.group(2):
+                out.append(f"{n}|{match.group(2)}|{label}")
+            else:
+                out.append(f"{n}|{label}|0.88")
+        return ChatResult(content="\n".join(out), prompt_tokens=100, completion_tokens=20)

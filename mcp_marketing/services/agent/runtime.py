@@ -140,7 +140,9 @@ class AgentRuntime:
                 self.services.budgets.forget_run(run_id)
 
     # ------------------------------------------------------------------ persiapan
-    def _tools_for(self, profile: AgentProfile, toolsets: frozenset[str]) -> dict[str, ToolSpec]:
+    def _tools_for(
+        self, profile: AgentProfile, toolsets: frozenset[str], *, read_only: bool = False
+    ) -> dict[str, ToolSpec]:
         deny = set(profile.tool_denylist or [])
         return {
             s.name: s
@@ -149,6 +151,7 @@ class AgentRuntime:
             and s.toolset != "pm"
             and not s.admin_only
             and not s.dev_only
+            and not (read_only and s.writes)
             and s.name not in deny
         }
 
@@ -156,7 +159,8 @@ class AgentRuntime:
         run_input = dict(run.input or {})
         toolsets = frozenset(profile.toolsets or [])
         max_steps, route = profile.max_steps, profile.route
-        if run.trigger in ("mention", "prompt_block") and brief.is_light_request(run_input):
+        light = run.trigger in ("mention", "prompt_block") and brief.is_light_request(run_input)
+        if light:
             toolsets = toolsets & LIGHT_TOOLSETS
             max_steps, route = min(max_steps, LIGHT_MAX_STEPS), "fast"
         identity = ClientIdentity(
@@ -186,7 +190,8 @@ class AgentRuntime:
             run_input=run_input,
             profile=profile,
             identity=identity,
-            allowed=self._tools_for(profile, toolsets),
+            # mode ringan hanya membaca konteks (kb_search dll.), tanpa tool tulis
+            allowed=self._tools_for(profile, toolsets, read_only=light),
             max_steps=max_steps,
             route=route,
             subtask_refs=refs,
@@ -195,6 +200,15 @@ class AgentRuntime:
 
     async def _persist_refs(self, run_id: str, refs: dict[str, str]) -> None:
         await self.registry.update(run_id, subtask_refs=refs)
+
+    async def _schedule_kb_sync(self, run: Run) -> None:
+        """TASK-19: sinkron KB project di latar belakang; kegagalan tidak menghentikan run."""
+        from mcp_marketing.services.kb.sync import maybe_schedule_sync
+
+        try:
+            await maybe_schedule_sync(self.services, run.project_id, run.workspace_id)
+        except Exception as exc:  # noqa: BLE001 - non-blocking
+            log.warning("run.kb_sync_schedule_failed", error=type(exc).__name__)
 
     # ------------------------------------------------------------------ loop
     async def run(self, run_id: str) -> None:
@@ -209,6 +223,7 @@ class AgentRuntime:
         state = await self._build_state(run, profile)
         await self.registry.update(run_id, status="running", started_at=run.started_at or now())
         RUNS_TOTAL.labels(run.trigger, "running").inc()
+        await self._schedule_kb_sync(run)
         outbox = self.services.outbox
         assert outbox is not None, "outbox wajib untuk agent runtime"
         virtual = VirtualTools(outbox, self._persist_refs)

@@ -624,6 +624,12 @@ LIMIT 30;
 
 Semua query entitas Dashboard otomatis difilter `deleted_at IS NULL` dan dibatasi `workspace_id` milik klien (`api_clients.workspace_id`) bila diisi.
 
+Aturan implementasi (TASK-18, `mcp_marketing/services/db/`; test `test_registry_matches_database_md_section_5` menjaga tabel ini sinkron dengan registry):
+- Workspace diambil dari run (bila ada) atau klien. Tanpa workspace: klien admin melihat semua baris; klien biasa ditolak (`FORBIDDEN`) untuk entitas `public` dan hanya melihat baris global (`workspace_id IS NULL`) untuk entitas `mcp`. `tasks`/`blocks`/`comments` dibatasi lewat `project_id` → `projects.workspace_id`.
+- `social_posts` dan `templates` tidak terikat workspace (post publik / template global aktif).
+- Kolom enum Postgres (`task_status`, `task_priority`, …) dibandingkan sebagai teks (`CAST(… AS VARCHAR)`).
+- Entitas tanpa `deleted_at` (`reports`, `kb_collections`) dihapus permanen oleh `db_delete`; `hard=true` pada entitas ber-soft-delete hanya untuk admin.
+
 ## 6. Retensi & Pemeliharaan
 
 | Data | Retensi default | Env |
@@ -643,7 +649,8 @@ Backup memakai backup database Dashboard (schema `mcp` ikut ter-backup). `VACUUM
 
 | Perbedaan | Alasan |
 |---|---|
-| `embedding_cache` & `kb_chunks` (+ indeks HNSW) ada di revisi **`0002_kb_vector`**, bukan `0001_init` | schema inti tetap bisa dipasang di server tanpa pgvector; `manage.py migrate` berhenti di `0001_init` bila ekstensi belum ada |
+| `embedding_cache` & `kb_chunks` (+ indeks HNSW) ada di revisi **`0002_kb_vector`**, bukan `0001_init` | schema inti tetap bisa dipasang di server tanpa pgvector |
+| Tanpa pgvector, `0002` membuat `embedding real[]` tanpa HNSW (mode cadangan, TASK-19); `manage.py migrate` mempromosikan ke `vector` + HNSW setelah ekstensi dipasang. Kode selalu menulis `CAST(:e AS real[])` dan membaca `embedding::real[]` sehingga netral terhadap tipe kolom | KB tetap berfungsi di PostgreSQL lokal tanpa pgvector; lihat `docs/knowledge-base.md` |
 | `mcp.jobs` + kolom `dedupe_key char(64)`, `estimate jsonb`, `message varchar(300)`; indeks `jobs_dedupe_idx`, `jobs_parent_idx` | dedupe job identik, estimasi untuk `JobAccepted`, pesan progres; pencarian turunan untuk cancel berantai |
 | Trigger `jobs_notify_done` → `pg_notify('mcp_job_done', id)` | `job_wait` memakai LISTEN/NOTIFY |
 | Indeks `runs_task_mention_idx (task_id, created_at) WHERE trigger = 'mention'` | batas 10 run mention per task per jam |

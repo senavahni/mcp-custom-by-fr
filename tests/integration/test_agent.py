@@ -470,6 +470,8 @@ async def test_prompt_block_writes_after_prompt_block_in_light_mode(env: AgentEn
     assert first_call["route_override"] == "fast"
     assert set(first_call["tools"]) <= {
         "pm_query_project_context",
+        "kb_collections",
+        "kb_search",
         "report_progress",
         "write_blocks",
         "create_subtasks",

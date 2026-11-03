@@ -481,13 +481,14 @@ class GatewayClient:
             rows = (
                 await session.execute(
                     sql(
-                        "SELECT text_sha256, embedding::text AS e FROM mcp.embedding_cache "
+                        # ::real[] berlaku untuk kolom vector (pgvector) maupun real[] (cadangan)
+                        "SELECT text_sha256, embedding::real[] AS e FROM mcp.embedding_cache "
                         "WHERE model = :m AND text_sha256 = ANY(:h)"
                     ),
                     {"m": model, "h": hashes},
                 )
             ).all()
-        found = {r.text_sha256.strip(): orjson.loads(r.e) for r in rows}
+        found = {r.text_sha256.strip(): [float(x) for x in r.e] for r in rows}
         return [found.get(h) for h in hashes]
 
     async def _embed_cache_put(
@@ -503,13 +504,13 @@ class GatewayClient:
                 await session.execute(
                     sql(
                         "INSERT INTO mcp.embedding_cache (text_sha256, model, dim, embedding) "
-                        "VALUES (:h, :m, :d, CAST(:e AS vector)) ON CONFLICT DO NOTHING"
+                        "VALUES (:h, :m, :d, CAST(:e AS real[])) ON CONFLICT DO NOTHING"
                     ),
                     {
                         "h": sha256_hex(text),
                         "m": model,
                         "d": len(vec),
-                        "e": orjson.dumps(vec).decode(),
+                        "e": [float(x) for x in vec],
                     },
                 )
 

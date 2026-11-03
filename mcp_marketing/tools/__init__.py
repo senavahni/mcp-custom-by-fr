@@ -13,6 +13,9 @@ TOOL_MODULES = (
     "web",
     "social",
     "trends",
+    "db",
+    "kb",
+    "analysis",
 )
 
 
