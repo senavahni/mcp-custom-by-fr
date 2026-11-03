@@ -1,0 +1,10 @@
+{
+  "name": "valid_dispatch",
+  "kind": "output",
+  "schema": "dispatch",
+  "valid": true,
+  "payload": {
+    "accepted": true,
+    "mcp_run_id": "mr_0123456789"
+  }
+}

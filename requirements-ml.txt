@@ -1,0 +1,5 @@
+# Sentimen & embedding lokal (TASK-19/20) — CPU, tanpa PyTorch di runtime.
+onnxruntime>=1.18
+tokenizers>=0.19
+huggingface-hub>=0.24
+lingua-language-detector>=2.0

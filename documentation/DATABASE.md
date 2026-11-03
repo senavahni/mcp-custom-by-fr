@@ -639,6 +639,17 @@ Semua query entitas Dashboard otomatis difilter `deleted_at IS NULL` dan dibatas
 
 Backup memakai backup database Dashboard (schema `mcp` ikut ter-backup). `VACUUM (ANALYZE)` mingguan untuk `kb_chunks` & `social_posts`.
 
+## 6a. Catatan Implementasi (v0.1.0-dev)
+
+| Perbedaan | Alasan |
+|---|---|
+| `embedding_cache` & `kb_chunks` (+ indeks HNSW) ada di revisi **`0002_kb_vector`**, bukan `0001_init` | schema inti tetap bisa dipasang di server tanpa pgvector; `manage.py migrate` berhenti di `0001_init` bila ekstensi belum ada |
+| `mcp.jobs` + kolom `dedupe_key char(64)`, `estimate jsonb`, `message varchar(300)`; indeks `jobs_dedupe_idx`, `jobs_parent_idx` | dedupe job identik, estimasi untuk `JobAccepted`, pesan progres; pencarian turunan untuk cancel berantai |
+| Trigger `jobs_notify_done` → `pg_notify('mcp_job_done', id)` | `job_wait` memakai LISTEN/NOTIFY |
+| Indeks `runs_task_mention_idx (task_id, created_at) WHERE trigger = 'mention'` | batas 10 run mention per task per jam |
+| `run_steps.step` = nomor urut baris per run (assistant/tool/summary/user) | satu langkah LLM menghasilkan beberapa baris; jumlah langkah = baris `assistant` |
+| `bootstrap.sql` menerima `-v owner_role=… -v app_role=…` | test integrasi memakai role terpisah (`*_test`) agar tidak mengubah password role asli |
+
 ## 7. Model Baca (`public`) di Python
 
 Model SQLAlchemy untuk tabel `public` didefinisikan **manual** (bukan autogenerate) di `mcp_marketing/models/dashboard.py`, ditandai `info={"readonly": True}` dan dikecualikan dari Alembic (`include_object` hanya schema `mcp`). Perubahan schema Prisma yang memengaruhi kolom terpakai dideteksi oleh test `test_dashboard_schema_compat.py` (membandingkan kolom yang diharapkan dengan `information_schema`).

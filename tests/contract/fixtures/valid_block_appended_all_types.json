@@ -1,0 +1,371 @@
+{
+  "name": "valid_block_appended_all_types",
+  "kind": "event",
+  "valid": true,
+  "payload": {
+    "contract_version": "1.0",
+    "event_id": "e907d2a7-9c3e-4e1f-b98d-71ec3d13b28f",
+    "event_type": "agent.block.appended",
+    "occurred_at": "2026-11-03T03:15:00Z",
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "agent_id": "22222222-2222-4222-8222-222222222222",
+    "task_id": "33333333-3333-4333-8333-333333333333",
+    "data": {
+      "operations": [
+        {
+          "op": "append",
+          "block": {
+            "block_type": "heading",
+            "content_json": {
+              "props": {
+                "level": 2
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Ringkasan",
+                  "styles": {}
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "paragraph",
+            "content_json": {
+              "props": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Kalender konten ",
+                  "styles": {}
+                },
+                {
+                  "type": "text",
+                  "text": "3 minggu",
+                  "styles": {
+                    "bold": true
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": " untuk ",
+                  "styles": {}
+                },
+                {
+                  "type": "link",
+                  "href": "https://example.com",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "brand",
+                      "styles": {}
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": ".",
+                  "styles": {}
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "bulletListItem",
+            "content_json": {
+              "props": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Pilar: edukasi",
+                  "styles": {}
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "bulletListItem",
+            "content_json": {
+              "props": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Pilar: promo",
+                  "styles": {}
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "numberedListItem",
+            "content_json": {
+              "props": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Riset",
+                  "styles": {}
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "numberedListItem",
+            "content_json": {
+              "props": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Produksi",
+                  "styles": {}
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "checkListItem",
+            "content_json": {
+              "props": {
+                "checked": false
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Draft minggu 1",
+                  "styles": {}
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "checkListItem",
+            "content_json": {
+              "props": {
+                "checked": true
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Brief disetujui",
+                  "styles": {}
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "quote",
+            "content_json": {
+              "props": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Catatan: hindari klaim berlebihan.",
+                  "styles": {}
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "codeBlock",
+            "content_json": {
+              "props": {
+                "language": "python"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "print(\"halo\")",
+                  "styles": {}
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "table",
+            "content_json": {
+              "props": {},
+              "content": {
+                "type": "tableContent",
+                "headerRows": 1,
+                "rows": [
+                  {
+                    "cells": [
+                      [
+                        {
+                          "type": "text",
+                          "text": "Minggu",
+                          "styles": {}
+                        }
+                      ],
+                      [
+                        {
+                          "type": "text",
+                          "text": "Tema",
+                          "styles": {}
+                        }
+                      ]
+                    ]
+                  },
+                  {
+                    "cells": [
+                      [
+                        {
+                          "type": "text",
+                          "text": "1",
+                          "styles": {}
+                        }
+                      ],
+                      [
+                        {
+                          "type": "text",
+                          "text": "Edukasi",
+                          "styles": {}
+                        }
+                      ]
+                    ]
+                  },
+                  {
+                    "cells": [
+                      [
+                        {
+                          "type": "text",
+                          "text": "2",
+                          "styles": {}
+                        }
+                      ],
+                      [
+                        {
+                          "type": "text",
+                          "text": "Promo",
+                          "styles": {}
+                        }
+                      ]
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {
+              "props": {}
+            }
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "image",
+            "content_json": {
+              "props": {
+                "url": "https://example.com/a.png",
+                "caption": "x"
+              }
+            }
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "bookmark",
+            "content_json": {
+              "props": {
+                "url": "https://example.com",
+                "title": "Ref"
+              }
+            }
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "aiPrompt",
+            "content_json": {
+              "props": {
+                "prompt": "Buat ringkasan",
+                "agent_id": "22222222-2222-4222-8222-222222222222",
+                "status": "idle"
+              }
+            }
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "toggleListItem",
+            "content_json": {
+              "props": {},
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Detail",
+                  "styles": {}
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "paragraph",
+            "content_json": {
+              "props": {},
+              "content": [
+                {
+                  "type": "mention",
+                  "props": {
+                    "mention_type": "user",
+                    "id": "44444444-4444-4444-8444-444444444444",
+                    "label": "Owner"
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": " tolong cek",
+                  "styles": {
+                    "italic": true
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

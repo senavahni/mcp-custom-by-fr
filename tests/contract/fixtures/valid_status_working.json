@@ -1,0 +1,18 @@
+{
+  "name": "valid_status_working",
+  "kind": "event",
+  "valid": true,
+  "payload": {
+    "contract_version": "1.0",
+    "event_id": "8abe2a87-ea9e-4477-8545-a7ad6f1122a6",
+    "event_type": "agent.status.changed",
+    "occurred_at": "2026-11-03T03:15:00Z",
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "agent_id": "22222222-2222-4222-8222-222222222222",
+    "task_id": "33333333-3333-4333-8333-333333333333",
+    "data": {
+      "status": "working",
+      "message": "Membaca brief…"
+    }
+  }
+}

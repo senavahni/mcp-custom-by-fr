@@ -1,0 +1,81 @@
+{
+  "name": "invalid_subtasks_21",
+  "kind": "event",
+  "valid": false,
+  "payload": {
+    "contract_version": "1.0",
+    "event_id": "46531e7b-eb38-4796-b752-eeb476cee978",
+    "event_type": "agent.subtask.created",
+    "occurred_at": "2026-11-03T03:15:00Z",
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "agent_id": "22222222-2222-4222-8222-222222222222",
+    "task_id": "33333333-3333-4333-8333-333333333333",
+    "data": {
+      "subtasks": [
+        {
+          "title": "T0"
+        },
+        {
+          "title": "T1"
+        },
+        {
+          "title": "T2"
+        },
+        {
+          "title": "T3"
+        },
+        {
+          "title": "T4"
+        },
+        {
+          "title": "T5"
+        },
+        {
+          "title": "T6"
+        },
+        {
+          "title": "T7"
+        },
+        {
+          "title": "T8"
+        },
+        {
+          "title": "T9"
+        },
+        {
+          "title": "T10"
+        },
+        {
+          "title": "T11"
+        },
+        {
+          "title": "T12"
+        },
+        {
+          "title": "T13"
+        },
+        {
+          "title": "T14"
+        },
+        {
+          "title": "T15"
+        },
+        {
+          "title": "T16"
+        },
+        {
+          "title": "T17"
+        },
+        {
+          "title": "T18"
+        },
+        {
+          "title": "T19"
+        },
+        {
+          "title": "T20"
+        }
+      ]
+    }
+  }
+}

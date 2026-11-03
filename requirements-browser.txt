@@ -1,0 +1,7 @@
+# Scraping Selenium (TASK-14+). chromedriver dipasang manual di bin\ (CHROMEDRIVER_PATH).
+selenium>=4.20
+trafilatura>=1.12
+selectolax>=0.3
+markdownify>=0.13
+tldextract>=5.1
+protego>=0.3

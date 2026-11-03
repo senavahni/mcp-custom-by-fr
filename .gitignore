@@ -2,3 +2,30 @@
 .claude/
 CLAUDE.MD
 mcp-marketing-docs.zip
+
+# environment & secret
+.env
+.env.*
+!.env.example
+
+# data runtime (folder tetap ada lewat .gitkeep)
+/browser_profiles/*
+!/browser_profiles/.gitkeep
+/models/*
+!/models/.gitkeep
+/logs/*
+!/logs/.gitkeep
+/storage/*
+!/storage/.gitkeep
+/bin/*
+!/bin/.gitkeep
+
+# python
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/

@@ -164,6 +164,10 @@ TIMEZONE=Asia/Jakarta
 MCP_KEY_PEPPER=CHANGE_ME_LONG_RANDOM
 # toolset default untuk key baru (dipisah koma)
 DEFAULT_TOOLSETS=toolbox,data,job
+# URL publik server (link data_export), folder export, tool dev toolbox_ping
+PUBLIC_BASE_URL=http://127.0.0.1:4100
+STORAGE_DIR=./storage
+ENABLE_DEV_TOOLS=false
 
 # ---------- Database ----------
 DATABASE_URL=postgresql+asyncpg://mcp_app:CHANGE_ME@127.0.0.1:5432/marketing_dashboard
@@ -200,6 +204,14 @@ TOOL_OUTPUT_SOFT_TOKENS=1500
 TOOL_OUTPUT_HARD_TOKENS=4000
 INLINE_ITEMS_MAX=20
 RESULT_TTL_DAYS=30
+# maks token LLM internal per tool call (analisis deep)
+TOOL_LLM_TOKENS_DEFAULT=20000
+TOOL_LLM_TOKENS_DEEP=60000
+
+# ---------- Retensi ----------
+AUDIT_RETENTION_DAYS=180
+RAW_RETENTION_DAYS=14
+SOCIAL_RETENTION_DAYS=180
 
 # ---------- Worker ----------
 WORKER_CONCURRENCY=2

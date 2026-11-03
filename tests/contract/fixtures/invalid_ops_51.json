@@ -1,0 +1,375 @@
+{
+  "name": "invalid_ops_51",
+  "kind": "event",
+  "valid": false,
+  "payload": {
+    "contract_version": "1.0",
+    "event_id": "7db99de7-5248-4c4b-8da0-14a16f509719",
+    "event_type": "agent.block.appended",
+    "occurred_at": "2026-11-03T03:15:00Z",
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "agent_id": "22222222-2222-4222-8222-222222222222",
+    "task_id": "33333333-3333-4333-8333-333333333333",
+    "data": {
+      "operations": [
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        },
+        {
+          "op": "append",
+          "block": {
+            "block_type": "divider",
+            "content_json": {}
+          }
+        }
+      ]
+    }
+  }
+}

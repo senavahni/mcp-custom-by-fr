@@ -1,0 +1,59 @@
+[project]
+name = "mcp_marketing"
+version = "0.1.0.dev0"
+description = "MCP server marketing: jembatan LLM Gateway <-> Marketing Dashboard untuk agentic AI"
+requires-python = ">=3.11,<3.13"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["documentation", "browser_profiles", "models", "storage", "logs", "bin"]
+
+[tool.ruff.format]
+# hasil autogenerate Alembic dibiarkan apa adanya (tetap di-lint)
+exclude = ["migrations/versions/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"migrations/versions/*" = ["E501"]
+# data uji (payload, SQL, markdown) lebih mudah dibaca dalam satu baris
+"tests/*" = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["mcp_marketing"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+markers = [
+    "integration: butuh PostgreSQL (database marketing_dashboard_test)",
+    "browser: butuh Chrome + chromedriver nyata",
+    "live: LLM Gateway / API eksternal nyata",
+    "contract: Dashboard lokal nyata",
+    "eval: eval token",
+]
+filterwarnings = ["ignore::DeprecationWarning:websockets.*"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = [
+    "mcp_marketing.core.*",
+    "mcp_marketing.utils.*",
+    "mcp_marketing.services.*",
+    "mcp_marketing.tools.*",
+    "mcp_marketing.server.*",
+    "mcp_marketing.worker.*",
+]
+disallow_untyped_defs = true
+
+[tool.coverage.run]
+omit = ["tests/*", "migrations/*"]
