@@ -227,9 +227,7 @@ async def _apply(
 ) -> tuple[int, list[dict[str, Any]]]:
     await _check_project(ctx, target.project_id, run)
     if target.type == "project_brief" and run is not None and run.task_id is not None:
-        raise Forbidden(
-            "Run task-scoped tidak dapat menerapkan template ke Project Brief"
-        )
+        raise Forbidden("Run task-scoped tidak dapat menerapkan template ke Project Brief")
     if target.type == "project_brief" and run is not None and rendered.subtasks:
         raise Forbidden(
             "Run hanya dapat membuat task dalam cakupannya; target Project Brief "
@@ -303,9 +301,7 @@ async def _apply(
             for item in rendered.subtasks
         }
         refs: dict[str, str] = {}
-        root_items = [
-            item for item in rendered.subtasks if item["parent_client_ref"] is None
-        ]
+        root_items = [item for item in rendered.subtasks if item["parent_client_ref"] is None]
         if target.type == "project_brief":
             api = ctx.services.service_api
             agent_id = ctx.client.dashboard_agent_id
@@ -336,9 +332,7 @@ async def _apply(
                 if item.get("client_ref") and item.get("id")
             }
         )
-        pending = [
-            item for item in rendered.subtasks if item["parent_client_ref"] is not None
-        ]
+        pending = [item for item in rendered.subtasks if item["parent_client_ref"] is not None]
         while pending:
             ready = [item for item in pending if item["parent_client_ref"] in refs]
             if not ready:
@@ -383,9 +377,7 @@ async def _apply(
 )
 async def tpl_list(inp: TemplateListInput, ctx: ToolContext) -> TemplateListOutput:
     async with ctx.services.db.session() as session:
-        rows = await list_templates(
-            session, inp.category, ctx.client.workspace_id, ctx.client.id
-        )
+        rows = await list_templates(session, inp.category, ctx.client.workspace_id, ctx.client.id)
     return TemplateListOutput(
         summary=f"{len(rows)} template tersedia",
         cols=["key", "name", "category", "origin", "version"],
@@ -536,14 +528,10 @@ async def tpl_generate(inp: TemplateGenerateInput, ctx: ToolContext) -> Template
     run = await _run(ctx)
     workspace_id = ctx.client.workspace_id
     async with ctx.services.db.session() as session:
-        examples = await list_templates(
-            session, inp.kind, workspace_id, ctx.client.id
-        )
+        examples = await list_templates(session, inp.kind, workspace_id, ctx.client.id)
         sample = None
         if examples:
-            sample = await get_template(
-                session, examples[0]["key"], workspace_id, ctx.client.id
-            )
+            sample = await get_template(session, examples[0]["key"], workspace_id, ctx.client.id)
     sample_outline = str(sample["outline"]) if sample else "(tidak ada contoh)"
     prompt = render_prompt(
         "tpl_generate",
@@ -623,10 +611,7 @@ async def tpl_generate(inp: TemplateGenerateInput, ctx: ToolContext) -> Template
         candidate,
         _sample_variables(candidate),
         date.fromisoformat(
-            str(
-                _sample_variables(candidate).get("start_date")
-                or today_in(ctx.settings.timezone)
-            )
+            str(_sample_variables(candidate).get("start_date") or today_in(ctx.settings.timezone))
         ),
         target_depth=depth,
     )

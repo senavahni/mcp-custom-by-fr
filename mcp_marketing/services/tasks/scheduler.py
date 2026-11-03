@@ -55,9 +55,7 @@ def schedule_subtasks(
             raise ValidationFailed("Dependensi subtask siklik")
         for ref in ready:
             task = by_ref[ref]
-            dependency_end = max(
-                (completed[dep][1] for dep in task["depends_on"]), default=start
-            )
+            dependency_end = max((completed[dep][1] for dep in task["depends_on"]), default=start)
             task_start = next_workday(dependency_end if task["depends_on"] else start)
             if task["depends_on"]:
                 task_start = next_workday(task_start.fromordinal(task_start.toordinal() + 1))

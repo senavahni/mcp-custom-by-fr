@@ -11,8 +11,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from mcp_marketing.core.config import ConfigError, get_settings  # noqa: E402
 from mcp_marketing.core.database import set_database  # noqa: E402
-from mcp_marketing.core.logging import configure_logging  # noqa: E402
+from mcp_marketing.core.logging import configure_logging, get_logger  # noqa: E402
 from mcp_marketing.main import build_services, close_services  # noqa: E402
+from mcp_marketing.services.browser.driver_pool import check_versions  # noqa: E402
 from mcp_marketing.worker.handlers import default_registry  # noqa: E402
 from mcp_marketing.worker.runner import Worker  # noqa: E402
 from mcp_marketing.worker.scheduler import Scheduler  # noqa: E402
@@ -21,6 +22,10 @@ from mcp_marketing.worker.scheduler import Scheduler  # noqa: E402
 async def run() -> None:
     settings = get_settings()
     configure_logging(settings.log_level, settings.log_dir)
+    browser = check_versions(settings)
+    if not browser["ok"]:
+        # job non-browser tetap jalan; job browser akan gagal dengan pesan yang sama
+        get_logger("worker").critical("browser.not_ready", **browser)
     services = build_services(settings)
     set_database(services.db)
     registry = default_registry()

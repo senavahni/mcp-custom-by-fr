@@ -36,9 +36,7 @@ from mcp_marketing.utils.text import truncate
 from mcp_marketing.utils.time import today_in
 
 MAX_DEPTH = 3
-TaskListField = Literal[
-    "id", "title", "status", "priority", "start", "end", "depth", "assignee"
-]
+TaskListField = Literal["id", "title", "status", "priority", "start", "end", "depth", "assignee"]
 TaskInclude = Literal["blocks_outline", "blocks_full", "subtasks", "comments"]
 
 
@@ -74,9 +72,7 @@ class TaskListOutput(BaseModel):
 
 class TaskGetInput(ReadInput):
     task_id: uuid.UUID
-    include: list[TaskInclude] = Field(
-        default_factory=_default_task_includes, max_length=4
-    )
+    include: list[TaskInclude] = Field(default_factory=_default_task_includes, max_length=4)
 
 
 class TaskGetOutput(BaseModel):
@@ -160,8 +156,12 @@ class TaskUpdateInput(ToolInput):
     def validate_dates(self) -> TaskUpdateInput:
         if self.start_date and self.end_date and self.end_date < self.start_date:
             raise ValueError("end_date harus >= start_date")
-        if self.is_milestone and (self.start_date is not None or self.end_date is not None) and (
-            self.start_date is None or self.end_date is None or self.start_date != self.end_date
+        if (
+            self.is_milestone
+            and (self.start_date is not None or self.end_date is not None)
+            and (
+                self.start_date is None or self.end_date is None or self.start_date != self.end_date
+            )
         ):
             raise ValueError("Milestone wajib memiliki start_date=end_date")
         if self.tags and any(not tag.strip() or len(tag) > 50 for tag in self.tags):
@@ -281,9 +281,7 @@ async def _workspace_id(ctx: ToolContext, run: Run | None) -> uuid.UUID:
         raise Forbidden("Workspace klien tidak valid") from None
 
 
-async def _scoped_task(
-    ctx: ToolContext, task_id: uuid.UUID, run: Run | None = None
-) -> Task:
+async def _scoped_task(ctx: ToolContext, task_id: uuid.UUID, run: Run | None = None) -> Task:
     workspace_id = await _workspace_id(ctx, run)
     async with ctx.services.db.session() as session:
         task = await session.scalar(
@@ -361,8 +359,7 @@ async def _create_tasks(
         from mcp_marketing.services.dashboard.chunking import chunk_subtasks
 
         event_tasks = [
-            {key: value for key, value in task.items() if key != "is_milestone"}
-            for task in tasks
+            {key: value for key, value in task.items() if key != "is_milestone"} for task in tasks
         ]
         for chunk in chunk_subtasks(event_tasks):
             result = await ctx.services.outbox.emit_and_wait(
@@ -376,9 +373,7 @@ async def _create_tasks(
         raise ValidationFailed("Dashboard Service API tidak dikonfigurasi")
     agent_id = _agent_id(ctx, None)
     result = (
-        await ctx.services.service_api.create_subtasks(
-            agent_id, str(parent_task_id), tasks
-        )
+        await ctx.services.service_api.create_subtasks(agent_id, str(parent_task_id), tasks)
         if parent_task_id
         else await ctx.services.service_api.create_tasks(agent_id, str(project_id), tasks)
     )
@@ -441,9 +436,7 @@ async def task_list(inp: TaskListInput, ctx: ToolContext) -> TaskListOutput:
             select(func.count()).select_from(query.order_by(None).subquery())
         )
         results = (
-            await session.execute(
-                query.order_by(Task.id).offset(offset).limit(inp.limit + 1)
-            )
+            await session.execute(query.order_by(Task.id).offset(offset).limit(inp.limit + 1))
         ).all()
     has_more = len(results) > inp.limit
     results = results[: inp.limit]
@@ -461,8 +454,7 @@ async def task_list(inp: TaskListInput, ctx: ToolContext) -> TaskListOutput:
         summary=f"{len(results)} task dari {total or 0}",
         cols=inp.fields,
         rows=[
-            [by_field[field](task, assignee) for field in inp.fields]
-            for task, assignee in results
+            [by_field[field](task, assignee) for field in inp.fields] for task, assignee in results
         ],
         total=int(total or 0),
         next_cursor=_encode_cursor(offset + inp.limit) if has_more else None,
@@ -516,9 +508,7 @@ async def task_get(inp: TaskGetInput, ctx: ToolContext) -> TaskGetOutput:
                 lines = []
                 for block in blocks:
                     text = block_to_markdown(block.block_type, block.content_json)
-                    lines.append(
-                        text if block.block_type == "heading" else truncate(text, 120)
-                    )
+                    lines.append(text if block.block_type == "heading" else truncate(text, 120))
                     if len(lines) >= 40:
                         break
                 payload["blocks_outline"] = lines
@@ -730,9 +720,7 @@ async def task_comment(inp: TaskCommentInput, ctx: ToolContext) -> TaskWriteOutp
     if run and inp.task_id:
         await _ensure_run_task(ctx, inp.task_id, run)
     elif run and (
-        inp.project_id is None
-        or run.task_id is not None
-        or run.project_id != inp.project_id
+        inp.project_id is None or run.task_id is not None or run.project_id != inp.project_id
     ):
         raise Forbidden("Run hanya dapat memberi komentar project pada project cakupannya")
     if inp.task_id:

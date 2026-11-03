@@ -51,7 +51,7 @@ Versi Python mengikuti LLM Gateway (`pyproject.toml`: `requires-python = ">=3.11
 | Log/metrics | `structlog`, `orjson`, `prometheus-client` | Format log sama dengan Gateway |
 | Browser | `selenium>=4.20` + **chromedriver eksplisit** (`CHROMEDRIVER_PATH`) + Chrome profil (`--user-data-dir`, `--profile-directory`) | Selenium Manager dimatikan agar versi terkontrol |
 | HTML → teks | `trafilatura` / `selectolax`, `markdownify` | Ekstraksi konten utama (hemat token) |
-| Trends | library unofficial terpilih di spike (D8) + `pandas` | Adapter |
+| Trends | klien internal endpoint web Trends (`unofficial`/`browser`, keputusan spike D8) + `scipy` | Adapter |
 | Sentimen | `onnxruntime`, `tokenizers` (model IndoBERT/IndoRoBERTa ONNX) | CPU, tanpa PyTorch di runtime |
 | Data | `pandas`, `numpy`, `scipy` (statistik tren) | Agregasi server-side |
 | Test | `pytest`, `pytest-asyncio`, `respx`, `ruff`, `mypy` | Sama dengan Gateway |
@@ -231,11 +231,17 @@ SCRAPE_ALLOW_PRIVATE_NETWORK=false
 # ---------- X / Threads / Trends ----------
 X_BEARER_TOKEN=
 X_MAX_READS_PER_DAY=2000
+X_PRICE_PER_READ_USD=0.005                # estimasi biaya X API per post dibaca
+X_API_BASE_URL=https://api.x.com/2
 THREADS_ACCESS_TOKEN=
 THREADS_USER_ID=
-TRENDS_PROVIDER=unofficial
+THREADS_API_BASE_URL=https://graph.threads.net/v1.0
+TRENDS_PROVIDER=unofficial                # unofficial | browser | official
 TRENDS_DEFAULT_GEO=ID
 TRENDS_CACHE_TTL_S=86400
+TRENDS_MIN_INTERVAL_S=5                   # jeda minimum antar permintaan Google Trends
+TRENDS_BASE_URL=https://trends.google.com
+TRENDS_OFFICIAL_API_KEY=                  # diisi bila akses API resmi (alpha) disetujui
 
 # ---------- NLP ----------
 SENTIMENT_MODEL_DIR=./models/sentiment-id

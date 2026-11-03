@@ -156,9 +156,7 @@ class DashboardServiceApi:
         return await self.request("PATCH", agent_id, f"tasks/{task_id}/move", json=body)
 
     async def reschedule_task(self, agent_id: str, task_id: str, body: dict[str, Any]) -> Any:
-        return await self.request(
-            "PATCH", agent_id, f"tasks/{task_id}/reschedule", json=body
-        )
+        return await self.request("PATCH", agent_id, f"tasks/{task_id}/reschedule", json=body)
 
     async def apply_block_operations(self, agent_id: str, body: dict[str, Any]) -> Any:
         return await self.request("POST", agent_id, "blocks/ops", json=body)

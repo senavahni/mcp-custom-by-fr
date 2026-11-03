@@ -2,6 +2,8 @@
 .claude/
 CLAUDE.MD
 mcp-marketing-docs.zip
+# transkrip sesi asisten AI
+/*.jsonl
 
 # environment & secret
 .env

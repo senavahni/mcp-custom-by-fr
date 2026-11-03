@@ -106,8 +106,20 @@ async def test_seed_idempotent(clean_db: Database) -> None:
         first = await seed(s)
     async with clean_db.session() as s:
         second = await seed(s)
-    assert first == {"agent_profiles": 3, "clients": 1, "schedules": 3}
-    assert second == {"agent_profiles": 0, "clients": 0, "schedules": 0}
+    assert first == {
+        "agent_profiles": 3,
+        "browser_profiles": 1,
+        "clients": 1,
+        "schedules": 3,
+        "templates": 8,
+    }
+    assert second == {
+        "agent_profiles": 0,
+        "browser_profiles": 0,
+        "clients": 0,
+        "schedules": 0,
+        "templates": 0,
+    }
     async with clean_db.session() as s:
         assert await s.scalar(select(func.count()).select_from(AgentProfile)) == 3
         assert await s.scalar(select(func.count()).select_from(Schedule)) == 3

@@ -10,6 +10,9 @@ TOOL_MODULES = (
     "pm_agent",
     "tpl",
     "task",
+    "web",
+    "social",
+    "trends",
 )
 
 

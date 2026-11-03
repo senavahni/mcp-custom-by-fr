@@ -25,6 +25,7 @@ from mcp_marketing.services.dashboard.service_api import DashboardServiceApi
 from mcp_marketing.services.llm.gateway_client import GatewayClient
 from mcp_marketing.services.results.cache import ResultCache
 from mcp_marketing.services.results.result_store import ResultStore
+from mcp_marketing.worker.handlers import default_registry
 from mcp_marketing.worker.queue import JobQueue
 
 log = get_logger(__name__)
@@ -51,7 +52,10 @@ def build_services(settings: Settings) -> Services:
     services.agent_api = AgentApiClient(settings, http)
     services.service_api = DashboardServiceApi(settings, http)
     services.outbox = Outbox(db, http, settings)
-    services.jobs = JobQueue(db, default_timeout_s=settings.worker.job_default_timeout_s)
+    # estimator = handler bawaan: estimasi waktu/biaya tampil di JobAccepted sebelum job berjalan
+    services.jobs = JobQueue(
+        db, default_timeout_s=settings.worker.job_default_timeout_s, estimator=default_registry()
+    )
     return services
 
 

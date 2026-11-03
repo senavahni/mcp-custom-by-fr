@@ -23,7 +23,9 @@ from mcp_marketing.tools.tpl import TemplateTarget
 
 def test_task_update_rejects_assignee_and_invalid_milestone() -> None:
     with pytest.raises(ValidationError, match="assignee hanya bisa diubah manusia"):
-        TaskUpdateInput.model_validate({"task_id": "00000000-0000-0000-0000-000000000001", "assignee": "x"})
+        TaskUpdateInput.model_validate(
+            {"task_id": "00000000-0000-0000-0000-000000000001", "assignee": "x"}
+        )
     with pytest.raises(ValidationError, match="Milestone"):
         CreateItem.model_validate({"title": "Milestone", "is_milestone": True})
 

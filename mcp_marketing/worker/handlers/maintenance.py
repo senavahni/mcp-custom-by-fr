@@ -114,6 +114,17 @@ class RetentionHandler:
                     {"d": w.raw_retention_days},
                 )
             ).rowcount  # type: ignore[attr-defined]
+            # DATABASE §6: belum ada laporan/KB yang merujuk post/halaman, jadi dihapus penuh
+            for table, column in (("social_posts", "collected_at"), ("web_pages", "fetched_at")):
+                stats[table] = (
+                    await session.execute(
+                        text(
+                            f"DELETE FROM mcp.{table} "
+                            f"WHERE {column} < now() - make_interval(days => :d)"
+                        ),
+                        {"d": w.social_retention_days},
+                    )
+                ).rowcount  # type: ignore[attr-defined]
             stats["result_sets"] = (
                 await session.execute(text("DELETE FROM mcp.result_sets WHERE expires_at <= now()"))
             ).rowcount  # type: ignore[attr-defined]

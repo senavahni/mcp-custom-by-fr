@@ -124,9 +124,7 @@ async def test_run_workspace_and_task_scope_guards(monkeypatch: pytest.MonkeyPat
     assert looked_up == [task.id, run.task_id]
 
     with pytest.raises(Forbidden, match="Run ini tidak memiliki task"):
-        await task_tools._ensure_run_task(
-            context, task.id, SimpleNamespace(task_id=None)
-        )
+        await task_tools._ensure_run_task(context, task.id, SimpleNamespace(task_id=None))
 
     with pytest.raises(Forbidden, match="di luar cakupan"):
         await task_tools._ensure_run_task(
@@ -145,18 +143,14 @@ async def test_create_tasks_uses_run_outbox_and_service_api_paths(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     project_id, parent_id = uuid4(), uuid4()
-    run = SimpleNamespace(
-        task_id=parent_id, agent_id=uuid4(), run_id=uuid4()
-    )
+    run = SimpleNamespace(task_id=parent_id, agent_id=uuid4(), run_id=uuid4())
     parent = SimpleNamespace(project_id=project_id, depth=1)
     monkeypatch.setattr(
         task_tools,
         "_ensure_run_task",
         AsyncMock(return_value=parent),
     )
-    outbox = SimpleNamespace(
-        emit_and_wait=AsyncMock(return_value={"created": [{"id": "child"}]})
-    )
+    outbox = SimpleNamespace(emit_and_wait=AsyncMock(return_value={"created": [{"id": "child"}]}))
     context = _ctx(outbox=outbox)
     task_data = [{"title": "Child", "is_milestone": False}]
 
@@ -275,9 +269,7 @@ async def test_task_list_applies_filters_and_encodes_next_cursor(
     )
 
     assert output.total == 3
-    assert output.rows == [
-        [str(task.id), "2026-11-02", "2026-11-06", "agent-x"]
-    ]
+    assert output.rows == [[str(task.id), "2026-11-02", "2026-11-06", "agent-x"]]
     assert task_tools._cursor_offset(output.next_cursor) == 6
 
     monkeypatch.setattr(task_tools, "_workspace_id", AsyncMock(return_value=uuid4()))
@@ -371,9 +363,7 @@ async def test_task_create_update_and_reschedule_call_service_layer(
     assert updated.updated_fields == ["status"]
     update_api.update_task.assert_awaited_once()
 
-    reschedule_api = SimpleNamespace(
-        reschedule_task=AsyncMock(return_value={"updated": True})
-    )
+    reschedule_api = SimpleNamespace(reschedule_task=AsyncMock(return_value={"updated": True}))
     reschedule_context = _ctx(service_api=reschedule_api)
     rescheduled = await task_tools.task_reschedule(
         TaskRescheduleInput(

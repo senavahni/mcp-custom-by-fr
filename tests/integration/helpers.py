@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import uuid
-from collections.abc import Callable
+from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -12,6 +13,7 @@ import httpx
 
 from mcp_marketing.models import Run
 from mcp_marketing.server.services import Services
+from mcp_marketing.services.browser.driver_pool import FetchedPage
 from mcp_marketing.services.dashboard import signer
 from mcp_marketing.services.seed import seed
 
@@ -123,3 +125,45 @@ async def make_run(services: Services, **over: Any) -> str:
             )
         )
     return run_id
+
+
+# ------------------------------------------------------------------ browser palsu (TASK-14..17)
+async def no_sleep(_s: float) -> None:
+    return None
+
+
+class FakePage:
+    def __init__(self, html_by_url: dict[str, str], default_html: str = "") -> None:
+        self.html_by_url = html_by_url
+        self.default_html = default_html
+        self.current = "about:blank"
+        self.opened: list[str] = []
+
+    async def open(self, url: str, *, wait_for: str | None = None) -> FetchedPage:
+        self.opened.append(url)
+        self.current = url
+        html = self.html_by_url.get(url, self.default_html)
+        return FetchedPage(url=url, final_url=url, status=200, title=None, html=html)
+
+    async def scroll(self, times: int = 1, pause_s: float = 1.0) -> None:
+        return None
+
+    async def html(self) -> str:
+        return self.html_by_url.get(self.current, self.default_html)
+
+    async def current_url(self) -> str:
+        return self.current
+
+    async def run_js(self, script: str, *args: Any) -> Any:
+        return None
+
+
+class FakeLauncher:
+    def __init__(self, page: FakePage) -> None:
+        self.page = page
+        self.sessions: list[tuple[str, str]] = []
+
+    @contextlib.asynccontextmanager
+    async def session(self, profile: str, job_id: str) -> AsyncIterator[FakePage]:
+        self.sessions.append((profile, job_id))
+        yield self.page

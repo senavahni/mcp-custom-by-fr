@@ -1,5 +1,46 @@
 # Changelog
 
+## 0.3.0-dev — 2026-11-03
+
+TASK-14 s/d TASK-17 (milestone M3 Data Collection).
+
+### Ditambahkan
+- **TASK-14** Profil browser terdaftar + lock eksklusif per job (`PROFILE_BUSY` setelah 60 s, lock basi
+  3 jam), driver Selenium dengan chromedriver eksplisit (cek versi Chrome saat worker start →
+  `browser.not_ready`), guard SSRF (cek ulang setelah redirect), robots.txt (protego) + rate limit per
+  domain, ekstraksi markdown/text/selectors/links (trafilatura → markdownify), deteksi CAPTCHA.
+  Tool `browser_profile_list`, `browser_profile_check` (admin), `web_scrape`, `web_crawl` (BFS, pola
+  include/exclude, filter tanggal terbit), `web_extract` (LLM `extract`, konten `<untrusted_content>`).
+  CLI `profile-add/open/check/list/disable`, `scripts\update-chromedriver.bat` (Chrome for Testing).
+  Panduan: [docs/browser-profiles.md](docs/browser-profiles.md).
+- **TASK-15** `x_search`: provider `x_api` (recent search 7 hari, tunggu reset rate limit, kuota
+  `X_MAX_READS_PER_DAY`, estimasi biaya) / `browser` (per hari, checkpoint per hari, hasil parsial saat
+  logout), aturan `provider=auto`, upsert `social_posts` + `job_posts` (tanpa duplikasi saat resume).
+- **TASK-16** `threads_search`: Threads Keyword Search API (cursor, retry 5xx → fallback browser, token
+  kedaluwarsa → `LOGIN_REQUIRED`) + mode browser; `social_stats` (group by day/keyword/author/source);
+  CLI `threads-token-refresh` (menulis token baru ke `.env`).
+- **TASK-17** `trends_interest`, `trends_by_region`, `trends_related`: cache DB 24 jam (sinkron bila
+  cache segar), backoff 429 30/60/120 s + fallback provider, anchor scaling > 5 kata kunci, statistik tanpa
+  LLM (`trend_stats`), parser CSV unduhan (label EN/ID, `<1`). Panduan:
+  [docs/collectors.md](docs/collectors.md).
+- Job `retention` kini juga menghapus `social_posts` & `web_pages` > `SOCIAL_RETENTION_DAYS` (DATABASE §6).
+
+### Hasil spike D8 (Google Trends)
+- `pytrends` diarsip, `trendspy` tidak rilis sejak 2024-12 → ditolak. `pytrends-modern` lolos kriteria
+  tetapi belum dipasang. Dipakai **klien internal** ke endpoint web Trends (`unofficial`) dan request yang
+  sama di tab Chrome (`browser`); `official` masih stub. Uji live 20 query belum dijalankan.
+
+### Catatan implementasi
+- `selectolax` 1.0 menghapus backend Modest → parser memakai `selectolax.lexbor`.
+- Env baru: `X_PRICE_PER_READ_USD`, `X_API_BASE_URL`, `THREADS_API_BASE_URL`, `TRENDS_MIN_INTERVAL_S`,
+  `TRENDS_BASE_URL`, `TRENDS_OFFICIAL_API_KEY`.
+- Seed menambah profil browser `default` (headless, tanpa login).
+- Tidak ada perubahan di repo Dashboard untuk TASK-14..17.
+
+### Belum diverifikasi (butuh sistem nyata)
+- Chrome + chromedriver nyata (chromedriver belum diunduh di mesin dev), login X/Threads, X API & Threads
+  API dengan token asli, dan uji live Google Trends. Seluruh jalur diuji dengan fixture/mock.
+
 ## 0.1.0-dev — 2026-11-03
 
 TASK-01 s/d TASK-10 (milestone M0, M1, sebagian M2).

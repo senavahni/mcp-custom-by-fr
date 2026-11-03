@@ -141,9 +141,11 @@ def render(
             start = _workday_offset(base_date, offset)
             end = add_workdays(start, duration)
             markdown_value = item.get("md", "")
-            initial_blocks = _render_blocks(
-                _render_text(markdown_value, values), f"subtask {ref}"
-            ) if markdown_value else []
+            initial_blocks = (
+                _render_blocks(_render_text(markdown_value, values), f"subtask {ref}")
+                if markdown_value
+                else []
+            )
             subtasks.append(
                 {
                     "client_ref": ref,

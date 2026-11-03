@@ -126,8 +126,12 @@ class BrowserSettings(_Group):
 class SocialSettings(_Group):
     x_bearer_token: SecretStr | None = None
     x_max_reads_per_day: int = Field(default=2_000, ge=0)
+    # tarif X API pay-per-use (USD per post yang dikembalikan), mudah diubah tanpa deploy
+    x_price_per_read_usd: float = Field(default=0.005, ge=0)
+    x_api_base_url: str = "https://api.x.com/2"
     threads_access_token: SecretStr | None = None
     threads_user_id: str | None = None
+    threads_api_base_url: str = "https://graph.threads.net/v1.0"
 
     @field_validator("x_bearer_token", "threads_access_token", mode="before")
     @classmethod
@@ -139,6 +143,16 @@ class TrendsSettings(_Group):
     trends_provider: Literal["unofficial", "browser", "official"] = "unofficial"
     trends_default_geo: str = "ID"
     trends_cache_ttl_s: int = Field(default=86_400, ge=0)
+    # jeda minimal antar permintaan ke Google Trends (detik)
+    trends_min_interval_s: float = Field(default=5.0, ge=0)
+    trends_base_url: str = "https://trends.google.com"
+    # diisi bila akses Google Trends API resmi (alpha) disetujui
+    trends_official_api_key: SecretStr | None = None
+
+    @field_validator("trends_official_api_key", mode="before")
+    @classmethod
+    def _empty_none(cls, v: Any) -> Any:
+        return None if v == "" else v
 
 
 class NlpSettings(_Group):

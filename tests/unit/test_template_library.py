@@ -159,13 +159,18 @@ async def test_save_template_creates_versions_and_rejects_unsafe_overwrites() ->
     assert existing.current_version == 2
 
     invalid_cases = [
-        (_template("seed"), "client-1", None, SimpleNamespace(
-            workspace_id=None,
-            created_by_client="client-1",
-            origin="seed",
-            current_version=1,
-            category="custom",
-        )),
+        (
+            _template("seed"),
+            "client-1",
+            None,
+            SimpleNamespace(
+                workspace_id=None,
+                created_by_client="client-1",
+                origin="seed",
+                current_version=1,
+                category="custom",
+            ),
+        ),
         (_template("private"), None, None, None),
     ]
     for template, client_id, workspace_id, existing_row in invalid_cases:
