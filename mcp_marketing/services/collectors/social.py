@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import re
 import statistics
-import uuid
 from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -299,7 +298,3 @@ async def build_result(
     if partial:
         result["partial"] = True
     return JobResult(result=result, result_handle=rs.handle)
-
-
-def new_uuid() -> str:
-    return str(uuid.uuid4())

@@ -13,7 +13,8 @@ Server **Model Context Protocol** (Python 3.11) yang menghubungkan **LLM Gateway
 |---|---|
 | Python 3.11 (conda) | env `D:\Data.Fahrul\.conda\envs\mcp` (sama dengan versi LLM Gateway) |
 | PostgreSQL ≥ 16 | database Dashboard `marketing_dashboard` (sudah termigrasi Prisma) |
-| pgvector | **opsional untuk TASK-01..10**; wajib mulai TASK-19 (vector DB) |
+| pgvector | **opsional**; tanpa pgvector KB memakai mode cadangan (`real[]`, kosinus di aplikasi, cocok untuk koleksi kecil). Pasang untuk indeks HNSW, lalu jalankan ulang `scripts\migrate.bat` |
+| Chrome + chromedriver | untuk scraping & crawler mode browser (TASK-14..17); chromedriver via `scripts\update-chromedriver.bat` |
 | LLM Gateway | `http://127.0.0.1:8000/v1` + API key project `mcp-marketing` |
 | Dashboard backend | `http://localhost:3000/api/v1`, `.env` berisi secret MCP yang sama |
 
@@ -49,6 +50,18 @@ scripts\start-all.bat
 
 Cek Gateway: `scripts\conda-run.bat python scripts\smoke_gateway.py`.
 
+### Opsional: browser, model lokal (TASK-14..20)
+
+```bat
+scripts\update-chromedriver.bat                                   & rem chromedriver = versi Chrome
+scripts\conda-run.bat python scripts\manage.py profile-add riset-x --sites x.com,threads.net
+scripts\conda-run.bat python scripts\manage.py profile-open riset-x --site x.com   & rem login manual
+scripts\conda-run.bat python scripts\manage.py download-models    & rem embedding lokal (EMBED_PROVIDER=local)
+```
+
+Tanpa model sentimen lokal, `sentiment_analyze` memakai LLM `fast` untuk semua teks (lihat
+[docs/eval/sentiment.md](docs/eval/sentiment.md)).
+
 ## Pengembangan
 
 | Perintah | Fungsi |
@@ -59,4 +72,6 @@ Cek Gateway: `scripts\conda-run.bat python scripts\smoke_gateway.py`.
 | `python scripts\export_contract_fixtures.py` | bangkitkan ulang fixture kontrak |
 
 Panduan lanjutan: [operasional](documentation/operations.md) · [membuat tool hemat token](documentation/dev-guide-tools.md)
-· [pemakaian LLM](documentation/llm-usage.md) · [agent](documentation/agents.md) · [laporan kontrak](documentation/contract-report.md).
+· [pemakaian LLM](documentation/llm-usage.md) · [agent](documentation/agents.md) · [laporan kontrak](documentation/contract-report.md)
+· [profil browser](docs/browser-profiles.md) · [kolektor X/Threads/Trends](docs/collectors.md)
+· [knowledge base](docs/knowledge-base.md) · [evaluasi sentimen](docs/eval/sentiment.md).

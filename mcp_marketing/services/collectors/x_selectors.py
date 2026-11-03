@@ -8,7 +8,6 @@ ARTICLE = 'article[data-testid="tweet"]'
 STATUS_LINK = 'a[href*="/status/"]'
 TIME = "time[datetime]"
 TEXT = 'div[data-testid="tweetText"]'
-USER_NAME = 'div[data-testid="User-Name"] a[href^="/"]'
 SOCIAL_CONTEXT = 'span[data-testid="socialContext"], div[data-testid="socialContext"]'
 REPLY = 'button[data-testid="reply"]'
 REPOST = 'button[data-testid="retweet"], button[data-testid="unretweet"]'

@@ -7,13 +7,12 @@ import io
 import re
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
-from typing import Any, Literal, Protocol
+from typing import Any, Protocol
 
 import orjson
 
 from mcp_marketing.core.errors import UpstreamError
 
-Gprop = Literal["web", "news", "images", "youtube", "froogle"]
 BREAKOUT_VALUE = 5_000
 _LT1 = "<1"
 

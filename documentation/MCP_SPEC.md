@@ -203,7 +203,7 @@ Aturan `provider=auto`: X → `x_api` jika token ada **dan** `since ≥ now-7d` 
 
 | Tool | Input | Output |
 |---|---|---|
-| `trends_interest` | `keywords[]≤5, start, end, geo='ID', category=0, gprop: web\|news\|images\|youtube\|froogle` | handle deret waktu + `stats{per_keyword:{avg, peak_date, peak, slope_per_week, change_pct_vs_prev_period, is_partial_last}}` + tabel ringkas mingguan (≤ 26 baris) |
+| `trends_interest` | `keywords[]≤5 (≤20 dengan anchor), start, end, geo='ID', category=0, gprop: web\|news\|images\|youtube\|froogle, anchor?, compare_previous=true, wait_s?` | handle deret waktu + `stats{per_keyword:{avg, peak_date, peak, slope_per_week, change_pct_vs_prev_period, is_partial_last}}` + tabel ringkas mingguan (≤ 26 baris) |
 | `trends_by_region` | `keyword, start, end, geo='ID', resolution: REGION\|CITY, top_n≤20` | `{cols:[region,value], rows}` |
 | `trends_related` | `keyword, start, end, geo='ID', kind: queries\|topics` | `{top:{cols,rows≤10}, rising:{cols,rows≤10}}` |
 
@@ -212,11 +212,11 @@ Aturan `provider=auto`: X → `x_api` jika token ada **dan** `since ≥ now-7d` 
 | Tool | Input | Output |
 |---|---|---|
 | `db_entities` | — | `{entities:[{name, schema, access: r\|rw, fields:[name:type]}]}` (whitelist) |
-| `db_query` | `entity, filter?{field:{op, value}}, fields?, order_by?, limit≤100 (inline ≤20, sisanya handle), cursor?` | envelope |
+| `db_query` | `entity, filter?{field:{op, value}}, fields?, search? (ilike field teks), order_by? (`-field` = desc), limit≤100 (inline ≤20, sisanya handle), cursor?` | envelope |
 | `db_get` | `entity, id, fields?` | objek |
 | `db_create` | `entity, data{}` | `{id}` |
 | `db_update` | `entity, id, patch{}, expected_updated_at?` | `{id, updated_at}` (konflik → `CONFLICT`) |
-| `db_delete` | `entity, id, hard=false` | `{deleted}` (soft delete bila tersedia) |
+| `db_delete` | `entity, id, hard=false` | `{deleted, mode}` (soft delete bila tersedia; `reports`/`kb_collections` dihapus permanen) |
 | `db_sql_readonly` *(scope `db_admin`)* | `sql (SELECT/WITH saja), params?, limit≤1.000` | envelope; transaksi `READ ONLY`, `statement_timeout 5s` |
 
 Operator filter: `eq, ne, lt, lte, gt, gte, in, contains, icontains, starts_with, is_null, between`. Entitas `rw` = tabel schema `mcp` yang diizinkan (laporan, koleksi KB, template, watchlist kata kunci, kompetitor). Entitas inti Dashboard (`projects`, `tasks`, `document_blocks`, `comments`, `agents`, `activity_logs`) = `r`; perubahan diarahkan ke toolset `task`/`tpl` (D4).
@@ -225,7 +225,7 @@ Operator filter: `eq, ne, lt, lte, gt, gte, in, contains, icontains, starts_with
 
 | Tool | Input | Output |
 |---|---|---|
-| `kb_collections` | `workspace_id?` | `{cols:[id,name,documents,chunks,embed_model], rows}` |
+| `kb_collections` | — (otomatis dibatasi workspace klien/run) | `{cols:[id,name,documents,chunks,embed_model], rows}` |
 | `kb_collection_create` | `name, description?, workspace_id?, project_id?` | `{id}` |
 | `kb_ingest` | `collection_id, source{type: text\|url\|handle\|report\|file_text, value}, metadata?, chunk_size=800, overlap=100` | job → `{documents, chunks, tokens_embedded}` |
 | `kb_search` | `query, collection_id? \| project_id?, top_k≤20 (default 6), mode: hybrid\|vector\|keyword, filter?{metadata}, min_score?` | `{results:[{chunk_id, document_title, source, text≤600, score}]}` |
@@ -238,7 +238,7 @@ Hybrid = RRF(vector cosine top 30, `tsvector` top 30). Embedding batch 64 teks/p
 
 | Tool | Input | Output |
 |---|---|---|
-| `sentiment_analyze` | `source{handle \| texts[]≤300}, aspects?[] (mis. harga, rasa, layanan), method: auto\|model\|llm, language: auto\|id\|en, group_by?: day\|keyword\|source` | job bila > 300 → `{distribution{positive,neutral,negative}, net_sentiment, by_group{cols,rows}, aspects?{cols,rows}, examples{positive[3], negative[3]}, handle (per item), cost}` |
+| `sentiment_analyze` | `source{handle \| texts[]≤300}, aspects?[]≤10 (mis. harga, rasa, layanan), method: auto\|model\|llm, language: auto\|id\|en, group_by?: day\|keyword\|source\|author, confirm_cost? (wajib untuk method=llm), wait_s?` | job bila > 300 → `{distribution{positive,neutral,negative}, net_sentiment, by_group{cols,rows}, aspects?{cols,rows}, examples{positive[3], negative[3]}, handle (per item), cost}` |
 | `sentiment_summary` | `handle, group_by, compare_handle?` | statistik + perubahan antar periode |
 | `market_analyze` | `subject (brand/produk/kategori), competitors[]≤5, period{since,until}, geo='ID', sources?{trends:true, x:true, threads:true, web_urls?[]}, use_handles?[], frameworks?[swot, competitor_matrix, share_of_voice, porter5, pestel], depth: quick\|standard\|deep` | job → `report_id` + `summary` (≤ 8 bullet) + `key_numbers` |
 | `campaign_analyze` | `mode: plan\|evaluate, campaign{name, objective, audience, channels[], budget_idr?, period, kpis?[], assets?}, results?{metrics per channel} \| handles?, benchmarks?` | `report_id` + `{funnel, kpi_smart[], channel_mix[], budget_split[], risks[], recommendations[≤7]}` |
