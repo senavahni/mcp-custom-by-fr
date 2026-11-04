@@ -1,4 +1,4 @@
-"""Registrasi handler job: pemeliharaan, web, sosial, Trends (TASK-14..17), KB (TASK-19)."""
+"""Registrasi handler job: pemeliharaan, web, sosial, Trends (TASK-14..17), KB (TASK-19), intel."""
 
 from mcp_marketing.worker.handlers.base import HandlerRegistry
 from mcp_marketing.worker.handlers.kb import KbIngestHandler, KbSyncDashboardHandler
@@ -23,6 +23,9 @@ from mcp_marketing.worker.handlers.web import (
 
 
 def default_registry() -> HandlerRegistry:
+    # impor di sini: pipeline intel mengimpor submodul handler (hindari impor melingkar paket)
+    from mcp_marketing.services.intel.pipeline import IntelPipelineHandler
+
     registry = HandlerRegistry()
     handlers = (
         CacheCleanupHandler(),
@@ -40,6 +43,7 @@ def default_registry() -> HandlerRegistry:
         KbIngestHandler(),
         KbSyncDashboardHandler(),
         SentimentAnalyzeHandler(),
+        IntelPipelineHandler(),
     )
     for handler in handlers:
         registry.register(handler)

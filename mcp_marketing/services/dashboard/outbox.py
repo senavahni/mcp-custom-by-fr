@@ -1,10 +1,11 @@
-"""Webhook outbox MCP -> Dashboard (contract 1.0 §5): HMAC, idempoten, BERURUTAN per run.
+"""Webhook outbox MCP -> Dashboard (contract 1.0 §5): HMAC, idempoten, BERURUTAN per stream.
 
-- `emit()` memvalidasi data event, menyimpan baris `webhook_outbox` dengan `seq` = max+1 per run
-  (dikunci `SELECT … FOR UPDATE` pada baris `runs`).
-- Sender loop: hanya seq terkecil yang belum terkirim per run yang boleh dikirim (satu in-flight
-  per run, maks 8 run paralel). Status `sending` dianggap pending saat restart (event_id sama ->
-  Dashboard membalas `duplicate` bila sudah pernah diproses).
+Stream = satu run (event `agent.*`, kontrak 1.0) atau satu job `intel` (event `intel.job.*`, 1.2).
+- `emit()` / `emit_job()` memvalidasi data event, menyimpan baris `webhook_outbox` dengan `seq` =
+  max+1 per stream (dikunci `SELECT … FOR UPDATE` pada baris `runs` / `intel_jobs`).
+- Sender loop: hanya seq terkecil yang belum terkirim per stream yang boleh dikirim (satu in-flight
+  per stream, maks 8 stream paralel). Status `sending` dianggap pending saat restart (event_id sama
+  -> Dashboard membalas `duplicate` bila sudah pernah diproses).
 """
 
 from __future__ import annotations
@@ -26,8 +27,10 @@ from mcp_marketing.core.database import Database
 from mcp_marketing.core.errors import RunNotActive, ToolError, UpstreamTimeout, ValidationFailed
 from mcp_marketing.core.logging import get_logger
 from mcp_marketing.core.metrics import OUTBOX_PENDING, WEBHOOK_LATENCY, WEBHOOK_SENT
-from mcp_marketing.models import Run, WebhookOutbox
+from mcp_marketing.models import IntelJob, Run, WebhookOutbox
 from mcp_marketing.schemas.contract import validate_event_data
+from mcp_marketing.schemas.intel import CONTRACT_VERSION as INTEL_CONTRACT_VERSION
+from mcp_marketing.schemas.intel import validate_intel_event_data
 from mcp_marketing.services.dashboard import signer
 from mcp_marketing.services.dashboard.origin import same_origin
 from mcp_marketing.utils.text import truncate
@@ -53,7 +56,8 @@ class EmittedEvent:
     id: int
     event_id: str
     seq: int
-    run_id: str
+    run_id: str | None
+    job_id: str | None = None
 
 
 def _iso(dt: Any) -> str:
@@ -140,6 +144,62 @@ class Outbox:
         self._wake.set()
         return emitted
 
+    async def emit_job(self, job_id: str, event_type: str, data: dict[str, Any]) -> EmittedEvent:
+        """Event `intel.job.*` (kontrak 1.2); `sequence` di envelope = `seq` outbox per job."""
+        try:
+            clean = validate_intel_event_data(event_type, data)
+        except ValueError as exc:
+            raise ValidationFailed(
+                f"Data event {event_type} tidak valid: {truncate(str(exc), 300)}"
+            ) from None
+        async with self.db.session() as session:
+            job = (
+                await session.execute(
+                    select(IntelJob).where(IntelJob.id == job_id).with_for_update()
+                )
+            ).scalar_one_or_none()
+            if job is None:
+                raise ValidationFailed(f"Job intel {job_id} tidak dikenal MCP")
+            job.event_sequence += 1
+            seq = job.event_sequence
+            event_id = str(uuid.uuid4())
+            payload = {
+                "contract_version": INTEL_CONTRACT_VERSION,
+                "event_id": event_id,
+                "event_type": event_type,
+                "occurred_at": _iso(now()),
+                "job_id": str(job.dashboard_job_id),
+                "mcp_job_id": job.id,
+                "sequence": seq,
+                "data": clean,
+            }
+            row = WebhookOutbox(
+                event_id=uuid.UUID(event_id),
+                job_id=job.id,
+                seq=seq,
+                event_type=event_type,
+                payload=payload,
+            )
+            session.add(row)
+            await session.flush()
+            emitted = EmittedEvent(
+                id=row.id, event_id=event_id, seq=seq, run_id=None, job_id=job_id
+            )
+        self._wake.set()
+        return emitted
+
+    async def discard_job(self, job_id: str, reason: str = "job_not_active") -> int:
+        async with self.db.session() as session:
+            result = await session.execute(
+                update(WebhookOutbox)
+                .where(
+                    WebhookOutbox.job_id == job_id,
+                    WebhookOutbox.status.in_(("pending", "sending")),
+                )
+                .values(status="discarded", last_error=reason)
+            )
+        return int(result.rowcount or 0)  # type: ignore[attr-defined]
+
     async def emit_and_wait(
         self,
         run_id: str,
@@ -217,36 +277,44 @@ class Outbox:
                 await session.execute(
                     text(
                         """
-                SELECT DISTINCT ON (run_id) id, run_id, next_attempt_at <= now() AS due
-                FROM mcp.webhook_outbox WHERE status IN ('pending', 'sending')
-                ORDER BY run_id, seq
+                SELECT DISTINCT ON (stream) id, stream, next_attempt_at <= now() AS due
+                FROM (
+                  SELECT id, seq, next_attempt_at,
+                         COALESCE(run_id::text, 'job:' || job_id) AS stream
+                  FROM mcp.webhook_outbox WHERE status IN ('pending', 'sending')
+                ) pending
+                ORDER BY stream, seq
                 """
                     )
                 )
             ).all()
         OUTBOX_PENDING.set(len(heads))
-        due = [h for h in heads if h.due and str(h.run_id) not in self._inflight]
+        due = [h for h in heads if h.due and h.stream not in self._inflight]
         if not due:
             return 0
         results = await asyncio.gather(
-            *(self._send_guarded(h.id, str(h.run_id)) for h in due), return_exceptions=True
+            *(self._send_guarded(h.id, h.stream) for h in due), return_exceptions=True
         )
         for r in results:
             if isinstance(r, BaseException):
                 log.warning("outbox.send_error", error=type(r).__name__)
         return sum(1 for r in results if r is True)
 
-    async def _send_guarded(self, row_id: int, run_id: str) -> bool:
-        self._inflight.add(run_id)
+    async def _send_guarded(self, row_id: int, stream: str) -> bool:
+        self._inflight.add(stream)
         try:
             async with self._sem:
                 return await self._send(row_id)
         finally:
-            self._inflight.discard(run_id)
+            self._inflight.discard(stream)
 
     async def _target_url(self, row: WebhookOutbox) -> str:
-        async with self.db.session() as session:
-            callback = await session.scalar(select(Run.callback).where(Run.run_id == row.run_id))
+        callback = None
+        if row.run_id is not None:
+            async with self.db.session() as session:
+                callback = await session.scalar(
+                    select(Run.callback).where(Run.run_id == row.run_id)
+                )
         api = self.settings.dashboard.dashboard_api_url
         url = (callback or {}).get("webhook_url")
         # webhook bertanda tangan hanya ke origin Dashboard yang dikonfigurasi
@@ -302,6 +370,20 @@ class Outbox:
             )
             WEBHOOK_SENT.labels("duplicate" if dup else "delivered").inc()
             self._resolve(event_id, result={**result, "duplicate": True} if dup else result)
+            return
+        if (
+            row.job_id is not None
+            and status in (404, 409)
+            and code in ("NOT_FOUND", "JOB_NOT_ACTIVE")
+        ):
+            # Dashboard tidak mengenal / sudah menutup job: event sisanya tidak berguna
+            await self._finalize(row, "discarded", status, error=f"{code}: {message}")
+            discarded = await self.discard_job(row.job_id, reason=code.lower())
+            WEBHOOK_SENT.labels("job_not_active").inc()
+            log.warning("outbox.job_not_active", job_id=row.job_id, discarded=discarded)
+            self._resolve(
+                event_id, error=OutboxRejected(f"Dashboard: {message}", code="JOB_NOT_ACTIVE")
+            )
             return
         if status == 409 and code == "RUN_NOT_ACTIVE":
             await self._finalize(row, "discarded", status, error=message)

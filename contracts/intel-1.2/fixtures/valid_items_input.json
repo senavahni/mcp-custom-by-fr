@@ -1,0 +1,16 @@
+{
+  "name": "valid_items_input",
+  "payload": {
+    "filter": {
+      "q": "mahal",
+      "sentiment": "negative",
+      "source": "x"
+    },
+    "limit": 50,
+    "mcp_job_id": "j_k3m9x2qa1b",
+    "order_by": "-engagement",
+    "workspace_id": "00000000-0000-4000-8000-000000000001"
+  },
+  "schema": "items_input",
+  "valid": true
+}

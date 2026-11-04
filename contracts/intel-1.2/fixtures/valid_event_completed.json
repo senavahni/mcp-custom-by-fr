@@ -1,0 +1,38 @@
+{
+  "name": "valid_event_completed",
+  "payload": {
+    "contract_version": "1.2",
+    "data": {
+      "cost": {
+        "by_stage": [
+          {
+            "agent_key": "analyst",
+            "llm_tokens": 38211,
+            "stage": "analyze",
+            "usd_llm": 0.094
+          }
+        ],
+        "external_units": 500,
+        "llm_tokens": 38211,
+        "usd_external": 0.0,
+        "usd_llm": 0.094
+      },
+      "partial": false,
+      "summary_preview": "Sentimen dominan positif",
+      "totals": {
+        "by_source": {
+          "x": 500
+        },
+        "items": 500
+      }
+    },
+    "event_id": "66666666-6666-4666-8666-666666666666",
+    "event_type": "intel.job.completed",
+    "job_id": "55555555-5555-4555-8555-555555555555",
+    "mcp_job_id": "j_k3m9x2qa1b",
+    "occurred_at": "2026-11-04T01:00:00Z",
+    "sequence": 1
+  },
+  "schema": "event",
+  "valid": true
+}

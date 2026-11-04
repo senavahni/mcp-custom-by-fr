@@ -1,0 +1,10 @@
+{
+  "expect_path": "mcp_job_id",
+  "name": "invalid_items_bad_job_id",
+  "payload": {
+    "mcp_job_id": "job-1",
+    "workspace_id": "00000000-0000-4000-8000-000000000001"
+  },
+  "schema": "items_input",
+  "valid": false
+}

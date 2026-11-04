@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.5.0-dev — 2026-11-04
+
+### Modul 3 Dashboard — kontrak 1.2 & toolset `intel` (M3_TASK_000, M3_TASK_007)
+- Kontrak 1.2 (`schemas/intel.py`) + 50 fixture bersama `contracts/intel-1.2/` (+ `SHA256SUMS`) yang
+  juga divalidasi Zod Dashboard; generator `scripts/export_intel_fixtures.py [--dashboard <repo>]`.
+- Toolset `intel` (khusus klien `dashboard-intel`, output `machine_output` tanpa kompaksi):
+  `intel_agents_list`, `intel_sources_status`, `intel_job_estimate`, `intel_job_create` (idempoten per
+  `dashboard_job_id`), `intel_job_get`, `intel_job_cancel`, `intel_items`, `intel_llm_status`.
+- Job induk `intel_pipeline`: tahap Kumpulkan menjalankan collector yang ada sebagai job anak
+  (`parent_job_id`) di slot induk; tahap Analisis = sentimen + statistik Python + satu sintesis LLM
+  (route agent, sampel dibungkus `<untrusted_content>`). Validasi kapabilitas agent per tahap
+  (`UNKNOWN_AGENT`/`AGENT_INACTIVE`/`AGENT_NOT_CAPABLE`), scoping `workspace_id` di setiap tool.
+- Event `intel.job.*` lewat outbox yang sama: stream per run **atau** per job (`webhook_outbox.job_id`,
+  `run_id` nullable), urut `sequence`; 404/409 `JOB_NOT_ACTIVE` dari Dashboard membuang sisa stream.
+- Atribusi LLM: header `X-Caller-Agent`/`X-Caller-Task` + kolom `llm_calls.agent_key/job_id/stage`.
+- Migrasi `0003_intel`; kode error baru (`AGENT_*`, `SOURCE_UNAVAILABLE`, `LLM_*`, `JOB_NOT_ACTIVE`, …).
+
 ## 0.4.0-dev — 2026-11-03
 
 ### TASK-18 — Tools CRUD database (`db_*`)

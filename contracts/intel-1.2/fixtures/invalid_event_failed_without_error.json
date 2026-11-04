@@ -1,0 +1,18 @@
+{
+  "expect_path": "data.error",
+  "name": "invalid_event_failed_without_error",
+  "payload": {
+    "contract_version": "1.2",
+    "data": {
+      "stage": "analyze"
+    },
+    "event_id": "66666666-6666-4666-8666-666666666666",
+    "event_type": "intel.job.failed",
+    "job_id": "55555555-5555-4555-8555-555555555555",
+    "mcp_job_id": "j_k3m9x2qa1b",
+    "occurred_at": "2026-11-04T01:00:00Z",
+    "sequence": 1
+  },
+  "schema": "event",
+  "valid": false
+}

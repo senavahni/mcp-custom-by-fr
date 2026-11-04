@@ -50,7 +50,8 @@ class FakeDashboard:
             )
         payload = json.loads(body)
         self.received.append(payload)
-        if self.run_status.get(payload["run_id"]) in ("cancelled", "completed", "failed"):
+        # event intel.job.* (kontrak 1.2) memakai envelope job tanpa run_id
+        if self.run_status.get(payload.get("run_id", "")) in ("cancelled", "completed", "failed"):
             return httpx.Response(409, json={"error": {"code": "RUN_NOT_ACTIVE", "message": "x"}})
         if self.responses:
             return self.responses.pop(0)(payload)

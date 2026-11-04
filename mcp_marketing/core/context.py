@@ -7,7 +7,17 @@ from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from typing import Any
 
-CONTEXT_FIELDS = ("request_id", "client_id", "client_name", "run_id", "job_id", "tool")
+CONTEXT_FIELDS = (
+    "request_id",
+    "client_id",
+    "client_name",
+    "run_id",
+    "job_id",
+    "tool",
+    # atribusi panggilan LLM per agent & tahap job `intel` (header X-Caller-*, mcp.llm_calls)
+    "agent_key",
+    "stage",
+)
 
 _vars: dict[str, ContextVar[str | None]] = {
     name: ContextVar(f"mcp_{name}", default=None) for name in CONTEXT_FIELDS

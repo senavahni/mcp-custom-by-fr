@@ -1,0 +1,34 @@
+{
+  "name": "valid_items_page",
+  "payload": {
+    "cols": [
+      "id",
+      "source",
+      "posted_at",
+      "author",
+      "text",
+      "url",
+      "engagement",
+      "sentiment",
+      "score"
+    ],
+    "expires_at": "2026-12-04T00:00:00Z",
+    "next_cursor": "eyJpIjo1MH0",
+    "rows": [
+      [
+        "p1",
+        "x",
+        "2026-10-02T03:00:00Z",
+        "akun_a",
+        "Tools AI ini menghemat waktu.",
+        "https://x.com/a/1",
+        12,
+        "positive",
+        0.91
+      ]
+    ],
+    "total": 500
+  },
+  "schema": "items_page",
+  "valid": true
+}

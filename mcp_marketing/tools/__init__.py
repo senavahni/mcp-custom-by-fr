@@ -16,6 +16,7 @@ TOOL_MODULES = (
     "db",
     "kb",
     "analysis",
+    "intel",
 )
 
 

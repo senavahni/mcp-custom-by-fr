@@ -1,0 +1,11 @@
+{
+  "expect_path": "limit",
+  "name": "invalid_items_limit",
+  "payload": {
+    "limit": 101,
+    "mcp_job_id": "j_k3m9x2qa1b",
+    "workspace_id": "00000000-0000-4000-8000-000000000001"
+  },
+  "schema": "items_input",
+  "valid": false
+}

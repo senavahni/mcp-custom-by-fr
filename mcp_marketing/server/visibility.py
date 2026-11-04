@@ -23,6 +23,7 @@ TOOLSET_DESCRIPTIONS: dict[str, str] = {
     "db_admin": "SQL read-only bebas (admin)",
     "kb": "Vector DB / knowledge base",
     "analysis": "Sentimen, pasar, campaign, strategi digital",
+    "intel": "Job riset multi-tahap untuk Dashboard Modul 3 (kontrak 1.2)",
 }
 
 

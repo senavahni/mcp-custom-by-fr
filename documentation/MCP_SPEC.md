@@ -25,6 +25,7 @@ Katalog tool, kontrak input/output, aturan hemat token, dan integrasi dengan Das
 | `db` | `db_entities`, `db_query`, `db_get`, `db_create`, `db_update`, `db_delete`, `db_sql_readonly`* | agent, klien (*admin) | 18 |
 | `kb` | `kb_collections`, `kb_collection_create`, `kb_ingest`, `kb_search`, `kb_delete`, `kb_sync_dashboard` | agent, klien | 19 |
 | `analysis` | `sentiment_analyze`, `sentiment_summary`, `market_analyze`, `campaign_analyze`, `dm_strategy`, `report_get`, `report_publish` | agent, klien | 20–23 |
+| `intel` | `intel_agents_list`, `intel_sources_status`, `intel_job_estimate`, `intel_job_create`, `intel_job_get`, `intel_job_cancel`, `intel_items`, `intel_llm_status` | **Dashboard Modul 3 saja** (klien `dashboard-intel`) | 28 |
 
 Total ±57 tool. **Tidak ada klien yang melihat semuanya sekaligus** — visibilitas difilter per API key dan per profil agent (§1.3, §7).
 
@@ -247,6 +248,21 @@ Hybrid = RRF(vector cosine top 30, `tsvector` top 30). Embedding batch 64 teks/p
 | `report_publish` | `report_id, target{project_brief\|task\|new_task, project_id, task_id?}, run_id?` | `{blocks_applied, url}` |
 
 Pipeline analisis selalu: **kumpulkan (job) → hitung (Python) → sampel (T5) → LLM sekali/dua kali dengan input padat → validasi JSON → simpan `analysis_reports`**.
+
+### 4.11 Toolset `intel` — job riset Dashboard Modul 3 (kontrak 1.2)
+
+Sumber kebenaran: `mcp_marketing/schemas/intel.py` + fixture `contracts/intel-1.2/`; spesifikasi lengkap di repo Dashboard `Documentation/modul3/M3_MCP_INTEGRATION.md`.
+
+| Tool | Ringkas |
+|---|---|
+| `intel_agents_list` | Profil agent + `capabilities` (collect = `social`/`web`/`trends`; analyze = `analysis` tanpa `sentiment_analyze` di denylist; index = `kb`) |
+| `intel_sources_status` | Ketersediaan X/Threads (API/browser), Web (profil `default`), Trends, route LLM |
+| `intel_job_estimate` / `intel_job_create` | Validasi agent per tahap + estimasi; create idempoten per `dashboard_job_id`, butuh `confirm_cost` bila ada biaya eksternal / LLM > USD 1 |
+| `intel_job_get` / `intel_job_cancel` | Status per tahap, hasil (sentimen, tren, ringkasan, volume), biaya; batal rekursif ke job anak |
+| `intel_items` | Halaman data mentah (`intel_items` result set) dengan filter sumber/sentimen/teks |
+| `intel_llm_status` | Pemakaian LLM per agent (`llm_calls.agent_key`) + `/v1/usage` project Gateway |
+
+Semua tool wajib `workspace_id`; job workspace lain → `NOT_FOUND`. Output `machine_output` (tanpa kompaksi T1/T2). Event `intel.job.*` dikirim lewat outbox per job (§5).
 
 ---
 

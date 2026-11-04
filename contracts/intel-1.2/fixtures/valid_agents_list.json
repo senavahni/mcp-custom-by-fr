@@ -1,0 +1,35 @@
+{
+  "name": "valid_agents_list",
+  "payload": {
+    "agents": [
+      {
+        "agent_key": "researcher",
+        "capabilities": [
+          "collect",
+          "analyze",
+          "index"
+        ],
+        "display_name": "Agent Researcher",
+        "gateway_key": {
+          "prefix": null,
+          "source": "env"
+        },
+        "is_active": true,
+        "route": "smart",
+        "run_token_budget": 150000,
+        "toolsets": [
+          "pm_agent",
+          "web",
+          "social",
+          "trends",
+          "kb",
+          "analysis",
+          "data",
+          "job"
+        ]
+      }
+    ]
+  },
+  "schema": "agents_list",
+  "valid": true
+}

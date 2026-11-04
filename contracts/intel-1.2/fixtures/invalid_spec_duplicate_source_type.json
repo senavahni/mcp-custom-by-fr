@@ -1,0 +1,53 @@
+{
+  "expect_path": "sources",
+  "name": "invalid_spec_duplicate_source_type",
+  "payload": {
+    "language": "id",
+    "period": {
+      "since": "2026-10-01",
+      "until": "2026-10-30"
+    },
+    "sources": [
+      {
+        "exclude_replies": false,
+        "exclude_retweets": true,
+        "keywords": [
+          "AI marketing tools"
+        ],
+        "lang": "id",
+        "match": "any",
+        "max_items": 500,
+        "provider": "auto",
+        "type": "x"
+      },
+      {
+        "exclude_replies": false,
+        "exclude_retweets": true,
+        "keywords": [
+          "AI marketing tools"
+        ],
+        "lang": "id",
+        "match": "any",
+        "max_items": 500,
+        "provider": "auto",
+        "type": "x"
+      }
+    ],
+    "stages": {
+      "analyze": {
+        "agent_key": "analyst",
+        "aspects": [
+          "harga",
+          "fitur"
+        ],
+        "method": "auto"
+      },
+      "collect": {
+        "agent_key": "researcher"
+      }
+    },
+    "title": "X · AI marketing tools · Okt 2026"
+  },
+  "schema": "job_spec",
+  "valid": false
+}

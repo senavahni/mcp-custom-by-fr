@@ -1,0 +1,36 @@
+{
+  "name": "valid_sources_status",
+  "payload": {
+    "checked_at": "2026-11-04T01:00:00Z",
+    "llm": {
+      "routes": [
+        {
+          "available": true,
+          "route": "fast"
+        },
+        {
+          "available": true,
+          "route": "smart"
+        }
+      ]
+    },
+    "sources": [
+      {
+        "available": true,
+        "checked_at": "2026-11-04T01:00:00Z",
+        "detail": "browser profile 'default' login",
+        "mode": "browser",
+        "source": "x"
+      },
+      {
+        "available": true,
+        "checked_at": "2026-11-04T01:00:00Z",
+        "detail": "provider unofficial",
+        "mode": "unofficial",
+        "source": "trends"
+      }
+    ]
+  },
+  "schema": "sources_status",
+  "valid": true
+}

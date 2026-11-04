@@ -1,0 +1,63 @@
+{
+  "expect_path": "sources.0.keywords.0",
+  "name": "invalid_spec_keyword_too_long",
+  "payload": {
+    "language": "id",
+    "period": {
+      "since": "2026-10-01",
+      "until": "2026-10-30"
+    },
+    "sources": [
+      {
+        "exclude_replies": false,
+        "exclude_retweets": true,
+        "keywords": [
+          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        ],
+        "lang": "id",
+        "match": "any",
+        "max_items": 500,
+        "provider": "auto",
+        "type": "x"
+      },
+      {
+        "keywords": [
+          "AI marketing"
+        ],
+        "max_items": 300,
+        "search_type": "RECENT",
+        "type": "threads"
+      },
+      {
+        "mode": "scrape",
+        "type": "web",
+        "urls": [
+          "https://contoh.id/artikel"
+        ]
+      },
+      {
+        "geo": "ID",
+        "keywords": [
+          "AI marketing"
+        ],
+        "type": "trends"
+      }
+    ],
+    "stages": {
+      "analyze": {
+        "agent_key": "analyst",
+        "aspects": [
+          "harga",
+          "fitur"
+        ],
+        "method": "auto"
+      },
+      "collect": {
+        "agent_key": "researcher"
+      }
+    },
+    "title": "X · AI marketing tools · Okt 2026"
+  },
+  "schema": "job_spec",
+  "valid": false
+}

@@ -1,0 +1,39 @@
+{
+  "name": "valid_job_accepted",
+  "payload": {
+    "accepted": true,
+    "estimate": {
+      "llm": {
+        "by_stage": [
+          {
+            "agent_key": "analyst",
+            "route": "smart",
+            "stage": "analyze",
+            "tokens_est": 32000
+          }
+        ],
+        "tokens_est": 40000,
+        "usd_est": 0.1
+      },
+      "requires_confirmation": true,
+      "seconds": 360,
+      "sources": [
+        {
+          "external_units": 500,
+          "mode": "browser",
+          "type": "x",
+          "usd_external": 0.0
+        }
+      ],
+      "warnings": [
+        {
+          "code": "X_API_WINDOW",
+          "message": "X API hanya 7 hari terakhir; memakai mode browser"
+        }
+      ]
+    },
+    "mcp_job_id": "j_k3m9x2qa1b"
+  },
+  "schema": "job_accepted",
+  "valid": true
+}

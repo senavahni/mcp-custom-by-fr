@@ -25,6 +25,18 @@ ErrorCode = Literal[
     "UNKNOWN_AGENT",
     "HIERARCHY_DEPTH_EXCEEDED",
     "INTERNAL",
+    # kontrak 1.2 toolset `intel`
+    "AGENT_INACTIVE",
+    "AGENT_NOT_CAPABLE",
+    "COST_CONFIRMATION_REQUIRED",
+    "SOURCE_UNAVAILABLE",
+    "JOB_NOT_ACTIVE",
+    "RESULT_EXPIRED",
+    "LLM_KEY_INVALID",
+    "LLM_QUOTA_EXCEEDED",
+    "LLM_UNAVAILABLE",
+    "LLM_REQUEST_INVALID",
+    "WORKER_LOST",
 ]
 MAX_VALIDATION_FIELDS = 5
 MAX_MESSAGE_CHARS = 500
@@ -130,6 +142,30 @@ class HierarchyDepthExceeded(ToolError):
 
 class InternalError(ToolError):
     code = "INTERNAL"
+
+
+class AgentInactive(ToolError):
+    code = "AGENT_INACTIVE"
+
+
+class AgentNotCapable(ToolError):
+    code = "AGENT_NOT_CAPABLE"
+
+
+class CostConfirmationRequired(ToolError):
+    code = "COST_CONFIRMATION_REQUIRED"
+
+
+class SourceUnavailable(ToolError):
+    code = "SOURCE_UNAVAILABLE"
+
+
+class JobNotActive(ToolError):
+    code = "JOB_NOT_ACTIVE"
+
+
+class ResultExpired(ToolError):
+    code = "RESULT_EXPIRED"
 
 
 def validation_error_from(exc: ValidationError) -> ValidationFailed:

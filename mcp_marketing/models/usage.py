@@ -53,6 +53,9 @@ class LlmCall(Base):
     latency_ms: Mapped[int]
     status: Mapped[str] = mapped_column(String(16))
     error_code: Mapped[str | None] = mapped_column(String(48))
+    agent_key: Mapped[str | None] = mapped_column(String(100))
+    job_id: Mapped[str | None] = mapped_column(String(16))
+    stage: Mapped[str | None] = mapped_column(String(16))
     created_at: Mapped[datetime] = ts_default()
 
 

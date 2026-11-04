@@ -1,0 +1,15 @@
+{
+  "expect_path": "job_id",
+  "name": "invalid_event_missing_job_id",
+  "payload": {
+    "contract_version": "1.2",
+    "data": {},
+    "event_id": "66666666-6666-4666-8666-666666666666",
+    "event_type": "intel.job.started",
+    "mcp_job_id": "j_k3m9x2qa1b",
+    "occurred_at": "2026-11-04T01:00:00Z",
+    "sequence": 1
+  },
+  "schema": "event",
+  "valid": false
+}

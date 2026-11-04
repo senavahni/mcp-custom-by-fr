@@ -1,0 +1,164 @@
+{
+  "name": "valid_job_view_completed",
+  "payload": {
+    "cost": {
+      "by_stage": [
+        {
+          "agent_key": "analyst",
+          "llm_tokens": 38211,
+          "stage": "analyze",
+          "usd_llm": 0.094
+        }
+      ],
+      "external_units": 500,
+      "llm_tokens": 38211,
+      "usd_external": 0.0,
+      "usd_llm": 0.094
+    },
+    "dashboard_job_id": "55555555-5555-4555-8555-555555555555",
+    "error": null,
+    "mcp_job_id": "j_k3m9x2qa1b",
+    "result": {
+      "google_trends": null,
+      "items_expire_at": "2026-12-04T00:00:00Z",
+      "items_handle": "h_7qk2m9x1za",
+      "partial": false,
+      "recommendations": [
+        "Perbanyak konten studi kasus."
+      ],
+      "sentiment": {
+        "aspects": {
+          "cols": [
+            "aspect",
+            "mentions",
+            "positive",
+            "neutral",
+            "negative",
+            "net"
+          ],
+          "rows": [
+            [
+              "harga",
+              40,
+              10,
+              10,
+              20,
+              -0.25
+            ]
+          ]
+        },
+        "by_day": {
+          "cols": [
+            "day",
+            "total",
+            "positive",
+            "neutral",
+            "negative",
+            "net"
+          ],
+          "rows": [
+            [
+              "2026-10-01",
+              20,
+              12,
+              6,
+              2,
+              0.5
+            ]
+          ]
+        },
+        "distribution": {
+          "negative": 0.1,
+          "neutral": 0.3,
+          "positive": 0.6
+        },
+        "examples": {
+          "negative": [],
+          "positive": [
+            {
+              "author": "akun_a",
+              "created_at": "2026-10-02T03:00:00Z",
+              "id": "p1",
+              "source": "x",
+              "text": "Tools AI ini menghemat waktu kami.",
+              "url": "https://x.com/akun_a/status/1"
+            }
+          ]
+        },
+        "net_sentiment": 0.5
+      },
+      "summary_md": "## Ringkasan\n- Sentimen dominan **positif** (60%).",
+      "totals": {
+        "by_source": {
+          "x": 500
+        },
+        "items": 500
+      },
+      "trends": {
+        "authors": [
+          [
+            "akun_a",
+            14
+          ]
+        ],
+        "hashtags": [
+          [
+            "ai",
+            120
+          ]
+        ],
+        "topics": [
+          {
+            "count": 84,
+            "label": "otomasi konten",
+            "share": 0.17
+          }
+        ]
+      },
+      "volume_by_day": {
+        "cols": [
+          "day",
+          "source",
+          "count"
+        ],
+        "rows": [
+          [
+            "2026-10-01",
+            "x",
+            20
+          ]
+        ]
+      },
+      "warnings": []
+    },
+    "stages": [
+      {
+        "agent_key": "researcher",
+        "error": null,
+        "finished_at": "2026-11-04T01:00:00Z",
+        "progress": {
+          "done": 500,
+          "total": 500
+        },
+        "stage": "collect",
+        "started_at": "2026-11-04T01:00:00Z",
+        "status": "completed"
+      },
+      {
+        "agent_key": "analyst",
+        "error": null,
+        "finished_at": "2026-11-04T01:00:00Z",
+        "progress": {
+          "done": 500,
+          "total": 500
+        },
+        "stage": "analyze",
+        "started_at": "2026-11-04T01:00:00Z",
+        "status": "completed"
+      }
+    ],
+    "status": "completed"
+  },
+  "schema": "job_view",
+  "valid": true
+}

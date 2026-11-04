@@ -131,6 +131,18 @@ def _parse_tool_calls(message: Any) -> list[ToolCallRequest]:
     return calls
 
 
+def caller_headers() -> dict[str, str]:
+    """Atribusi di Gateway (`/admin/usage`): agent & tahap job `intel` bila sedang berjalan."""
+    headers = {}
+    agent_key = context.get("agent_key")
+    if agent_key:
+        headers["X-Caller-Agent"] = agent_key
+    stage, job_id = context.get("stage"), context.get("job_id")
+    if stage and job_id:
+        headers["X-Caller-Task"] = f"intel:{job_id}:{stage}"
+    return headers
+
+
 def parse_json_text(text: str) -> Any:
     cleaned = _FENCE_RE.sub("", text.strip()).strip()
     if not cleaned.startswith(("{", "[")):
@@ -295,7 +307,7 @@ class GatewayClient:
                     raise UpstreamError(
                         "API key LLM Gateway ditolak (cek LLM_GATEWAY_API_KEY)",
                         retryable=False,
-                        details={"status": status},
+                        details={"status": status, "reason": "gateway_auth"},
                     ) from None
                 assert isinstance(exc, openai.APIStatusError)
                 raise UpstreamError(
@@ -308,7 +320,7 @@ class GatewayClient:
         self, route: str, messages: list[dict[str, Any]], params: dict[str, Any]
     ) -> ChatResult:
         request_id = str(uuid.uuid4())
-        headers = {"X-Request-Id": request_id}
+        headers = {"X-Request-Id": request_id, **caller_headers()}
         correlation = context.get("request_id")
         if correlation:
             headers["X-Correlation-Id"] = correlation
@@ -420,7 +432,9 @@ class GatewayClient:
             started = time.perf_counter()
             try:
                 resp = await self.client.embeddings.create(
-                    model=route, input=batch, extra_headers={"X-Request-Id": str(uuid.uuid4())}
+                    model=route,
+                    input=batch,
+                    extra_headers={"X-Request-Id": str(uuid.uuid4()), **caller_headers()},
                 )
             except openai.APIError as exc:
                 if reservation is not None and budget is not None:
@@ -536,6 +550,9 @@ class GatewayClient:
             latency_ms=result.latency_ms,
             status=status,
             error_code=error_code,
+            agent_key=context.get("agent_key"),
+            job_id=context.get("job_id"),
+            stage=context.get("stage"),
         )
         task = asyncio.create_task(self._insert(row))
         self._pending.add(task)

@@ -226,6 +226,8 @@ class ToolPipeline:
                 spec, _dump(raw), response_format, ctx, status="job", compact_out=False
             )
         out = _dump(raw)
+        if spec.machine_output:
+            return self._finish(spec, out, response_format, ctx, status="ok", compact_out=False)
         out = await self._auto_handle(spec, out, ctx)
         if cache_key is not None:
             await self.services.cache.set(cache_key, "tool", out, int(spec.cache_ttl_s or 0))
@@ -281,7 +283,7 @@ class ToolPipeline:
     ) -> ToolOutcome:
         s = self.services.settings
         out = dict(out)
-        if isinstance(out.get("cost"), dict):
+        if isinstance(out.get("cost"), dict) and not spec.machine_output:
             out["cost"] = {
                 **out["cost"],
                 "llm_tokens": 0 if status == "cached" else ctx.llm_tokens,
@@ -290,7 +292,7 @@ class ToolPipeline:
             if ctx.external_units:
                 out["cost"]["external_units"] = ctx.external_units
         before = count_tokens(out)
-        if compact_out:
+        if compact_out and not spec.machine_output:
             result = compact(
                 out,
                 response_format=response_format,

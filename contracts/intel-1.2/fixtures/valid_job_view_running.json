@@ -1,0 +1,52 @@
+{
+  "name": "valid_job_view_running",
+  "payload": {
+    "cost": {
+      "by_stage": [
+        {
+          "agent_key": "analyst",
+          "llm_tokens": 38211,
+          "stage": "analyze",
+          "usd_llm": 0.094
+        }
+      ],
+      "external_units": 500,
+      "llm_tokens": 38211,
+      "usd_external": 0.0,
+      "usd_llm": 0.094
+    },
+    "dashboard_job_id": "55555555-5555-4555-8555-555555555555",
+    "error": null,
+    "mcp_job_id": "j_k3m9x2qa1b",
+    "result": null,
+    "stages": [
+      {
+        "agent_key": "researcher",
+        "error": null,
+        "finished_at": "2026-11-04T01:00:00Z",
+        "progress": {
+          "done": 500,
+          "total": 500
+        },
+        "stage": "collect",
+        "started_at": "2026-11-04T01:00:00Z",
+        "status": "completed"
+      },
+      {
+        "agent_key": "analyst",
+        "error": null,
+        "finished_at": null,
+        "progress": {
+          "done": 120,
+          "total": 500
+        },
+        "stage": "analyze",
+        "started_at": "2026-11-04T01:00:00Z",
+        "status": "running"
+      }
+    ],
+    "status": "analyzing"
+  },
+  "schema": "job_view",
+  "valid": true
+}

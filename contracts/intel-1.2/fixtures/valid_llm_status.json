@@ -1,0 +1,23 @@
+{
+  "name": "valid_llm_status",
+  "payload": {
+    "agents": [
+      {
+        "agent_key": "analyst",
+        "key_prefix": null,
+        "key_source": "env",
+        "key_status": "unknown",
+        "last_error": null,
+        "usage": {
+          "calls": 10,
+          "completion_tokens": 8000,
+          "prompt_tokens": 30000,
+          "usd": 0.09
+        }
+      }
+    ],
+    "project": null
+  },
+  "schema": "llm_status",
+  "valid": true
+}

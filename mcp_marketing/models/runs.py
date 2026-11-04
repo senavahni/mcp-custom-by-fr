@@ -75,7 +75,11 @@ class WebhookOutbox(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     event_id: Mapped[uuid.UUID] = mapped_column(unique=True)
-    run_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("mcp.runs.run_id"))
+    # tepat satu dari run_id (event agent.* kontrak 1.0) atau job_id (event intel.job.* 1.2)
+    run_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("mcp.runs.run_id"))
+    job_id: Mapped[str | None] = mapped_column(
+        String(16), ForeignKey("mcp.intel_jobs.id", ondelete="CASCADE")
+    )
     seq: Mapped[int]
     event_type: Mapped[str] = mapped_column(String(48))
     payload: Mapped[dict[str, Any]]

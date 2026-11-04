@@ -1,0 +1,27 @@
+{
+  "name": "valid_spec_web_crawl_minimal",
+  "payload": {
+    "period": {
+      "since": "2026-10-01",
+      "until": "2026-10-31"
+    },
+    "sources": [
+      {
+        "mode": "crawl",
+        "start_url": "https://contoh.id/blog",
+        "type": "web"
+      }
+    ],
+    "stages": {
+      "analyze": {
+        "agent_key": "analyst"
+      },
+      "collect": {
+        "agent_key": "researcher"
+      }
+    },
+    "title": "Crawl blog kompetitor"
+  },
+  "schema": "job_spec",
+  "valid": true
+}

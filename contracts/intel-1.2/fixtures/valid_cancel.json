@@ -1,0 +1,9 @@
+{
+  "name": "valid_cancel",
+  "payload": {
+    "cancelled": true,
+    "status": "cancelling"
+  },
+  "schema": "cancel",
+  "valid": true
+}

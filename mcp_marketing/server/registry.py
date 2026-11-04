@@ -43,6 +43,9 @@ class ToolSpec:
     # tool yang hanya untuk agent runtime (run_id disuntik) tidak tampil ke klien eksternal
     agent_only: bool = False
     dev_only: bool = False
+    # output dibaca mesin (Dashboard), bukan LLM: tanpa kompaksi T1, auto-handle T2, atau
+    # penimpaan field `cost` — bentuknya kontrak tetap (toolset `intel`, kontrak 1.2)
+    machine_output: bool = False
 
     def input_schema(self) -> dict[str, Any]:
         return compact_schema(self.input_model.model_json_schema())
