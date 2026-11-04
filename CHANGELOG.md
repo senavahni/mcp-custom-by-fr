@@ -2,6 +2,17 @@
 
 ## 0.5.0-dev — 2026-11-04
 
+### Admin Console kredensial (`/console`)
+- Halaman statis `http://127.0.0.1:4100/console` (HTML/JS/CSS tanpa build, CSP `script-src 'self'`,
+  `frame-ancestors 'none'`, `no-store`): hanya dari peer loopback + Host lokal (anti DNS rebinding).
+  Masuk dengan key klien admin `mcpk_`; key hanya di memori tab, kunci otomatis 15 menit idle.
+- Menu: Mulai (alur key + checklist otomatis), Klien MCP (buat/rotasi/cabut `mcpk_`), Key LLM per
+  agent (provision ke Gateway, impor, nonaktifkan; sumber key efektif per agent), File .env (status
+  terisi/kosong/placeholder tanpa nilai; pembuat secret baru di browser). Penjelasan di tiap halaman.
+- Endpoint admin baru: `GET /admin/meta`, `GET /admin/env-status`, `POST /admin/clients/{id}/rotate`,
+  `GET /admin/llm-credentials`, `POST /admin/llm-credentials/{import,disable,provision}`. Admin key
+  Gateway untuk provisioning hanya dipakai selama request (tidak disimpan/dicatat).
+
 ### Modul 3 Dashboard — kontrak 1.2 & toolset `intel` (M3_TASK_000, M3_TASK_007)
 - Kontrak 1.2 (`schemas/intel.py`) + 50 fixture bersama `contracts/intel-1.2/` (+ `SHA256SUMS`) yang
   juga divalidasi Zod Dashboard; generator `scripts/export_intel_fixtures.py [--dashboard <repo>]`.

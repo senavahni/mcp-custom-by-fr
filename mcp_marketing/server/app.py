@@ -1,4 +1,4 @@
-"""Rakit app ASGI: /mcp (Streamable HTTP) + /health/* + /metrics + /admin/*."""
+"""Rakit app ASGI: /mcp (Streamable HTTP) + /health/* + /metrics + /admin/* + /console."""
 
 from __future__ import annotations
 
@@ -15,7 +15,9 @@ from starlette.types import ASGIApp
 
 from mcp_marketing.core.logging import get_logger
 from mcp_marketing.server.admin import build_admin_routes, health_payload
+from mcp_marketing.server.admin_console import build_console_admin_routes
 from mcp_marketing.server.auth import Authenticator
+from mcp_marketing.server.console import build_console_routes
 from mcp_marketing.server.mcp_server import build_mcp_server
 from mcp_marketing.server.middleware import (
     AuthMiddleware,
@@ -70,6 +72,8 @@ def build_asgi_app(
             Route("/health/ready", ready, methods=["GET"]),
             Route("/metrics", metrics, methods=["GET"]),
             *build_admin_routes(services, authenticator),
+            *build_console_admin_routes(services, authenticator),
+            *build_console_routes(),
             Mount("/mcp", app=StreamableHTTPASGIApp(manager)),
         ],
         lifespan=lifespan,
