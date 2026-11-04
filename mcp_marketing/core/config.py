@@ -6,6 +6,7 @@ dimuat sekali oleh `get_settings()` tanpa menimpa variabel yang sudah ada di env
 
 from __future__ import annotations
 
+import base64
 import os
 import re
 from functools import lru_cache
@@ -19,6 +20,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 PLACEHOLDER = "CHANGE_ME"
 MIN_SECRET_LEN = 32
+SECRET_KEY_BYTES = 32
 DASHBOARD_RUN_TIMEOUT_MINUTES = 120
 CONTRACT_VERSION_RE = re.compile(r"^1\.\d+$")
 
@@ -176,6 +178,9 @@ class Settings(_Group):
     log_dir: Path = Path("./logs")
     timezone: str = "Asia/Jakarta"
     mcp_key_pepper: SecretStr = SecretStr("CHANGE_ME_key_pepper_min_32_characters_xx")
+    # kunci AES-256-GCM (32 byte, base64) untuk key LLM Gateway per agent; kosong = semua agent
+    # memakai LLM_GATEWAY_API_KEY (M3_TASK_009)
+    mcp_secret_key: SecretStr | None = None
     default_toolsets: str = "toolbox,data,job"
     public_base_url: str = "http://127.0.0.1:4100"
     storage_dir: Path = Path("./storage")
@@ -228,6 +233,18 @@ class Settings(_Group):
             )
         if secrets["MCP_KEY_PEPPER"] in dashboard_secrets:
             raise ValueError("MCP_KEY_PEPPER harus berbeda dari ketiga secret Dashboard")
+        if self.mcp_secret_key is not None:
+            raw = self.mcp_secret_key.get_secret_value()
+            if raw in secrets.values():
+                raise ValueError(
+                    "MCP_SECRET_KEY harus berbeda dari MCP_KEY_PEPPER & secret Dashboard"
+                )
+            try:
+                ok = len(base64.b64decode(raw, validate=True)) == SECRET_KEY_BYTES
+            except ValueError:
+                ok = False
+            if not ok:
+                raise ValueError(f"MCP_SECRET_KEY harus {SECRET_KEY_BYTES} byte dalam base64")
         if self.app_env in ("prod", "staging"):
             placeholders = sorted(_placeholder_vars(self))
             if placeholders:

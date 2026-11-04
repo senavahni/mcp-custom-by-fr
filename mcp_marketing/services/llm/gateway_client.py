@@ -38,6 +38,7 @@ from mcp_marketing.core.metrics import LLM_TOKENS
 from mcp_marketing.models import LlmCall
 from mcp_marketing.services.agent.budget import BudgetScope
 from mcp_marketing.services.llm import prompts
+from mcp_marketing.services.llm.credentials import CredentialStore, GatewayKey
 from mcp_marketing.services.llm.route_policy import resolve
 from mcp_marketing.services.results.cache import ResultCache, llm_cache_key
 from mcp_marketing.utils.crypto import sha256_hex
@@ -164,19 +165,49 @@ class GatewayClient:
         sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
     ) -> None:
         self.settings = settings
-        llm = settings.llm
-        self.client = AsyncOpenAI(
-            base_url=llm.llm_gateway_url,
-            api_key=llm.llm_gateway_api_key.get_secret_value(),
-            timeout=llm.llm_timeout_s,
-            max_retries=0,
-            http_client=http_client,
+        self._http_client = http_client
+        env_key = settings.llm.llm_gateway_api_key.get_secret_value()
+        self.client = self._make_client(env_key)
+        self._clients: dict[str, AsyncOpenAI] = {env_key: self.client}
+        # key per agent (M3_TASK_009); None = semua panggilan memakai LLM_GATEWAY_API_KEY
+        self.credentials = (
+            CredentialStore(db, settings)
+            if db is not None and settings.mcp_secret_key is not None
+            else None
         )
         self.db = db
         self.cache = cache
         self._sleep = sleep
         self._pending: set[asyncio.Task[None]] = set()
         self._embed_cache_ok: bool | None = None
+
+    def _make_client(self, api_key: str) -> AsyncOpenAI:
+        llm = self.settings.llm
+        return AsyncOpenAI(
+            base_url=llm.llm_gateway_url,
+            api_key=api_key,
+            timeout=llm.llm_timeout_s,
+            max_retries=0,
+            http_client=self._http_client,
+        )
+
+    async def key_for(self, agent_key: str | None) -> GatewayKey:
+        if self.credentials is None:
+            return GatewayKey(self.settings.llm.llm_gateway_api_key.get_secret_value(), "env")
+        return await self.credentials.resolve(agent_key)
+
+    async def _client_for_context(self) -> tuple[AsyncOpenAI, GatewayKey]:
+        gk = await self.key_for(context.get("agent_key"))
+        client = self._clients.get(gk.key)
+        if client is None:
+            client = self._clients[gk.key] = self._make_client(gk.key)
+        return client, gk
+
+    async def _key_rejected(self, gk: GatewayKey, status: int) -> None:
+        if gk.credential_id is not None and self.credentials is not None:
+            await self.credentials.mark_invalid(
+                gk.credential_id, f"Gateway menolak key (HTTP {status})"
+            )
 
     # ------------------------------------------------------------------ chat
     async def chat(
@@ -252,9 +283,10 @@ class GatewayClient:
         rate_retries = 0
         upstream_retries = 0
         timeout_retried = False
+        client, gk = await self._client_for_context()
         while True:
             try:
-                return await self._call_once(route, messages, params)
+                return await self._call_once(client, route, messages, params)
             except openai.RateLimitError as exc:
                 code = _error_code(exc)
                 if code == "quota_exceeded":
@@ -303,9 +335,12 @@ class GatewayClient:
                     upstream_retries += 1
                     continue
                 if status in (401, 403):
-                    log.critical("llm.gateway_auth_failed", status=status, purpose=purpose)
+                    log.critical(
+                        "llm.gateway_auth_failed", status=status, purpose=purpose, key=gk.source
+                    )
+                    await self._key_rejected(gk, status)
                     raise UpstreamError(
-                        "API key LLM Gateway ditolak (cek LLM_GATEWAY_API_KEY)",
+                        f"API key LLM Gateway ditolak (key {gk.source}: {gk.prefix or 'env'})",
                         retryable=False,
                         details={"status": status, "reason": "gateway_auth"},
                     ) from None
@@ -317,7 +352,11 @@ class GatewayClient:
                 ) from None
 
     async def _call_once(
-        self, route: str, messages: list[dict[str, Any]], params: dict[str, Any]
+        self,
+        client: AsyncOpenAI,
+        route: str,
+        messages: list[dict[str, Any]],
+        params: dict[str, Any],
     ) -> ChatResult:
         request_id = str(uuid.uuid4())
         headers = {"X-Request-Id": request_id, **caller_headers()}
@@ -326,7 +365,7 @@ class GatewayClient:
             headers["X-Correlation-Id"] = correlation
         user = f"{context.get('client_name') or '-'}:{context.get('run_id') or '-'}"
         started = time.perf_counter()
-        raw = await self.client.chat.completions.with_raw_response.create(
+        raw = await client.chat.completions.with_raw_response.create(
             model=route,
             messages=messages,  # type: ignore[arg-type]
             user=user,
@@ -431,7 +470,8 @@ class GatewayClient:
             reservation = await budget.reserve(estimate) if budget is not None else None
             started = time.perf_counter()
             try:
-                resp = await self.client.embeddings.create(
+                client, _ = await self._client_for_context()
+                resp = await client.embeddings.create(
                     model=route,
                     input=batch,
                     extra_headers={"X-Request-Id": str(uuid.uuid4()), **caller_headers()},
@@ -571,12 +611,16 @@ class GatewayClient:
             await asyncio.gather(*list(self._pending), return_exceptions=True)
 
     async def list_models(self) -> list[str]:
-        page = await self.client.models.list()
+        """Model/route yang boleh dipakai key `system` (fallback key env)."""
+        gk = await self.key_for(None)
+        client = self._clients.get(gk.key) or self._make_client(gk.key)
+        page = await client.models.list()
         return [m.id for m in page.data]
 
     async def close(self) -> None:
         await self.drain()
-        await self.client.close()
+        for client in self._clients.values():
+            await client.close()
 
 
 def _short_error(exc: Exception) -> str:

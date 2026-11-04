@@ -25,6 +25,8 @@ croniter>=2.0
 sqlglot>=25
 openpyxl>=3.1
 tzdata>=2024.1
+# AES-256-GCM key LLM Gateway per agent (mcp.llm_credentials, M3_TASK_009)
+cryptography>=43
 
 # ---------- dev ----------
 pytest>=8

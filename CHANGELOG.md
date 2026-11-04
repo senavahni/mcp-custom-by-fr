@@ -17,6 +17,17 @@
 - Atribusi LLM: header `X-Caller-Agent`/`X-Caller-Task` + kolom `llm_calls.agent_key/job_id/stage`.
 - Migrasi `0003_intel`; kode error baru (`AGENT_*`, `SOURCE_UNAVAILABLE`, `LLM_*`, `JOB_NOT_ACTIVE`, …).
 
+### Modul 3 Dashboard — key LLM Gateway per agent (M3_TASK_009)
+- `MCP_SECRET_KEY` (opsional, 32 byte base64, wajib berbeda dari pepper & secret Dashboard) +
+  `utils/secretbox.py` (AES-256-GCM, AAD = nama credential).
+- Tabel `mcp.llm_credentials` (migrasi `0004_llm_credentials`): key `lgw_` terenkripsi per agent + `system`.
+- `manage.py gateway-keys gen-secret|provision|list|import|disable`; admin key Gateway hanya dari
+  env sementara / prompt tersembunyi, tidak disimpan. `provision` idempoten; `--force` merotasi.
+- `gateway_client`: key dipilih per panggilan (agent → system → `LLM_GATEWAY_API_KEY`), klien di-cache
+  per key; 401/403 → credential `invalid` + `last_error`, panggilan berikutnya jatuh ke key berikutnya.
+- `intel_agents_list` / `intel_llm_status` melaporkan sumber, prefix & status key (tidak pernah key lengkap).
+  Tanpa `MCP_SECRET_KEY` perilaku sama seperti sebelumnya (key env).
+
 ## 0.4.0-dev — 2026-11-03
 
 ### TASK-18 — Tools CRUD database (`db_*`)

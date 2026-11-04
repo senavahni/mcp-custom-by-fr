@@ -16,6 +16,9 @@ python scripts/manage.py profile-disable <name>
 python scripts/manage.py threads-token-refresh                  # tulis token baru ke .env
 python scripts/manage.py download-models                        # model ONNX lokal (embedding)
 python scripts/manage.py kb-reembed <collection_id>             # koleksi baru, model saat ini
+python scripts/manage.py gateway-keys gen-secret                # nilai MCP_SECRET_KEY baru
+python scripts/manage.py gateway-keys provision [--daily-usd 5]  # project + key per agent
+python scripts/manage.py gateway-keys list | import --agent X | disable --agent X
 """
 
 from __future__ import annotations
@@ -455,6 +458,102 @@ def cmd_kb_reembed(args: argparse.Namespace) -> int:
     return 0
 
 
+def _secret_key_or_exit() -> str:
+    key = get_settings().mcp_secret_key
+    if key is None:
+        print(
+            "MCP_SECRET_KEY belum diisi. Buat: manage.py gateway-keys gen-secret", file=sys.stderr
+        )
+        raise SystemExit(2)
+    return key.get_secret_value()
+
+
+async def _gateway_provision(args: argparse.Namespace, admin_key: str) -> list[dict[str, str]]:
+    import httpx
+
+    from mcp_marketing.services.llm.gateway_admin import GatewayAdmin, admin_base_url, provision
+
+    s = get_settings()
+    db = Database(s.db.database_url, pool_size=2)
+    try:
+        async with httpx.AsyncClient() as http:
+            admin = GatewayAdmin(
+                http, args.admin_url or admin_base_url(s.llm.llm_gateway_url), admin_key
+            )
+            return await provision(
+                db,
+                _secret_key_or_exit(),
+                admin,
+                agents=[a.strip() for a in args.agents.split(",") if a.strip()],
+                project_slug=args.project,
+                rpm=args.rpm,
+                force=args.force,
+                daily_usd=args.daily_usd,
+                monthly_usd=args.monthly_usd,
+            )
+    finally:
+        await db.dispose()
+
+
+def cmd_gateway_keys(args: argparse.Namespace) -> int:
+    """Key LLM Gateway per agent (M3_TASK_009). Admin key Gateway TIDAK disimpan."""
+    import getpass
+    import os
+
+    from mcp_marketing.services.llm.credentials import list_credentials, save_credential
+    from mcp_marketing.utils.secretbox import generate_key
+
+    if args.action == "gen-secret":
+        print("Isi .env MCP: MCP_SECRET_KEY=" + generate_key())
+        return 0
+    if args.action == "list":
+        for c in asyncio.run(_with_db(list_credentials)):
+            print(
+                f"{c.name:<24} {c.key_prefix:<14} {c.status:<8} "
+                f"rotated={c.rotated_at or '-'} error={c.last_error or '-'}"
+            )
+        return 0
+    secret = _secret_key_or_exit()
+    if args.action == "provision":
+        admin_key = os.environ.get("LLM_GATEWAY_ADMIN_KEY") or getpass.getpass(
+            "Admin key LLM Gateway (lgw_..., tidak disimpan): "
+        )
+        for row in asyncio.run(_gateway_provision(args, admin_key.strip())):
+            print(f"{row['name']:<24} {row['prefix']:<14} {row['action']}")
+        print("Restart server & worker MCP agar key baru terbaca (cache 60 s).")
+        return 0
+    agent = None if args.agent in (None, "system") else args.agent
+    if args.action == "import":
+        full_key = getpass.getpass(f"Key LLM Gateway untuk {agent or 'system'} (lgw_...): ")
+
+        async def save(session):  # type: ignore[no-untyped-def]
+            row = await save_credential(
+                session, secret, agent_key=agent, full_key=full_key, gateway_key_id=None
+            )
+            return row.key_prefix
+
+        print("Tersimpan:", asyncio.run(_with_db(save)))
+        return 0
+    if args.action == "disable":
+
+        async def disable(session):  # type: ignore[no-untyped-def]
+            from sqlalchemy import update
+
+            from mcp_marketing.models import LlmCredential
+            from mcp_marketing.services.llm.credentials import credential_name
+
+            res = await session.execute(
+                update(LlmCredential)
+                .where(LlmCredential.name == credential_name(agent))
+                .values(status="revoked", last_error="dinonaktifkan lokal")
+            )
+            return res.rowcount
+
+        print("Dinonaktifkan:", asyncio.run(_with_db(disable)), "baris (agent kembali ke fallback)")
+        return 0
+    return 2
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="CLI MCP Marketing")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -528,6 +627,18 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("kb-reembed", help="embed ulang koleksi ke model saat ini")
     p.add_argument("collection_id")
     p.set_defaults(fn=cmd_kb_reembed)
+
+    p = sub.add_parser("gateway-keys", help="key LLM Gateway per agent (terenkripsi)")
+    p.add_argument("action", choices=["gen-secret", "provision", "list", "import", "disable"])
+    p.add_argument("--agents", default="researcher,analyst,strategist")
+    p.add_argument("--agent", help="untuk import/disable: agent_key atau 'system'")
+    p.add_argument("--project", default="marketing-mcp", help="slug project di Gateway")
+    p.add_argument("--admin-url", help="default: LLM_GATEWAY_URL tanpa /v1")
+    p.add_argument("--rpm", type=int, help="rpm_limit per key")
+    p.add_argument("--daily-usd", type=float, help="kuota biaya harian project")
+    p.add_argument("--monthly-usd", type=float, help="kuota biaya bulanan project")
+    p.add_argument("--force", action="store_true", help="buat ulang semua key (key lama dicabut)")
+    p.set_defaults(fn=cmd_gateway_keys)
 
     args = parser.parse_args(argv)
     return int(args.fn(args))

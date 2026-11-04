@@ -21,7 +21,7 @@ from mcp_marketing.core.errors import (
     ValidationFailed,
 )
 from mcp_marketing.core.logging import get_logger
-from mcp_marketing.models import AgentProfile, IntelJob, Job, LlmCall
+from mcp_marketing.models import AgentProfile, IntelJob, Job, LlmCall, LlmCredential
 from mcp_marketing.schemas import intel as c
 from mcp_marketing.server.registry import ToolContext, tool
 from mcp_marketing.services.browser.driver_pool import profile_store
@@ -30,6 +30,7 @@ from mcp_marketing.services.intel.capabilities import capabilities, validate_sta
 from mcp_marketing.services.intel.estimate import build_estimate, route_tier, usd_for_tokens
 from mcp_marketing.services.intel.pipeline import KIND
 from mcp_marketing.services.intel.tracker import IntelTracker, initial_stages
+from mcp_marketing.services.llm.credentials import key_info, list_credentials
 from mcp_marketing.services.results.result_store import Owner
 from mcp_marketing.utils.ids import new_job_id
 from mcp_marketing.utils.time import now
@@ -99,6 +100,13 @@ def _view(intel: IntelJob) -> c.JobView:
 # ---------------------------------------------------------------------------- agent & sumber
 
 
+async def _credentials(ctx: ToolContext) -> tuple[dict[str, LlmCredential], bool]:
+    """Credential per nama + apakah fitur key per agent aktif (`MCP_SECRET_KEY` terisi)."""
+    async with ctx.services.db.session() as session:
+        creds = {cred.name: cred for cred in await list_credentials(session)}
+    return creds, ctx.settings.mcp_secret_key is not None
+
+
 @tool(
     name="intel_agents_list",
     toolset=TOOLSET,
@@ -111,6 +119,14 @@ def _view(intel: IntelJob) -> c.JobView:
 async def intel_agents_list(inp: c.AgentsListIn, ctx: ToolContext) -> c.AgentsListOut:
     async with ctx.services.db.session() as session:
         rows = (await session.scalars(select(AgentProfile).order_by(AgentProfile.agent_key))).all()
+    creds, enabled = await _credentials(ctx)
+
+    def gateway_key(agent_key: str) -> c.GatewayKeyInfo:
+        source, cred = key_info(creds, agent_key, enabled=enabled)
+        return c.GatewayKeyInfo(
+            source=source, prefix=cred.key_prefix if source != "env" and cred else None
+        )
+
     return c.AgentsListOut(
         agents=[
             c.AgentInfo(
@@ -121,7 +137,7 @@ async def intel_agents_list(inp: c.AgentsListIn, ctx: ToolContext) -> c.AgentsLi
                 run_token_budget=p.run_token_budget,
                 toolsets=list(p.toolsets),
                 capabilities=capabilities(p.toolsets, p.tool_denylist),
-                gateway_key=c.GatewayKeyInfo(source="env"),
+                gateway_key=gateway_key(p.agent_key),
             )
             for p in rows
         ]
@@ -383,11 +399,17 @@ async def intel_items(inp: c.ItemsIn, ctx: ToolContext) -> c.ItemsOut:
 async def _project_usage(ctx: ToolContext, start: date, end: date) -> c.ProjectUsage | None:
     llm = ctx.settings.llm
     url = f"{llm.llm_gateway_url.rstrip('/')}/usage"
+    # key `system` (scope usage:read) bila sudah diprovisikan, selain itu key env
+    key = (
+        (await ctx.services.llm.key_for(None)).key
+        if ctx.services.llm is not None
+        else llm.llm_gateway_api_key.get_secret_value()
+    )
     try:
         resp = await ctx.services.http.get(
             url,
             params={"start": start.isoformat(), "end": end.isoformat()},
-            headers={"Authorization": f"Bearer {llm.llm_gateway_api_key.get_secret_value()}"},
+            headers={"Authorization": f"Bearer {key}"},
             timeout=10,
         )
     except Exception as exc:  # noqa: BLE001 - Gateway tak terjangkau: pemakaian project tidak tersedia
@@ -446,13 +468,21 @@ async def intel_llm_status(inp: c.LlmStatusIn, ctx: ToolContext) -> c.LlmStatusO
             else usd_for_tokens(tokens, route_tier(route, llm))
         )
         u["usd"] = round(u["usd"] + usd, 4)
+    creds, enabled = await _credentials(ctx)
+
+    def agent_status(agent_key: str, u: dict[str, Any]) -> c.AgentLlmStatus:
+        source, cred = key_info(creds, agent_key, enabled=enabled)
+        return c.AgentLlmStatus(
+            agent_key=agent_key,
+            key_source=source,
+            key_prefix=cred.key_prefix if cred else None,
+            key_status=cred.status if cred else "unknown",  # type: ignore[arg-type]
+            last_error=cred.last_error if cred else None,
+            usage=c.AgentUsage(**u),
+        )
+
     today = now().date()
     return c.LlmStatusOut(
-        agents=[
-            c.AgentLlmStatus(
-                agent_key=k, key_source="env", key_status="unknown", usage=c.AgentUsage(**u)
-            )
-            for k, u in sorted(usage.items())
-        ],
+        agents=[agent_status(k, u) for k, u in sorted(usage.items())],
         project=await _project_usage(ctx, today - timedelta(days=inp.range_days - 1), today),
     )
