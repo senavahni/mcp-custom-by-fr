@@ -644,7 +644,7 @@ def mission_args(**over: Any) -> dict[str, Any]:
         "instruction": "Buat rencana konten dari hasil riset",
         "period": MISSION_PERIOD,
         "context": {"recommendations": ["Promo bundling"], "existing_tasks": [{"title": "Brief"}]},
-        "available_agents": ["strategist", "researcher"],
+        "available_agents": ["strategist", "researcher", "assistant"],  # assistant: tanpa profil
         **over,
     }
 
@@ -661,13 +661,17 @@ async def test_mission_plan_repairs_invalid_output_and_attributes_cost(env: Env)
     assert plan["tasks"][0]["agent_key"] == "strategist"  # executor agent → agent planner
     assert plan["tasks"][1].get("agent_key") is None  # output mesin membuang field None
     assert [r["code"] for r in plan["risks"]] == ["TIMELINE_TIGHT"]  # t2 mulai sebelum t1 selesai
-    assert out["cost"]["llm_tokens"] == 1_400 and out["cost"]["usd"] > 0
+    # percobaan kedua = permintaan ulang planner (bukan repair 800 token) memuat alasan penolakan
+    assert out["cost"]["llm_tokens"] == 700 and out["cost"]["usd"] > 0
+    retry_prompt = env.gateway.bodies("/chat/completions")[1]["messages"][-1]["content"]
+    assert "ditolak validasi" in retry_prompt and "di luar timeline" in retry_prompt
     calls = env.gateway.calls_to("/chat/completions")
     assert len(calls) == 2
     assert all(c.headers.get("x-caller-agent") == "strategist" for c in calls)
     assert all(c.headers.get("x-caller-task") == f"mission:{args['mission_id']}" for c in calls)
     first = env.gateway.bodies("/chat/completions")[0]
     assert "Promo bundling" in first["messages"][-1]["content"]
+    assert "assistant" not in first["messages"][-1]["content"]  # agent tanpa profil MCP disaring
     assert first["reasoning_effort"] == "low"  # gpt-5: jatah token tidak habis untuk reasoning
     await env.services.llm.drain()  # type: ignore[union-attr]
 

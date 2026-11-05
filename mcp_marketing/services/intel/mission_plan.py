@@ -12,6 +12,7 @@ from typing import Any, Literal
 import orjson
 from pydantic import BaseModel, Field, field_validator, model_validator
 
+from mcp_marketing.core.errors import UpstreamError
 from mcp_marketing.services.agent.budget import BudgetScope
 from mcp_marketing.services.llm import prompts
 
@@ -20,6 +21,10 @@ PROMPT_VERSION = "v1"
 MAX_TASKS = 15
 MAX_SUBTASKS = 8
 MAX_PLAN_ITEMS = 60
+RETRY_NOTE = (
+    "PERHATIAN: jawaban sebelumnya ditolak validasi: {reason}. "
+    "Susun ulang rencana LENGKAP yang memenuhi semua ketentuan, hanya JSON."
+)
 
 Priority = Literal["none", "low", "medium", "high", "urgent"]
 RiskCode = Literal["TIMELINE_TIGHT", "LOW_DATA", "OUT_OF_SCOPE", "OTHER"]
@@ -121,10 +126,41 @@ def _check_acyclic(graph: dict[str, list[str]]) -> None:
         visit(node)
 
 
+def _covering(task: Any) -> Any:
+    subs = task.get("subtasks") if isinstance(task, dict) else None
+    if not isinstance(subs, list) or not subs:
+        return task
+    starts = [
+        s.get("start_date")
+        for s in subs
+        if isinstance(s, dict) and isinstance(s.get("start_date"), str)
+    ]
+    ends = [
+        s.get("end_date")
+        for s in subs
+        if isinstance(s, dict) and isinstance(s.get("end_date"), str)
+    ]
+    out = dict(task)
+    # tanggal ISO (YYYY-MM-DD) dapat dibandingkan sebagai string
+    if starts and isinstance(out.get("start_date"), str):
+        out["start_date"] = min([out["start_date"], *starts])
+    if ends and isinstance(out.get("end_date"), str):
+        out["end_date"] = max([out["end_date"], *ends])
+    return out
+
+
 def plan_model(start: date, end: date) -> type[MissionPlan]:
     """Model rencana yang terikat timeline misi (dipakai juga untuk loop perbaikan LLM)."""
 
     class BoundedMissionPlan(MissionPlan):
+        @model_validator(mode="before")
+        @classmethod
+        def _cover_subtasks(cls, data: Any) -> Any:
+            """Perlebar rentang task induk agar mencakup subtask-nya (kesalahan LLM yang umum)."""
+            if not isinstance(data, dict) or not isinstance(data.get("tasks"), list):
+                return data
+            return {**data, "tasks": [_covering(t) for t in data["tasks"]]}
+
         @model_validator(mode="after")
         def _bounds(self) -> BoundedMissionPlan:
             _check_structure(self, start, end)
@@ -133,8 +169,17 @@ def plan_model(start: date, end: date) -> type[MissionPlan]:
     return BoundedMissionPlan
 
 
-def finalize_plan(plan: MissionPlan, *, default_agent_key: str) -> MissionPlan:
-    """Salinan rencana: agent default untuk executor=agent + risiko dependensi yang bertabrakan."""
+def finalize_plan(
+    plan: MissionPlan,
+    *,
+    default_agent_key: str,
+    allowed_agents: set[str] | None = None,
+) -> MissionPlan:
+    """Salinan rencana: agent executor=agent dinormalkan + risiko dependensi yang bertabrakan.
+
+    `agent_key` di luar `allowed_agents` (profil MCP aktif) diganti agent planner.
+    """
+    allowed = allowed_agents or {default_agent_key}
     by_ref = {x.ref: x for x in plan.items()}
     tight = [
         f"{x.ref} mulai {x.start_date} sebelum {d} selesai {by_ref[d].end_date}"
@@ -144,8 +189,10 @@ def finalize_plan(plan: MissionPlan, *, default_agent_key: str) -> MissionPlan:
     ]
 
     def with_agent(x: PlanSubtask) -> dict[str, Any]:
-        agent = (x.agent_key or default_agent_key) if x.executor == "agent" else None
-        return {"agent_key": agent}
+        if x.executor != "agent":
+            return {"agent_key": None}
+        key = x.agent_key if x.agent_key in allowed else default_agent_key
+        return {"agent_key": key}
 
     tasks = [
         t.model_copy(
@@ -214,15 +261,30 @@ async def generate_plan(
     route: str,
     budget: BudgetScope | None,
 ) -> tuple[MissionPlan, int]:
-    """(rencana tervalidasi, token terpakai). Error LLM diteruskan ke pemanggil."""
+    """(rencana tervalidasi, token percobaan yang berhasil). Error LLM diteruskan ke pemanggil.
+
+    Rencana bisa ribuan token: loop `repair` generik (teks dipotong 2.000 karakter, 800 token)
+    tidak mampu memperbaikinya, jadi planner diminta ulang sekali dengan alasan penolakan.
+    """
     assert services.llm is not None
-    plan, result = await services.llm.chat_json(
-        "mission_plan",
-        [{"role": "user", "content": prompt}],
-        plan_model(start, end),
-        repair_attempts=1,
-        budget=budget,
-        prompt_version=PROMPT_VERSION,
-        route_override=route,
-    )
-    return plan, result.prompt_tokens + result.completion_tokens
+    model = plan_model(start, end)
+
+    async def ask(content: str) -> tuple[MissionPlan, int]:
+        plan, result = await services.llm.chat_json(
+            "mission_plan",
+            [{"role": "user", "content": content}],
+            model,
+            repair_attempts=0,
+            budget=budget,
+            prompt_version=PROMPT_VERSION,
+            route_override=route,
+        )
+        return plan, result.prompt_tokens + result.completion_tokens
+
+    try:
+        return await ask(prompt)
+    except UpstreamError as exc:
+        reason = str((exc.details or {}).get("error") or "")
+        if (exc.details or {}).get("reason") != "invalid_json":
+            raise
+    return await ask(f"{prompt}\n\n{RETRY_NOTE.format(reason=reason[:500])}")

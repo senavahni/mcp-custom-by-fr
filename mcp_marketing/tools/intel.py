@@ -590,10 +590,19 @@ async def intel_mission_plan(inp: c.MissionPlanIn, ctx: ToolContext) -> c.Missio
         raise ValidationFailed("LLM Gateway tidak dikonfigurasi")
     async with ctx.services.db.session() as session:
         profile = await get_active_profile(session, inp.agent_key)
+        active_keys = set(
+            (
+                await session.scalars(
+                    select(AgentProfile.agent_key).where(AgentProfile.is_active.is_(True))
+                )
+            ).all()
+        )
     if profile is None:
         raise UnknownAgent(f"Agent {inp.agent_key} tidak dikenal atau nonaktif di MCP")
     if "task" not in profile.toolsets:
         raise AgentNotCapable("Agent planner wajib memiliki toolset task")
+    # hanya agent yang profilnya aktif di MCP yang boleh ditugasi (mis. bukan "assistant")
+    agents = [k for k in inp.available_agents if k in active_keys] or [profile.agent_key]
     start, end = inp.period.start_date, inp.period.end_date
     prompt = mission_plan.build_prompt(
         title=inp.title,
@@ -602,7 +611,7 @@ async def intel_mission_plan(inp: c.MissionPlanIn, ctx: ToolContext) -> c.Missio
         end=end,
         today=today_in(ctx.settings.timezone),
         context=inp.context.model_dump(mode="json"),
-        available_agents=inp.available_agents,
+        available_agents=agents,
         feedback=inp.feedback,
         previous_plan=inp.previous_plan,
     )
@@ -616,7 +625,9 @@ async def intel_mission_plan(inp: c.MissionPlanIn, ctx: ToolContext) -> c.Missio
             ctx.services, prompt=prompt, start=start, end=end, route=profile.route, budget=budget
         )
     ctx.llm_tokens += tokens
-    final = mission_plan.finalize_plan(plan, default_agent_key=profile.agent_key)
+    final = mission_plan.finalize_plan(
+        plan, default_agent_key=profile.agent_key, allowed_agents={*agents, profile.agent_key}
+    )
     usd = usd_for_tokens(tokens, route_tier(profile.route, ctx.settings.llm))
     return c.MissionPlanOut(plan=final, cost=c.MissionPlanCost(llm_tokens=tokens, usd=usd))
 
