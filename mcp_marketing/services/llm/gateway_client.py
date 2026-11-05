@@ -139,7 +139,10 @@ def caller_headers() -> dict[str, str]:
     if agent_key:
         headers["X-Caller-Agent"] = agent_key
     stage, job_id = context.get("stage"), context.get("job_id")
-    if stage and job_id:
+    caller_task = context.get("caller_task")
+    if caller_task:
+        headers["X-Caller-Task"] = caller_task
+    elif stage and job_id:
         headers["X-Caller-Task"] = f"intel:{job_id}:{stage}"
     return headers
 
@@ -229,6 +232,8 @@ class GatewayClient:
         temperature = cfg.temperature if temperature is None else temperature
         use_json = cfg.json if json_mode is None else json_mode
         params: dict[str, Any] = {"temperature": temperature, "max_tokens": max_tokens}
+        if cfg.reasoning_effort:
+            params["reasoning_effort"] = cfg.reasoning_effort
         if use_json and not tools:
             params["response_format"] = {"type": "json_object"}
         if tools:

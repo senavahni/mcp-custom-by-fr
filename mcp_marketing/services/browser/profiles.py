@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import re
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Iterable
 from datetime import timedelta
 from pathlib import Path
 from typing import Any
@@ -130,6 +130,16 @@ class ProfileStore:
             )
         if not result.rowcount:  # type: ignore[attr-defined]
             raise NotFound(f"Profil '{name}' tidak ditemukan")
+
+    async def allow_sites(self, name: str, sites: Iterable[str]) -> None:
+        """Tambahkan situs ke `allowed_sites` (setelah login manual dari Dashboard)."""
+        async with self.db.session() as session:
+            profile = await session.scalar(
+                select(BrowserProfile).where(BrowserProfile.name == name)
+            )
+            if profile is None:
+                raise NotFound(f"Profil '{name}' tidak ditemukan")
+            profile.allowed_sites = sorted({*(profile.allowed_sites or []), *sites})
 
     async def set_login_status(self, name: str, status: dict[str, dict[str, Any]]) -> None:
         async with self.db.session() as session:

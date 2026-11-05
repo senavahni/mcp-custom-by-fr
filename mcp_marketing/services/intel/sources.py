@@ -16,6 +16,7 @@ from mcp_marketing.worker.handlers.social import x_reads_today
 from mcp_marketing.worker.handlers.web import normalize_url
 
 DEFAULT_PROFILE = "default"
+GOOGLE_SITE = "trends.google.com"  # kunci SITE_CHECKS untuk akun Google
 SECONDS_PER_WEB_PAGE = 6
 SECONDS_PER_CRAWL_PAGE = 5
 TRENDS_SECONDS = 35
@@ -44,7 +45,7 @@ async def prepare_source(services: Any, src: Any, period: Period) -> PreparedSou
         if isinstance(src, ThreadsSource):
             return await _threads(services, src, period)
         if isinstance(src, WebSource):
-            return _web(src)
+            return _web(src, await web_profile(services))
         assert isinstance(src, TrendsSource)
         return _trends(services, src, period)
     except SourceUnavailable:
@@ -138,12 +139,18 @@ async def _threads(services: Any, src: ThreadsSource, period: Period) -> Prepare
     )
 
 
-def _web(src: WebSource) -> PreparedSource:
+async def web_profile(services: Any) -> str:
+    """Profil yang sudah login Google (lebih mirip pengguna nyata) bila ada; selain itu default."""
+    found = await profile_store(services).for_site(GOOGLE_SITE)
+    return found.name if found else DEFAULT_PROFILE
+
+
+def _web(src: WebSource, profile: str = DEFAULT_PROFILE) -> PreparedSource:
     if src.mode == "scrape":
         urls = list(dict.fromkeys(normalize_url(u) for u in src.urls or []))
         params: dict[str, Any] = {
             "urls": urls,
-            "profile": DEFAULT_PROFILE,
+            "profile": profile,
             "mode": "markdown",
             "selectors": None,
             "wait_for": None,
@@ -157,7 +164,7 @@ def _web(src: WebSource) -> PreparedSource:
         )
     params = {
         "start_url": src.start_url,
-        "profile": DEFAULT_PROFILE,
+        "profile": profile,
         "max_pages": src.max_pages,
         "max_depth": src.max_depth,
         "same_domain": True,

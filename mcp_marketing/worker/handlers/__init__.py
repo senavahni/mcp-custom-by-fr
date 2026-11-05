@@ -16,6 +16,7 @@ from mcp_marketing.worker.handlers.trends import (
 )
 from mcp_marketing.worker.handlers.web import (
     BrowserProfileCheckHandler,
+    BrowserProfileLoginHandler,
     WebCrawlHandler,
     WebExtractHandler,
     WebScrapeHandler,
@@ -35,6 +36,7 @@ def default_registry() -> HandlerRegistry:
         WebCrawlHandler(),
         WebExtractHandler(),
         BrowserProfileCheckHandler(),
+        BrowserProfileLoginHandler(),
         XSearchHandler(),
         ThreadsSearchHandler(),
         TrendsInterestHandler(),

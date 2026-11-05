@@ -14,19 +14,25 @@ from typing import Any
 
 from sqlalchemy import func, select
 
+from mcp_marketing.core import context
 from mcp_marketing.core.errors import (
+    AgentNotCapable,
     Conflict,
     CostConfirmationRequired,
     NotFound,
     ResultExpired,
+    UnknownAgent,
     ValidationFailed,
 )
 from mcp_marketing.core.logging import get_logger
 from mcp_marketing.models import AgentProfile, IntelJob, Job, LlmCall, LlmCredential
 from mcp_marketing.schemas import intel as c
 from mcp_marketing.server.registry import ToolContext, tool
+from mcp_marketing.services.agent.budget import BudgetLayer, BudgetScope
+from mcp_marketing.services.agent.profiles import get_active_profile
 from mcp_marketing.services.browser.driver_pool import profile_store
-from mcp_marketing.services.intel import kb_index
+from mcp_marketing.services.browser.profiles import profile_view
+from mcp_marketing.services.intel import kb_index, mission_plan
 from mcp_marketing.services.intel.analysis import ITEMS_PAGE_COLS
 from mcp_marketing.services.intel.capabilities import capabilities, validate_stage_agents
 from mcp_marketing.services.intel.estimate import build_estimate, route_tier, usd_for_tokens
@@ -36,7 +42,9 @@ from mcp_marketing.services.intel.tracker import IntelTracker, initial_stages
 from mcp_marketing.services.llm.credentials import key_info, list_credentials
 from mcp_marketing.services.results.result_store import Owner
 from mcp_marketing.utils.ids import new_job_id
-from mcp_marketing.utils.time import now
+from mcp_marketing.utils.time import now, today_in
+from mcp_marketing.worker.handlers.web import SITE_ALIASES
+from mcp_marketing.worker.queue import JobOwner
 
 log = get_logger(__name__)
 
@@ -44,6 +52,7 @@ TOOLSET = "intel"
 ANALYSIS_TIMEOUT_S = 3_600
 INDEX_TIMEOUT_S = 1_800
 MAX_JOB_TIMEOUT_S = 6 * 3_600
+MISSION_PLAN_TIMEOUT_S = 180
 ORDER_COLUMN = {
     "-created_at": "-posted_at",
     "created_at": "posted_at",
@@ -174,6 +183,14 @@ async def intel_sources_status(inp: c.SourcesStatusIn, ctx: ToolContext) -> c.So
     x_browser = await store.for_site("x.com")
     threads_browser = await store.for_site("threads.net")
     default = await store.find("default")
+    google = await store.for_site("trends.google.com")
+    web_detail = (
+        f"profil browser '{google.name}' (login Google)"
+        if google
+        else "profil browser 'default' (tanpa login)"
+        if default
+        else "profil browser 'default' belum ada"
+    )
 
     def status(source: str, api: bool, browser: Any, api_detail: str) -> c.SourceStatus:
         if api:
@@ -198,9 +215,9 @@ async def intel_sources_status(inp: c.SourcesStatusIn, ctx: ToolContext) -> c.So
         ),
         c.SourceStatus(
             source="web",
-            available=default is not None,
-            mode="browser" if default is not None else "none",
-            detail="profil browser 'default'" if default else "profil browser 'default' belum ada",
+            available=default is not None or google is not None,
+            mode="browser" if default is not None or google is not None else "none",
+            detail=web_detail,
             checked_at=at,
         ),
         c.SourceStatus(
@@ -552,3 +569,207 @@ async def intel_llm_status(inp: c.LlmStatusIn, ctx: ToolContext) -> c.LlmStatusO
         agents=[agent_status(k, u) for k, u in sorted(usage.items())],
         project=await _project_usage(ctx, today - timedelta(days=inp.range_days - 1), today),
     )
+
+
+# ---------------------------------------------------------------------------- misi (M3_TASK_013)
+
+
+@tool(
+    name="intel_mission_plan",
+    toolset=TOOLSET,
+    summary="Rencana misi agent: task + subtask bertanggal di dalam timeline",
+    description="Generate a dated task/subtask plan for a Dashboard mission with the planner "
+    "agent's LLM route and Gateway key. Validated deterministically; does not write tasks.",
+    input_model=c.MissionPlanIn,
+    output_model=c.MissionPlanOut,
+    machine_output=True,
+    timeout_s=MISSION_PLAN_TIMEOUT_S,
+)
+async def intel_mission_plan(inp: c.MissionPlanIn, ctx: ToolContext) -> c.MissionPlanOut:
+    if ctx.services.llm is None:
+        raise ValidationFailed("LLM Gateway tidak dikonfigurasi")
+    async with ctx.services.db.session() as session:
+        profile = await get_active_profile(session, inp.agent_key)
+    if profile is None:
+        raise UnknownAgent(f"Agent {inp.agent_key} tidak dikenal atau nonaktif di MCP")
+    if "task" not in profile.toolsets:
+        raise AgentNotCapable("Agent planner wajib memiliki toolset task")
+    start, end = inp.period.start_date, inp.period.end_date
+    prompt = mission_plan.build_prompt(
+        title=inp.title,
+        instruction=inp.instruction,
+        start=start,
+        end=end,
+        today=today_in(ctx.settings.timezone),
+        context=inp.context.model_dump(mode="json"),
+        available_agents=inp.available_agents,
+        feedback=inp.feedback,
+        previous_plan=inp.previous_plan,
+    )
+    budget = BudgetScope(
+        layers=[BudgetLayer(f"mission:{profile.agent_key}", profile.run_token_budget)]
+    )
+    with context.context_scope(
+        agent_key=profile.agent_key, caller_task=f"mission:{inp.mission_id}"
+    ):
+        plan, tokens = await mission_plan.generate_plan(
+            ctx.services, prompt=prompt, start=start, end=end, route=profile.route, budget=budget
+        )
+    ctx.llm_tokens += tokens
+    final = mission_plan.finalize_plan(plan, default_agent_key=profile.agent_key)
+    usd = usd_for_tokens(tokens, route_tier(profile.route, ctx.settings.llm))
+    return c.MissionPlanOut(plan=final, cost=c.MissionPlanCost(llm_tokens=tokens, usd=usd))
+
+
+# ---------------------------------------------------------------------------- profil browser
+
+LOGIN_JOB_KIND = "browser_profile_login"
+LOGIN_JOB_TIMEOUT_S = 1_200  # jendela login ≤ 15 menit + cek login
+
+
+def _profile_info(p: Any) -> c.BrowserProfileInfo:
+    view = profile_view(p)
+    checked = {
+        site: str(v.get("checked_at"))
+        for site, v in (p.login_status or {}).items()
+        if isinstance(v, dict) and v.get("checked_at")
+    }
+    return c.BrowserProfileInfo(
+        name=view["name"],
+        purpose=view["purpose"],
+        allowed_sites=view["allowed_sites"],
+        logged_in_sites=view["logged_in_sites"],
+        login_checked_at=checked,
+        headless=view["headless"],
+        locked=view["locked"],
+        last_used=view["last_used"],
+    )
+
+
+def _canonical_sites(sites: list[str]) -> list[str]:
+    return list(dict.fromkeys(SITE_ALIASES.get(s, s) for s in sites))
+
+
+@tool(
+    name="intel_browser_profiles",
+    toolset=TOOLSET,
+    summary="Profil Chrome MCP + status login per situs",
+    description="List active MCP browser profiles with allowed sites and login status.",
+    input_model=c.BrowserProfilesIn,
+    output_model=c.BrowserProfilesOut,
+    machine_output=True,
+)
+async def intel_browser_profiles(
+    inp: c.BrowserProfilesIn, ctx: ToolContext
+) -> c.BrowserProfilesOut:
+    return c.BrowserProfilesOut(
+        profiles=[_profile_info(p) for p in await profile_store(ctx.services).list()]
+    )
+
+
+@tool(
+    name="intel_browser_profile_create",
+    toolset=TOOLSET,
+    summary="Buat profil Chrome baru (headless saat scraping) untuk login manual",
+    description="Create a browser profile (headless for scraping) to be logged in manually.",
+    input_model=c.BrowserProfileCreateIn,
+    output_model=c.BrowserProfileInfo,
+    machine_output=True,
+    writes=True,
+)
+async def intel_browser_profile_create(
+    inp: c.BrowserProfileCreateIn, ctx: ToolContext
+) -> c.BrowserProfileInfo:
+    profile = await profile_store(ctx.services).add(
+        name=inp.name,
+        purpose="Login manual dari Dashboard",
+        sites=_canonical_sites(list(inp.sites)),
+        headless=True,
+    )
+    return _profile_info(profile)
+
+
+@tool(
+    name="intel_browser_login_start",
+    toolset=TOOLSET,
+    summary="Buka jendela Chrome di mesin MCP untuk login manual ke profil",
+    description="Open a normal Chrome window on the MCP host for manual login into a profile; "
+    "login status is checked after the window is closed.",
+    input_model=c.BrowserLoginStartIn,
+    output_model=c.BrowserLoginOut,
+    machine_output=True,
+    writes=True,
+)
+async def intel_browser_login_start(
+    inp: c.BrowserLoginStartIn, ctx: ToolContext
+) -> c.BrowserLoginOut:
+    await profile_store(ctx.services).get(inp.profile)
+    if ctx.services.jobs is None:
+        raise ValidationFailed("Job queue tidak aktif di proses ini")
+    accepted = await ctx.services.jobs.enqueue(
+        LOGIN_JOB_KIND,
+        {"profile": inp.profile, "sites": _canonical_sites(list(inp.sites))},
+        client_id=ctx.client.id,
+        timeout_s=LOGIN_JOB_TIMEOUT_S,
+        dedupe_key=f"browser-login:{inp.profile}",  # satu jendela login per profil
+        max_attempts=1,
+    )
+    return c.BrowserLoginOut(job_id=accepted.job_id, profile=inp.profile, status=accepted.status)
+
+
+async def _login_job(ctx: ToolContext, job_id: str) -> Job:
+    if ctx.services.jobs is None:
+        raise ValidationFailed("Job queue tidak aktif di proses ini")
+    owner = JobOwner(client_id=ctx.client.id, run_id=None, is_admin=ctx.client.is_admin)
+    job = await ctx.services.jobs.get(job_id, owner)
+    if job.kind != LOGIN_JOB_KIND:
+        raise NotFound(f"Job login {job_id} tidak ditemukan")
+    return job
+
+
+def _login_view(job: Job) -> c.BrowserLoginOut:
+    result = job.result or {}
+    status = (
+        job.status if job.status in ("queued", "running", "succeeded", "failed") else "cancelled"
+    )
+    return c.BrowserLoginOut(
+        job_id=job.id,
+        profile=str((job.params or {}).get("profile") or ""),
+        status=status,  # type: ignore[arg-type]
+        message=job.message,
+        checks=[c.BrowserLoginCheck(**chk) for chk in result.get("checks") or []],
+        closed_by_user=result.get("closed_by_user"),
+        error=str((job.error or {}).get("message") or "") or None,
+    )
+
+
+@tool(
+    name="intel_browser_login_get",
+    toolset=TOOLSET,
+    summary="Status sesi login manual profil Chrome",
+    description="Status of a manual browser login session (job) and login checks when finished.",
+    input_model=c.BrowserLoginJobIn,
+    output_model=c.BrowserLoginOut,
+    machine_output=True,
+)
+async def intel_browser_login_get(inp: c.BrowserLoginJobIn, ctx: ToolContext) -> c.BrowserLoginOut:
+    return _login_view(await _login_job(ctx, inp.job_id))
+
+
+@tool(
+    name="intel_browser_login_cancel",
+    toolset=TOOLSET,
+    summary="Batalkan sesi login manual (jendela Chrome ditutup)",
+    description="Cancel a manual browser login session; the Chrome window is closed.",
+    input_model=c.BrowserLoginJobIn,
+    output_model=c.BrowserLoginOut,
+    machine_output=True,
+    writes=True,
+)
+async def intel_browser_login_cancel(
+    inp: c.BrowserLoginJobIn, ctx: ToolContext
+) -> c.BrowserLoginOut:
+    job = await _login_job(ctx, inp.job_id)
+    assert ctx.services.jobs is not None
+    await ctx.services.jobs.cancel_job(job.id)
+    return _login_view(await _login_job(ctx, inp.job_id))

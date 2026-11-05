@@ -13,6 +13,7 @@ import uuid
 from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 import httpx2
@@ -498,3 +499,185 @@ async def test_outbox_discards_job_stream_on_job_not_active(env: Env) -> None:
         intel = await s.get(IntelJob, accepted["mcp_job_id"])
     assert rows and {r.status for r in rows} == {"discarded"}
     assert intel is not None and intel.status == "completed"  # job tetap selesai di MCP
+
+
+# ---------------------------------------------------------------------------- login profil browser
+
+
+class FakeWindow:
+    """Jendela Chrome palsu: tertutup sendiri setelah `polls` kali dicek."""
+
+    def __init__(self, polls: int) -> None:
+        self.left = polls
+        self.closed = False
+
+    def running(self) -> bool:
+        self.left -= 1
+        return self.left > 0 and not self.closed
+
+    def close(self) -> None:
+        self.closed = True
+
+
+async def _login_env(env: Env, tmp_path: Path, window: FakeWindow, sleep: Any) -> list[Any]:
+    from mcp_marketing.services.browser.profiles import ProfileStore
+    from tests.integration.helpers import FakeLauncher, FakePage, no_sleep
+
+    page = FakePage({"https://myaccount.google.com/": "<html>myaccount.google.com</html>"})
+    opened: list[Any] = []
+
+    def opener(profile: Any, urls: list[str]) -> FakeWindow:
+        opened.append((profile.name, urls))
+        return window
+
+    env.services.extras.update(
+        browser_launcher=FakeLauncher(page),
+        profile_store=ProfileStore(env.services.db, tmp_path, sleep=no_sleep),
+        login_window_opener=opener,
+        sleep=sleep,
+    )
+    return opened
+
+
+async def _login_wait(env: Env, job_id: str) -> dict[str, Any]:
+    for _ in range(200):
+        view = await env.ok("intel_browser_login_get", {"job_id": job_id})
+        if view["status"] in ("succeeded", "failed", "cancelled"):
+            return view
+        await asyncio.sleep(0.05)
+    raise AssertionError(view)
+
+
+async def test_browser_login_from_dashboard_then_web_uses_profile(
+    env: Env, tmp_path: Path
+) -> None:
+    from mcp_marketing.services.intel.sources import web_profile
+    from tests.integration.helpers import no_sleep
+
+    opened = await _login_env(env, tmp_path, FakeWindow(polls=3), no_sleep)
+    try:
+        created = await env.ok(
+            "intel_browser_profile_create", {"name": "riset-google", "sites": ["google"]}
+        )
+        assert created["headless"] is True and created["allowed_sites"] == ["trends.google.com"]
+        assert await web_profile(env.services) == "default"  # belum login
+
+        started = await env.ok(
+            "intel_browser_login_start", {"profile": "riset-google", "sites": ["google"]}
+        )
+        view = await _login_wait(env, started["job_id"])
+        assert view["status"] == "succeeded" and view["closed_by_user"] is True
+        assert view["checks"] == [
+            {"site": "trends.google.com", "logged_in": True, "detail": "penanda akun terdeteksi"}
+        ]
+        assert opened == [("riset-google", ["https://accounts.google.com/"])]  # Chrome biasa
+
+        listed = await env.ok("intel_browser_profiles", {})
+        google = next(p for p in listed["profiles"] if p["name"] == "riset-google")
+        assert google["logged_in_sites"] == ["trends.google.com"] and google["locked"] is False
+        assert "trends.google.com" in google["login_checked_at"]
+        assert await web_profile(env.services) == "riset-google"  # scraper Web memakai profil ini
+    finally:
+        for key in ("browser_launcher", "profile_store", "login_window_opener", "sleep"):
+            env.services.extras.pop(key, None)
+
+
+async def test_browser_login_cancel_closes_window(env: Env, tmp_path: Path) -> None:
+    window = FakeWindow(polls=10_000)
+
+    async def short_sleep(_s: float) -> None:
+        await asyncio.sleep(0.01)
+
+    await _login_env(env, tmp_path, window, short_sleep)
+    try:
+        await env.ok("intel_browser_profile_create", {"name": "riset-batal", "sites": ["google"]})
+        started = await env.ok(
+            "intel_browser_login_start", {"profile": "riset-batal", "sites": ["google"]}
+        )
+        ref = {"job_id": started["job_id"]}
+        for _ in range(100):
+            if (await env.ok("intel_browser_login_get", ref))["status"] == "running":
+                break
+            await asyncio.sleep(0.05)
+        await env.ok("intel_browser_login_cancel", ref)
+        view = await _login_wait(env, started["job_id"])
+        assert view["status"] == "cancelled" and window.closed
+    finally:
+        for key in ("browser_launcher", "profile_store", "login_window_opener", "sleep"):
+            env.services.extras.pop(key, None)
+
+
+# ---------------------------------------------------------------------------- misi (M3_TASK_013)
+
+MISSION_PERIOD = {"start_date": "2026-11-10", "end_date": "2026-11-30"}
+
+
+def plan_reply(start: str, end: str) -> httpx2.Response:
+    plan = {
+        "summary": "Kampanye konten kopi",
+        "tasks": [
+            {
+                "ref": "t1",
+                "title": "Riset kompetitor",
+                "start_date": start,
+                "end_date": end,
+                "executor": "agent",
+                "subtasks": [
+                    {"ref": "t1.1", "title": "Kumpulkan post", "start_date": start, "end_date": start}
+                ],
+            },
+            {"ref": "t2", "title": "Susun kalender", "start_date": start, "end_date": end,
+             "depends_on": ["t1"]},
+        ],
+    }  # fmt: skip
+    return httpx2.Response(
+        200, json=completion(json.dumps(plan), prompt=500, completion_tokens=200)
+    )
+
+
+def mission_args(**over: Any) -> dict[str, Any]:
+    return {
+        "workspace_id": WS,
+        "mission_id": str(uuid.uuid4()),
+        "agent_key": "strategist",
+        "title": "Tindak lanjut riset kopi",
+        "instruction": "Buat rencana konten dari hasil riset",
+        "period": MISSION_PERIOD,
+        "context": {"recommendations": ["Promo bundling"], "existing_tasks": [{"title": "Brief"}]},
+        "available_agents": ["strategist", "researcher"],
+        **over,
+    }
+
+
+async def test_mission_plan_repairs_invalid_output_and_attributes_cost(env: Env) -> None:
+    env.gateway.replies["/chat/completions"] = [
+        plan_reply("2026-11-01", "2026-11-12"),  # di luar timeline → loop perbaikan
+        plan_reply("2026-11-10", "2026-11-12"),
+    ]
+    args = mission_args()
+    out = await env.ok("intel_mission_plan", args)
+    plan = out["plan"]
+    assert [t["ref"] for t in plan["tasks"]] == ["t1", "t2"]
+    assert plan["tasks"][0]["agent_key"] == "strategist"  # executor agent → agent planner
+    assert plan["tasks"][1].get("agent_key") is None  # output mesin membuang field None
+    assert [r["code"] for r in plan["risks"]] == ["TIMELINE_TIGHT"]  # t2 mulai sebelum t1 selesai
+    assert out["cost"]["llm_tokens"] == 1_400 and out["cost"]["usd"] > 0
+    calls = env.gateway.calls_to("/chat/completions")
+    assert len(calls) == 2
+    assert all(c.headers.get("x-caller-agent") == "strategist" for c in calls)
+    assert all(c.headers.get("x-caller-task") == f"mission:{args['mission_id']}" for c in calls)
+    first = env.gateway.bodies("/chat/completions")[0]
+    assert "Promo bundling" in first["messages"][-1]["content"]
+    assert first["reasoning_effort"] == "low"  # gpt-5: jatah token tidak habis untuk reasoning
+    await env.services.llm.drain()  # type: ignore[union-attr]
+
+
+async def test_mission_plan_rejects_agent_without_task_toolset_and_bad_input(env: Env) -> None:
+    out = await env.call("intel_mission_plan", mission_args(agent_key="researcher"))
+    assert out.is_error and out.structured["code"] == "AGENT_NOT_CAPABLE"
+    out = await env.call("intel_mission_plan", mission_args(agent_key="ghost"))
+    assert out.is_error and out.structured["code"] == "UNKNOWN_AGENT"
+    too_long = {"start_date": "2026-01-01", "end_date": "2026-12-31"}
+    out = await env.call("intel_mission_plan", mission_args(period=too_long))
+    assert out.is_error and out.structured["code"] == "VALIDATION_ERROR"
+    assert not env.gateway.calls_to("/chat/completions")

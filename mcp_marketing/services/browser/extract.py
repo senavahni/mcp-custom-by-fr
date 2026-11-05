@@ -26,6 +26,8 @@ MAX_SELECTORS = 50
 MAX_LINKS = 200
 LINK_TEXT_MAX = 80
 MAX_STORED_CHARS = 200_000
+# halaman tantangan CAPTCHA biasanya < 1.000 karakter teks terlihat
+BLOCK_PAGE_MAX_CHARS = 1_000
 _BLOCK_TITLES = re.compile(
     r"captcha|access denied|attention required|just a moment|are you a robot|robot check", re.I
 )
@@ -50,19 +52,31 @@ class Extracted:
     extracted: dict[str, Any] | None = None
 
 
+def _visible_chars(html: str) -> int:
+    tree = HTMLParser(html)
+    for node in tree.css("script, style, noscript, template"):
+        node.decompose()
+    return len(normalize_ws(tree.body.text(separator=" ") if tree.body else ""))
+
+
 def detect_block(html: str, title: str | None, http_status: int | None = None) -> bool:
-    """Halaman blokir/CAPTCHA tidak dicoba dilewati (status `blocked`)."""
+    """Halaman blokir/CAPTCHA tidak dicoba dilewati (status `blocked`).
+
+    Penanda CAPTCHA hanya berarti blokir bila halaman nyaris tanpa teks: banyak situs memasang
+    reCAPTCHA di form kontak pada halaman berkonten normal.
+    """
     if http_status in (403, 429):
         return True
     if title and _BLOCK_TITLES.search(title):
         return True
     lowered = html[:200_000].lower()
-    return (
+    has_captcha = (
         'iframe[src*="recaptcha"]' in lowered
         or "g-recaptcha" in lowered
         or "hcaptcha.com" in lowered
         or ("/recaptcha/" in lowered and "<iframe" in lowered)
     )
+    return has_captcha and _visible_chars(html) < BLOCK_PAGE_MAX_CHARS
 
 
 def _title(tree: HTMLParser) -> str | None:

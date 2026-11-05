@@ -6,7 +6,9 @@ Konten disimpan di `mcp.web_pages`; LLM hanya menerima markdown terpotong atau h
 
 from __future__ import annotations
 
+import asyncio
 import re
+import time
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -23,6 +25,7 @@ from mcp_marketing.models.results import ResultItem
 from mcp_marketing.schemas.common import JobEstimate
 from mcp_marketing.services.browser import extract as ex
 from mcp_marketing.services.browser.driver_pool import PageSource, launcher_for, profile_store
+from mcp_marketing.services.browser.login_window import LOGIN_URLS, opener_for
 from mcp_marketing.services.browser.politeness import DomainRateLimiter, RobotsCache, domain_of
 from mcp_marketing.services.browser.ssrf import check_url
 from mcp_marketing.services.results.result_store import Owner
@@ -498,29 +501,81 @@ class BrowserProfileCheckHandler:
 
     async def run(self, job: JobCtx) -> JobResult:
         name = job.params["profile"]
-        store = profile_store(job.services)
-        profile = await store.get(name)
+        profile = await profile_store(job.services).get(name)
         sites = [
             SITE_ALIASES.get(s, s) for s in job.params.get("sites") or profile.allowed_sites or []
         ]
-        checks, status = [], {}
-        async with launcher_for(job.services).session(name, job.job_id) as page:
-            for site in sites:
-                if site not in SITE_CHECKS:
-                    checks.append(
-                        {"site": site, "logged_in": None, "detail": "situs tidak didukung"}
-                    )
-                    continue
-                fetched = await page.open(SITE_CHECKS[site]["url"])
-                ok, detail = evaluate_login(site, fetched.final_url, fetched.html)
-                checks.append({"site": site, "logged_in": ok, "detail": detail})
-                status[site] = {"ok": ok, "checked_at": now().isoformat()}
-        await store.set_login_status(name, status)
-        logged = [str(c["site"]) for c in checks if c["logged_in"]]
-        return JobResult(
-            result={
-                "summary": f"Profil {name}: login di {', '.join(logged) or 'tidak ada situs'}",
-                "profile": name,
-                "checks": checks,
-            }
-        )
+        checks = await check_login(job, name, sites)
+        return JobResult(result=_login_summary(name, checks))
+
+
+async def check_login(job: JobCtx, name: str, sites: list[str]) -> list[dict[str, Any]]:
+    """Buka halaman cek tiap situs (headless) lalu simpan `login_status` profil."""
+    checks: list[dict[str, Any]] = []
+    status: dict[str, dict[str, Any]] = {}
+    async with launcher_for(job.services).session(name, job.job_id) as page:
+        for site in sites:
+            if site not in SITE_CHECKS:
+                checks.append({"site": site, "logged_in": None, "detail": "situs tidak didukung"})
+                continue
+            fetched = await page.open(SITE_CHECKS[site]["url"])
+            ok, detail = evaluate_login(site, fetched.final_url, fetched.html)
+            checks.append({"site": site, "logged_in": ok, "detail": detail})
+            status[site] = {"ok": ok, "checked_at": now().isoformat()}
+    await profile_store(job.services).set_login_status(name, status)
+    return checks
+
+
+def _login_summary(name: str, checks: list[dict[str, Any]]) -> dict[str, Any]:
+    logged = [str(c["site"]) for c in checks if c["logged_in"]]
+    return {
+        "summary": f"Profil {name}: login di {', '.join(logged) or 'tidak ada situs'}",
+        "profile": name,
+        "checks": checks,
+    }
+
+
+LOGIN_TIMEOUT_S = 900
+LOGIN_POLL_S = 2.0
+
+
+class BrowserProfileLoginHandler:
+    """Login manual dari Dashboard: Chrome biasa terbuka di mesin MCP sampai user menutupnya.
+
+    Profil dikunci selama jendela terbuka; setelah ditutup, status login dicek headless.
+    """
+
+    kind = "browser_profile_login"
+
+    async def estimate(self, params: dict[str, Any]) -> JobEstimate:
+        return JobEstimate(seconds=int(params.get("timeout_s") or LOGIN_TIMEOUT_S))
+
+    async def run(self, job: JobCtx) -> JobResult:
+        name = job.params["profile"]
+        sites = [SITE_ALIASES.get(s, s) for s in job.params["sites"]]
+        unknown = [s for s in sites if s not in LOGIN_URLS]
+        if unknown:
+            raise ValidationFailed(f"Situs login tidak didukung: {', '.join(unknown)}")
+        timeout_s = float(job.params.get("timeout_s") or LOGIN_TIMEOUT_S)
+        sleep = job.services.extras.get("sleep", asyncio.sleep)
+        store = profile_store(job.services)
+        profile = await store.acquire(name, job.job_id, wait_s=0)
+        window = None
+        deadline = time.monotonic() + timeout_s
+        try:
+            window = await asyncio.to_thread(
+                opener_for(job.services), profile, [LOGIN_URLS[s] for s in sites]
+            )
+            await job.progress(0, None, "Jendela Chrome terbuka: login, lalu tutup jendelanya")
+            while window.running() and time.monotonic() < deadline:
+                await job.raise_if_cancelled()
+                await sleep(LOGIN_POLL_S)
+            closed_by_user = not window.running()
+        finally:
+            if window is not None and window.running():
+                await asyncio.to_thread(window.close)
+            await store.release(name, job.job_id)
+        await store.allow_sites(name, sites)
+        await job.progress(1, None, "Memeriksa status login")
+        checks = await check_login(job, name, sites)
+        return JobResult(result={**_login_summary(name, checks), "closed_by_user": closed_by_user})

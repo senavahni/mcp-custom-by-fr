@@ -17,6 +17,8 @@ CONTEXT_FIELDS = (
     # atribusi panggilan LLM per agent & tahap job `intel` (header X-Caller-*, mcp.llm_calls)
     "agent_key",
     "stage",
+    # atribusi non-intel (mis. `mission:<id>` untuk planner misi M3_TASK_013)
+    "caller_task",
 )
 
 _vars: dict[str, ContextVar[str | None]] = {

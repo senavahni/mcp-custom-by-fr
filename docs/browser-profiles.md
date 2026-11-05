@@ -39,6 +39,23 @@ rem   -> jendela Chrome terbuka; login MANUAL (termasuk 2FA), lalu tekan Enter d
   `browser_profiles\` seperti secret (sudah di `.gitignore`).
 - `--proxy-env NAMA_ENV` menyimpan *nama* variabel environment, bukan URL proxy.
 
+### Login dari Dashboard (Sumber & Koneksi)
+
+Admin/Owner Dashboard bisa membuat profil dan login tanpa CLI (tool `intel_browser_profile_create`,
+`intel_browser_login_start/get/cancel`):
+
+1. **Buat profil & login akun Google** → profil `google-utama` (headless saat scraping) dibuat, lalu
+   worker membuka **Chrome biasa tanpa chromedriver** di mesin MCP (`--user-data-dir` profil). Google
+   sering menolak login di browser yang dikendalikan otomasi, jadi jendela ini sengaja bukan Selenium.
+2. Login manual (termasuk 2FA), lalu **tutup jendela Chrome**. Job `browser_profile_login` (≤ 15 menit,
+   profil terkunci selama jendela terbuka) lalu menjalankan cek login headless dan menyimpan `login_status`.
+3. Scraper Web (`intel` sumber `web`) otomatis memakai profil pertama yang login Google
+   (`sources.web_profile`), selain itu profil `default`. Tombol X/Threads memakai alur yang sama dan
+   membuat sumber X/Threads mode browser tersedia.
+
+Worker harus berjalan di sesi desktop pengguna (mis. `scripts\start-worker.bat` dari jendela cmd) agar
+jendela Chrome terlihat.
+
 ## 3. Lock profil
 
 Chrome mengunci `--user-data-dir`, jadi satu profil = satu job pada satu waktu. Lock diambil atomik
@@ -53,7 +70,7 @@ lebih tua dari 3 jam dianggap basi (worker mati) dan boleh diambil alih. `profil
 | SSRF | Hanya `http/https`; IP private/loopback/link-local/metadata ditolak (`ssrf_denied`), dicek ulang setelah redirect. `SCRAPE_ALLOW_PRIVATE_NETWORK=true` hanya untuk dev |
 | robots.txt | Dihormati (`SCRAPE_RESPECT_ROBOTS`, cache 1 jam). `respect_robots=false` hanya untuk klien admin |
 | Rate limit | `SCRAPE_PER_DOMAIN_RPM` (default 20) per domain + jeda acak 1–3 s |
-| CAPTCHA/blokir | Tidak dicoba dilewati; halaman ditandai `blocked` |
+| CAPTCHA/blokir | Tidak dicoba dilewati; halaman ditandai `blocked` (penanda CAPTCHA hanya dihitung bila teks halaman < 1.000 karakter — reCAPTCHA di form kontak tidak memblokir konten) |
 | Prompt injection | Konten halaman dibungkus `<untrusted_content>` saat dikirim ke LLM (`web_extract`) |
 | Penyimpanan | `mcp.web_pages` (markdown ≤ 200 KB/halaman); retensi mengikuti `RAW_RETENTION_DAYS` |
 

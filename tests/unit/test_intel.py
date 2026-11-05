@@ -402,6 +402,12 @@ def test_intel_tools_registered_as_machine_output() -> None:
         "intel_kb_projection",
         "intel_items",
         "intel_llm_status",
+        "intel_mission_plan",
+        "intel_browser_profiles",
+        "intel_browser_profile_create",
+        "intel_browser_login_start",
+        "intel_browser_login_get",
+        "intel_browser_login_cancel",
     }
     assert all(t.machine_output for t in intel.values())
     assert intel["intel_job_create"].writes and intel["intel_job_cancel"].writes

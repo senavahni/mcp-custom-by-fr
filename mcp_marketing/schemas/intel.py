@@ -21,6 +21,8 @@ from pydantic import (
     model_validator,
 )
 
+from mcp_marketing.services.intel.mission_plan import MissionPlan
+
 CONTRACT_VERSION = "1.2"
 
 MAX_SOURCES = 4
@@ -482,6 +484,119 @@ class ProjectionOut(BaseModel):
     points: list[ProjectionPoint]
     method: Literal["pca"] = "pca"
     generated_at: datetime
+
+
+# ---------------------------------------------------------------------------- misi (M3_TASK_013)
+
+MISSION_MAX_DAYS = 180
+
+
+class MissionExistingTask(_Strict):
+    title: str = Field(min_length=1, max_length=500)
+    start_date: date | None = None
+    end_date: date | None = None
+
+
+class MissionContext(_Strict):
+    insight_md: str | None = Field(default=None, max_length=6_000)
+    recommendations: list[Annotated[str, StringConstraints(max_length=300)]] = Field(
+        default_factory=list, max_length=10
+    )
+    existing_tasks: list[MissionExistingTask] = Field(default_factory=list, max_length=100)
+
+
+class MissionPeriod(_Strict):
+    start_date: date
+    end_date: date
+
+    @model_validator(mode="after")
+    def _range(self) -> MissionPeriod:
+        if self.end_date < self.start_date:
+            raise ValueError("end_date harus >= start_date")
+        if (self.end_date - self.start_date).days + 1 > MISSION_MAX_DAYS:
+            raise ValueError(f"Timeline misi maksimal {MISSION_MAX_DAYS} hari")
+        return self
+
+
+class MissionPlanIn(_Strict):
+    workspace_id: uuid.UUID
+    mission_id: uuid.UUID
+    agent_key: Annotated[str, StringConstraints(min_length=1, max_length=100)]
+    title: Annotated[str, StringConstraints(min_length=1, max_length=150)]
+    instruction: Annotated[str, StringConstraints(min_length=1, max_length=4_000)]
+    period: MissionPeriod
+    context: MissionContext = Field(default_factory=MissionContext)
+    available_agents: list[Annotated[str, StringConstraints(max_length=100)]] = Field(
+        default_factory=list, max_length=20
+    )
+    feedback: str | None = Field(default=None, max_length=1_000)
+    previous_plan: dict[str, Any] | None = None
+
+
+class MissionPlanCost(BaseModel):
+    llm_tokens: int
+    usd: float
+
+
+class MissionPlanOut(BaseModel):
+    plan: MissionPlan
+    cost: MissionPlanCost
+
+
+# ---------------------------------------------------------- profil browser (login dari Dashboard)
+
+LoginSite = Literal["google", "x", "threads"]
+ProfileName = Annotated[str, StringConstraints(pattern=r"^[a-z0-9][a-z0-9_-]{1,62}$")]
+BrowserJobStatus = Literal["queued", "running", "succeeded", "failed", "cancelled"]
+
+
+class BrowserProfilesIn(_Strict):
+    pass
+
+
+class BrowserProfileInfo(BaseModel):
+    name: str
+    purpose: str | None = None
+    allowed_sites: list[str]
+    logged_in_sites: list[str]
+    login_checked_at: dict[str, str] = Field(default_factory=dict)
+    headless: bool
+    locked: bool
+    last_used: str | None = None
+
+
+class BrowserProfilesOut(BaseModel):
+    profiles: list[BrowserProfileInfo]
+
+
+class BrowserProfileCreateIn(_Strict):
+    name: ProfileName
+    sites: list[LoginSite] = Field(min_length=1, max_length=3)
+
+
+class BrowserLoginStartIn(_Strict):
+    profile: ProfileName
+    sites: list[LoginSite] = Field(min_length=1, max_length=3)
+
+
+class BrowserLoginJobIn(_Strict):
+    job_id: McpJobId
+
+
+class BrowserLoginCheck(BaseModel):
+    site: str
+    logged_in: bool | None
+    detail: str
+
+
+class BrowserLoginOut(BaseModel):
+    job_id: str
+    profile: str
+    status: BrowserJobStatus
+    message: str | None = None
+    checks: list[BrowserLoginCheck] = Field(default_factory=list)
+    closed_by_user: bool | None = None
+    error: str | None = None
 
 
 class ItemsOut(BaseModel):

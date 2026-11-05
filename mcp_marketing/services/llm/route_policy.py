@@ -19,6 +19,7 @@ Purpose = Literal[
     "agent_loop",
     "compact",
     "repair",
+    "mission_plan",
 ]
 Tier = Literal["fast", "smart"]
 
@@ -29,6 +30,8 @@ class RouteConfig:
     temperature: float
     max_tokens: int
     json: bool
+    # model reasoning (gpt-5): tanpa batas usaha, token output bisa habis → konten kosong
+    reasoning_effort: Literal["minimal", "low", "medium", "high"] | None = None
 
 
 POLICY: dict[str, RouteConfig] = {
@@ -43,6 +46,8 @@ POLICY: dict[str, RouteConfig] = {
     "agent_loop": RouteConfig("smart", 0.3, 2_000, False),
     "compact": RouteConfig("fast", 0.0, 400, False),
     "repair": RouteConfig("fast", 0.0, 800, True),
+    # rencana misi ≤ 60 task + subtask (M3_TASK_013); model reasoning butuh ruang token lebih
+    "mission_plan": RouteConfig("smart", 0.3, 8_000, True, reasoning_effort="low"),
 }
 
 

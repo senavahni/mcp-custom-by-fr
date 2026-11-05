@@ -118,3 +118,16 @@ def test_detect_block_captcha_and_status() -> None:
     assert ex.detect_block("<p>ok</p>", "Just a moment...")
     assert ex.detect_block("<p>ok</p>", "Halaman", http_status=429)
     assert not ex.detect_block("<p>artikel biasa</p>", "Artikel")
+
+
+def test_recaptcha_on_content_page_is_not_a_block() -> None:
+    # situs perusahaan sering memasang reCAPTCHA di form kontak: konten tetap harus diambil
+    body = "<p>" + "PT Contoh adalah perusahaan percetakan sekuriti. " * 40 + "</p>"
+    html = (
+        f"<html><body>{body}<form><div class='g-recaptcha'></div></form>"
+        "<script src='https://www.google.com/recaptcha/api.js'></script></body></html>"
+    )
+    assert not ex.detect_block(html, "Leading Security Printing Company")
+    # halaman tantangan: hampir tanpa teks + widget captcha → tetap diblokir
+    challenge = "<html><body><p>Verifikasi</p><div class='g-recaptcha'></div></body></html>"
+    assert ex.detect_block(challenge, "Cek")
