@@ -312,8 +312,10 @@ class IntelPipelineHandler:
             return
         await tracker.stage_started("index", profile.agent_key)
 
-        async def on_progress(done: int, total: int) -> None:
-            await tracker.progress("index", done, total, "embedding ke Knowledge Base")
+        async def on_progress(done: int, total: int, tokens: list[str]) -> None:
+            await tracker.progress(
+                "index", done, total, "embedding ke Knowledge Base", sample_tokens=tokens
+            )
 
         try:
             with context.context_scope(agent_key=profile.agent_key, stage="index"):

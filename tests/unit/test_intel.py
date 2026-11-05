@@ -94,6 +94,23 @@ def test_index_stage_included_only_when_enabled() -> None:
     assert stage_agent_keys(JobSpec.model_validate(SPEC)) == base
 
 
+def test_sample_tokens_sanitized_latest_unique_max_20() -> None:
+    texts = [
+        "Promo <script>alert(1)</script> https://x.test/a @akun #kopi 12345 enak",
+        "kopi susu gula aren " + " ".join(f"kata{chr(97 + i % 26)}x" for i in range(30)),
+    ]
+    tokens = kb_index.sample_tokens(texts)
+    assert len(tokens) == 20 and len(set(tokens)) == 20
+    assert all(t.isalpha() and 3 <= len(t) <= 24 for t in tokens)
+    assert "script" not in tokens and "https" not in tokens  # markup & URL dibuang
+    assert kb_index.sample_tokens(["#kopi enak", "a b"]) == ["kopi", "enak"]
+
+
+def test_projection_label_strips_breadcrumb_and_truncates() -> None:
+    assert kb_index.projection_label("[x @akun] Kopinya   enak\nbanget") == "Kopinya enak banget"
+    assert kb_index.projection_label("[web > Example] " + "a" * 100) == "a" * 60
+
+
 def test_kb_index_docs_dedupe_and_chunk_metadata() -> None:
     rows = [
         {"id": "x:1", "source": "x", "posted_at": "2026-10-01T03:00:00Z", "author": "a1",
@@ -382,6 +399,7 @@ def test_intel_tools_registered_as_machine_output() -> None:
         "intel_job_get",
         "intel_job_cancel",
         "intel_job_purge_index",
+        "intel_kb_projection",
         "intel_items",
         "intel_llm_status",
     }

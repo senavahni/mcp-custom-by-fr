@@ -9,18 +9,20 @@ per batch (bukan per dokumen) karena item sosial pendek dan jumlahnya bisa ribua
 
 from __future__ import annotations
 
+import re
 import uuid
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any
 
-from sqlalchemy import delete, func, select, tuple_
+from sqlalchemy import delete, func, select, text, tuple_
 
 from mcp_marketing.models.kb import KbChunk, KbCollection, KbDocument
 from mcp_marketing.services.kb.chunker import DEFAULT_CHUNK_TOKENS, DEFAULT_OVERLAP, chunk_markdown
 from mcp_marketing.services.kb.embedder import Embedder
 from mcp_marketing.services.kb.identity import embed_identity
 from mcp_marketing.services.kb.store import DocInput, content_hash, insert_chunks
+from mcp_marketing.services.kb.vector import as_float_list
 from mcp_marketing.utils.crypto import sha256_hex
 
 COLLECTION_PREFIX = "intel:"
@@ -28,9 +30,31 @@ SOURCE_ITEM = "intel_item"
 SOURCE_SUMMARY = "intel_summary"
 ITEM_MAX_CHARS = 4_000
 EMBED_BATCH = 64
+SAMPLE_TOKENS_MAX = 20
+LABEL_MAX_CHARS = 60
+PROJECTION_SOURCES = ("x", "threads", "web", "trends")
+_MARKUP = re.compile(r"<[^>]*>|https?://\S+|www\.\S+")
+_WORD = re.compile(r"[^\W\d_]{3,24}")
+_BREADCRUMB = re.compile(r"^\[[^\]]*\]\s*")
 
-Progress = Callable[[int, int], Awaitable[None]]
+# progres: (chunk ter-embed, total chunk, kata terbaru untuk animasi stream M3_TASK_011)
+Progress = Callable[[int, int, list[str]], Awaitable[None]]
 Checkpoint = Callable[[], Awaitable[None]]
+
+
+def sample_tokens(texts: list[str]) -> list[str]:
+    """≤ 20 kata unik terbaru, huruf saja (markup, URL, angka, simbol dibuang)."""
+    latest: dict[str, None] = {}
+    for body in texts:
+        for word in _WORD.findall(_MARKUP.sub(" ", body).lower()):
+            latest.pop(word, None)
+            latest[word] = None
+    return list(latest)[-SAMPLE_TOKENS_MAX:]
+
+
+def projection_label(chunk_text: str) -> str:
+    """Teks chunk tanpa breadcrumb `[judul > bagian]`, spasi dirapikan, ≤ 60 karakter."""
+    return " ".join(_BREADCRUMB.sub("", chunk_text.strip()).split())[:LABEL_MAX_CHARS]
 
 
 @dataclass
@@ -153,7 +177,7 @@ async def index_documents(
         for d in fresh
     ]  # fmt: skip
     total = sum(len(chunks) for _, chunks in planned)
-    await progress(0, total)
+    await progress(0, total, [])
     batch: list[tuple[DocInput, list[Any]]] = []
     batch_chunks = 0
     for doc, chunks in planned:
@@ -161,12 +185,12 @@ async def index_documents(
         batch_chunks += len(chunks)
         if batch_chunks >= EMBED_BATCH:
             await _write_batch(db, collection, batch, embedder, stats)
-            await progress(stats.chunks, total)
+            await progress(stats.chunks, total, sample_tokens([d.content for d, _ in batch]))
             await checkpoint()
             batch, batch_chunks = [], 0
     if batch:
         await _write_batch(db, collection, batch, embedder, stats)
-        await progress(stats.chunks, total)
+        await progress(stats.chunks, total, sample_tokens([d.content for d, _ in batch]))
     return stats
 
 
@@ -202,6 +226,47 @@ async def _write_batch(
             stats.created += 1
             stats.chunks += len(chunks)
             stats.tokens += sum(c.tokens for c in chunks)
+
+
+_PROJECTION_ROWS = text(
+    "SELECT d.id, d.metadata, c.text, c.embedding::real[] AS embedding "
+    "FROM mcp.kb_documents d JOIN mcp.kb_chunks c ON c.document_id = d.id "
+    "WHERE d.collection_id = :coll AND d.source_type = :src "
+    "AND d.metadata->>'job_id' = :job AND c.chunk_index = 0 "
+    "ORDER BY d.created_at, d.id LIMIT :limit"
+)
+
+
+async def projection_rows(
+    services: Any, workspace_id: uuid.UUID, job_id: str, limit: int
+) -> list[dict[str, Any]]:
+    """Satu baris per item job (chunk pertama): id, source, sentiment, label, vektor."""
+    async with services.db.session() as session:
+        coll_id = await session.scalar(
+            select(KbCollection.id).where(
+                KbCollection.workspace_id == workspace_id,
+                KbCollection.name == collection_name(workspace_id),
+            )
+        )
+        if coll_id is None:
+            return []
+        rows = await session.execute(
+            _PROJECTION_ROWS,
+            {"coll": coll_id, "src": SOURCE_ITEM, "job": job_id, "limit": limit},
+        )
+    out = []
+    for doc_id, meta, chunk_text, embedding in rows:
+        source = (meta or {}).get("source")
+        out.append(
+            {
+                "id": str(doc_id),
+                "source": source if source in PROJECTION_SOURCES else "web",
+                "sentiment": (meta or {}).get("sentiment"),
+                "label": projection_label(chunk_text),
+                "vector": as_float_list(embedding),
+            }
+        )
+    return out
 
 
 async def purge_job(services: Any, workspace_id: uuid.UUID, job_id: str) -> tuple[int, int]:

@@ -91,7 +91,15 @@ class IntelTracker:
         await self._update(mutate)
         await self.emit("intel.job.stage.started", {"stage": stage, "agent_key": agent_key})
 
-    async def progress(self, stage: str, done: int, total: int | None, message: str | None) -> None:
+    async def progress(
+        self,
+        stage: str,
+        done: int,
+        total: int | None,
+        message: str | None,
+        *,
+        sample_tokens: list[str] | None = None,
+    ) -> None:
         t = time.monotonic()
         if t - self._last_db >= PROGRESS_DB_INTERVAL_S or (total is not None and done >= total):
             self._last_db = t
@@ -111,6 +119,8 @@ class IntelTracker:
         data: dict[str, Any] = {"stage": stage, "done": done, "total": total}
         if message:
             data["message"] = message[:300]
+        if sample_tokens:
+            data["sample_tokens"] = sample_tokens[-20:]
         await self.emit("intel.job.progress", data)
 
     async def stage_completed(

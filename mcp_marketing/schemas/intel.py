@@ -8,7 +8,7 @@ Sumber kebenaran schema di sisi MCP. Batas & default HARUS identik dengan Zod Da
 from __future__ import annotations
 
 import uuid
-from datetime import date
+from datetime import date, datetime
 from typing import Annotated, Any, Literal
 
 from pydantic import (
@@ -459,6 +459,31 @@ class PurgeIndexOut(BaseModel):
     deleted_chunks: int = Field(ge=0)
 
 
+PROJECTION_MAX_POINTS = 2_000
+
+
+class ProjectionIn(JobRefIn):
+    limit: int = Field(default=PROJECTION_MAX_POINTS, ge=1, le=PROJECTION_MAX_POINTS)
+
+
+class ProjectionPoint(BaseModel):
+    id: str
+    x: float
+    y: float
+    z: float
+    source: SourceType
+    sentiment: Sentiment | None = None
+    label: str = Field(max_length=60)
+
+
+class ProjectionOut(BaseModel):
+    """Awan titik 3D (M3_TASK_011): PCA 3 komponen atas embedding item job di KB."""
+
+    points: list[ProjectionPoint]
+    method: Literal["pca"] = "pca"
+    generated_at: datetime
+
+
 class ItemsOut(BaseModel):
     cols: list[str]
     rows: list[list[Any]]
@@ -531,6 +556,10 @@ class ProgressData(_Strict):
     done: int = Field(ge=0)
     total: int | None = Field(default=None, ge=0)
     message: Annotated[str, StringConstraints(max_length=300)] | None = None
+    # M3_TASK_011 (opsional, tahap index): kata terbaru tersanitasi untuk animasi stream 3D
+    sample_tokens: list[Annotated[str, StringConstraints(max_length=24)]] | None = Field(
+        default=None, max_length=20
+    )
 
 
 class StageCompletedData(_Strict):

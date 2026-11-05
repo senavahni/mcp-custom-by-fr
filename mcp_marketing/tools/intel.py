@@ -6,6 +6,7 @@ Dashboard melakukan RBAC; MCP mewajibkan `workspace_id` dan menolak job workspac
 
 from __future__ import annotations
 
+import asyncio
 import uuid
 from datetime import date, timedelta
 from decimal import Decimal
@@ -30,6 +31,7 @@ from mcp_marketing.services.intel.analysis import ITEMS_PAGE_COLS
 from mcp_marketing.services.intel.capabilities import capabilities, validate_stage_agents
 from mcp_marketing.services.intel.estimate import build_estimate, route_tier, usd_for_tokens
 from mcp_marketing.services.intel.pipeline import KIND
+from mcp_marketing.services.intel.projection import pca_3d
 from mcp_marketing.services.intel.tracker import IntelTracker, initial_stages
 from mcp_marketing.services.llm.credentials import key_info, list_credentials
 from mcp_marketing.services.results.result_store import Owner
@@ -368,6 +370,50 @@ async def intel_job_purge_index(inp: c.JobRefIn, ctx: ToolContext) -> c.PurgeInd
     docs, chunks = await kb_index.purge_job(ctx.services, intel.workspace_id, intel.id)
     log.info("intel.index_purged", mcp_job_id=intel.id, documents=docs, chunks=chunks)
     return c.PurgeIndexOut(deleted_documents=docs, deleted_chunks=chunks)
+
+
+PROJECTION_CACHE_TTL_S = 3_600
+
+
+@tool(
+    name="intel_kb_projection",
+    toolset=TOOLSET,
+    summary="Awan titik 3D (PCA) dari embedding item job di Knowledge Base",
+    description="3D point cloud for the research visualization: PCA (3 components) over the KB "
+    "embeddings of the job's items, with source, sentiment and a short label per point. Cached "
+    "per job once the job is finished.",
+    input_model=c.ProjectionIn,
+    output_model=c.ProjectionOut,
+    machine_output=True,
+)
+async def intel_kb_projection(inp: c.ProjectionIn, ctx: ToolContext) -> c.ProjectionOut:
+    intel = await _intel_job(ctx, inp.workspace_id, inp.mcp_job_id)
+    key = f"intel_projection:{intel.id}:{inp.limit}"
+    final = intel.status in c.TERMINAL_STATUSES
+    if final and (hit := await ctx.services.cache.get(key)) is not None:
+        return c.ProjectionOut.model_validate(hit)
+    rows = await kb_index.projection_rows(ctx.services, intel.workspace_id, intel.id, inp.limit)
+    coords = await asyncio.to_thread(pca_3d, [r["vector"] for r in rows])
+    out = c.ProjectionOut(
+        points=[
+            c.ProjectionPoint(
+                id=r["id"],
+                x=round(x, 5),
+                y=round(y, 5),
+                z=round(z, 5),
+                source=r["source"],
+                sentiment=r["sentiment"],
+                label=r["label"],
+            )
+            for r, (x, y, z) in zip(rows, coords, strict=True)
+        ],
+        generated_at=now(),
+    )
+    if final and rows:
+        await ctx.services.cache.set(
+            key, "intel", out.model_dump(mode="json"), PROJECTION_CACHE_TTL_S
+        )
+    return out
 
 
 @tool(

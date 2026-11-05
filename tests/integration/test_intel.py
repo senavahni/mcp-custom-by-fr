@@ -362,9 +362,29 @@ async def test_index_stage_saves_to_kb_scoped_and_purgeable(env: Env) -> None:
     stats = done[0]["stats"]
     assert stats["documents"] == stats["created"] == 6 and stats["skipped"] == 0
     assert stats["chunks"] >= 6 and stats["collection"] == f"intel:{WS}"
-    assert any(
-        p["event_type"] == "intel.job.progress" and p["data"]["stage"] == "index" for p in events
-    )
+    index_progress = [
+        p["data"]
+        for p in events
+        if p["event_type"] == "intel.job.progress" and p["data"]["stage"] == "index"
+    ]
+    assert index_progress
+    # M3_TASK_011: kata terbaru untuk animasi stream (huruf saja, ≤ 20)
+    tokens = [t for d in index_progress for t in d.get("sample_tokens") or []]
+    assert tokens and all(re.fullmatch(r"[^\W\d_]{3,24}", t) for t in tokens)
+    assert max(len(d.get("sample_tokens") or []) for d in index_progress) <= 20
+
+    # M3_TASK_011: proyeksi PCA 3D atas embedding item job (ringkasan tidak ikut)
+    ref = {"workspace_id": WS, "mcp_job_id": job_id}
+    proj = await env.ok("intel_kb_projection", ref)
+    assert proj["method"] == "pca" and len(proj["points"]) == 5
+    point = proj["points"][0]
+    assert set(point) == {"id", "x", "y", "z", "source", "sentiment", "label"}
+    assert {p["source"] for p in proj["points"]} == {"x", "threads"}
+    assert {p["sentiment"] for p in proj["points"]} == {"positive", "negative"}
+    assert all(len(p["label"]) <= 60 and not p["label"].startswith("[") for p in proj["points"])
+    assert len((await env.ok("intel_kb_projection", {**ref, "limit": 2}))["points"]) == 2
+    other_ws = await env.call("intel_kb_projection", {**ref, "workspace_id": OTHER_WS})
+    assert other_ws.is_error and other_ws.structured["code"] == "NOT_FOUND"
 
     # embedding memakai key/atribusi agent tahap index
     embeds = env.gateway.calls_to("/embeddings")
@@ -389,7 +409,6 @@ async def test_index_stage_saves_to_kb_scoped_and_purgeable(env: Env) -> None:
     assert blocked.is_error and blocked.structured["code"] == "NOT_FOUND"
 
     # hapus job di Dashboard -> dokumen job dibuang dari koleksi (workspace lain ditolak)
-    ref = {"workspace_id": WS, "mcp_job_id": job_id}
     other = await env.call("intel_job_purge_index", {**ref, "workspace_id": OTHER_WS})
     assert other.is_error and other.structured["code"] == "NOT_FOUND"
     purged = await env.ok("intel_job_purge_index", ref)
