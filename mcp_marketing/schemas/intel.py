@@ -454,6 +454,11 @@ class CancelOut(BaseModel):
     status: JobStatus
 
 
+class PurgeIndexOut(BaseModel):
+    deleted_documents: int = Field(ge=0)
+    deleted_chunks: int = Field(ge=0)
+
+
 class ItemsOut(BaseModel):
     cols: list[str]
     rows: list[list[Any]]

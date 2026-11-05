@@ -138,22 +138,34 @@ async def upsert_document(
                 )
             )
             status = "updated"
-        meta = orjson.dumps({**doc.metadata, "source_type": doc.source_type}).decode()
-        for chunk, vec in zip(chunks, vectors, strict=True):
-            await session.execute(
-                _INSERT_CHUNK,
-                {
-                    "d": doc_id,
-                    "c": collection.id,
-                    "i": chunk.index,
-                    "t": chunk.text,
-                    "n": chunk.tokens,
-                    "dim": collection.embed_dim,
-                    "e": [float(x) for x in vec],
-                    "m": meta,
-                },
-            )
+        await insert_chunks(session, collection, doc_id, doc, chunks, vectors)
     return UpsertResult(str(doc_id), status, len(chunks), sum(c.tokens for c in chunks))
+
+
+async def insert_chunks(
+    session: Any,
+    collection: KbCollection,
+    doc_id: uuid.UUID,
+    doc: DocInput,
+    chunks: list[Any],
+    vectors: list[list[float]],
+) -> None:
+    """Tulis chunk + vektor satu dokumen (metadata dokumen ikut di tiap chunk)."""
+    meta = orjson.dumps({**doc.metadata, "source_type": doc.source_type}).decode()
+    for chunk, vec in zip(chunks, vectors, strict=True):
+        await session.execute(
+            _INSERT_CHUNK,
+            {
+                "d": doc_id,
+                "c": collection.id,
+                "i": chunk.index,
+                "t": chunk.text,
+                "n": chunk.tokens,
+                "dim": collection.embed_dim,
+                "e": [float(x) for x in vec],
+                "m": meta,
+            },
+        )
 
 
 async def delete_document(db: Any, document_id: uuid.UUID) -> int:

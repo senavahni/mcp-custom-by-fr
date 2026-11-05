@@ -11,7 +11,7 @@ from collections.abc import Iterable
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from mcp_marketing.core.errors import AgentInactive, AgentNotCapable, UnknownAgent, ValidationFailed
+from mcp_marketing.core.errors import AgentInactive, AgentNotCapable, UnknownAgent
 from mcp_marketing.models import AgentProfile
 from mcp_marketing.schemas.intel import Capability, JobSpec
 
@@ -55,12 +55,16 @@ def check_stage_agent(
             )
 
 
+def index_enabled(spec: JobSpec) -> bool:
+    return spec.stages.index is not None and spec.stages.index.enabled
+
+
 def stage_agent_keys(spec: JobSpec) -> dict[str, str]:
+    """Agent per tahap aktif, urut eksekusi (index hanya bila `stages.index.enabled`)."""
     keys = {"collect": spec.stages.collect.agent_key, "analyze": spec.stages.analyze.agent_key}
-    if spec.stages.index is not None and spec.stages.index.enabled:
-        raise ValidationFailed(
-            "Tahap index (Knowledge Base) belum didukung", details={"field": "stages.index"}
-        )
+    if index_enabled(spec):
+        assert spec.stages.index is not None
+        keys["index"] = spec.stages.index.agent_key
     return keys
 
 

@@ -14,11 +14,10 @@ from mcp_marketing.core.errors import (
     ToolError,
     UnknownAgent,
     UpstreamError,
-    ValidationFailed,
 )
 from mcp_marketing.schemas.intel import JobResultView, JobSpec, WebSource, validate_intel_event_data
 from mcp_marketing.services.agent.profiles import DEFAULT_PROFILES
-from mcp_marketing.services.intel import analysis
+from mcp_marketing.services.intel import analysis, kb_index
 from mcp_marketing.services.intel.capabilities import (
     capabilities,
     check_stage_agent,
@@ -80,19 +79,50 @@ def test_check_stage_agent_errors() -> None:
     check_stage_agent(profile("researcher"), "researcher", "collect", ["x", "web", "trends"])  # type: ignore[arg-type]
 
 
-def test_index_stage_not_supported_yet() -> None:
-    spec = JobSpec.model_validate(
-        {
-            **SPEC,
-            "stages": {**SPEC["stages"], "index": {"agent_key": "researcher", "enabled": True}},
-        }
-    )
-    with pytest.raises(ValidationFailed):
-        stage_agent_keys(spec)
-    assert stage_agent_keys(JobSpec.model_validate(SPEC)) == {
+def test_index_stage_included_only_when_enabled() -> None:
+    def with_index(enabled: bool) -> JobSpec:
+        index = {"agent_key": "strategist", "enabled": enabled}
+        return JobSpec.model_validate({**SPEC, "stages": {**SPEC["stages"], "index": index}})
+
+    assert stage_agent_keys(with_index(True)) == {
         "collect": "researcher",
         "analyze": "analyst",
+        "index": "strategist",
     }
+    base = {"collect": "researcher", "analyze": "analyst"}
+    assert stage_agent_keys(with_index(False)) == base
+    assert stage_agent_keys(JobSpec.model_validate(SPEC)) == base
+
+
+def test_kb_index_docs_dedupe_and_chunk_metadata() -> None:
+    rows = [
+        {"id": "x:1", "source": "x", "posted_at": "2026-10-01T03:00:00Z", "author": "a1",
+         "text": "Kopinya enak", "url": "https://x.test/1", "sentiment": "positive"},
+        {"id": "x:2", "source": "x", "posted_at": "2026-10-02T03:00:00Z", "author": "a2",
+         "text": "Kopinya enak", "url": "https://x.test/2", "sentiment": "positive"},
+        {"id": "x:3", "source": "x", "posted_at": None, "author": None,
+         "text": "  ", "url": None, "sentiment": None},
+    ]  # fmt: skip
+    result = {"summary_md": "## Ringkasan\n- positif", "recommendations": ["Promo bundling"]}
+    docs = kb_index.build_docs("j_abc", "Riset kopi", rows, result)
+
+    summary, *items = docs
+    assert summary.source_type == kb_index.SOURCE_SUMMARY and summary.source_ref == "j_abc"
+    assert "Promo bundling" in summary.content and summary.metadata["job_id"] == "j_abc"
+    assert len(items) == 1  # teks sama didedupe (sha256), teks kosong dilewati
+    item = items[0]
+    assert item.source_type == kb_index.SOURCE_ITEM and len(item.source_ref) == 64
+    assert item.metadata == {
+        "job_id": "j_abc",
+        "source": "x",
+        "sentiment": "positive",
+        "created_at": "2026-10-01T03:00:00Z",
+        "author": "a1",
+        "url": "https://x.test/1",
+    }
+    assert kb_index.collection_name("ws-1") == "intel:ws-1"
+    no_summary = kb_index.build_docs("j_abc", "Riset kopi", rows, {"summary_md": None})
+    assert all(d.source_type == kb_index.SOURCE_ITEM for d in no_summary)
 
 
 # ---------------------------------------------------------------------------- estimasi & sumber
@@ -351,11 +381,13 @@ def test_intel_tools_registered_as_machine_output() -> None:
         "intel_job_create",
         "intel_job_get",
         "intel_job_cancel",
+        "intel_job_purge_index",
         "intel_items",
         "intel_llm_status",
     }
     assert all(t.machine_output for t in intel.values())
     assert intel["intel_job_create"].writes and intel["intel_job_cancel"].writes
+    assert intel["intel_job_purge_index"].writes
     # profil agent tidak boleh memakai toolset intel (khusus klien Dashboard)
     assert all("intel" not in p.toolsets for p in DEFAULT_PROFILES)
 

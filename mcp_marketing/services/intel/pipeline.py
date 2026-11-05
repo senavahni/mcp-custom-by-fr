@@ -17,7 +17,7 @@ from mcp_marketing.models import AgentProfile
 from mcp_marketing.schemas.common import JobEstimate
 from mcp_marketing.schemas.intel import JobResultView, JobSpec
 from mcp_marketing.services.agent.budget import BudgetLayer, BudgetScope
-from mcp_marketing.services.intel import analysis
+from mcp_marketing.services.intel import analysis, kb_index
 from mcp_marketing.services.intel.capabilities import validate_stage_agents
 from mcp_marketing.services.intel.children import run_child
 from mcp_marketing.services.intel.errors import map_error
@@ -25,6 +25,7 @@ from mcp_marketing.services.intel.estimate import route_tier, usd_for_tokens
 from mcp_marketing.services.intel.sources import PreparedSource, prepare_source
 from mcp_marketing.services.intel.synthesize import synthesize
 from mcp_marketing.services.intel.tracker import IntelTracker
+from mcp_marketing.services.kb.embedder import embedder_for
 from mcp_marketing.services.nlp.sentiment import SentimentAnalyzer
 from mcp_marketing.services.results.result_store import Owner
 from mcp_marketing.worker.handlers.base import Handler, JobCancelled, JobCtx, JobResult
@@ -105,7 +106,23 @@ class IntelPipelineHandler:
             stage = "collect"
             collected = await self._collect(job, tracker, spec, profiles["collect"], cost)
             stage = "analyze"
-            return await self._analyze(job, tracker, spec, profiles["analyze"], collected, cost)
+            final, rows, handle = await self._analyze(
+                job, tracker, spec, profiles["analyze"], collected, cost
+            )
+            if "index" in profiles:
+                stage = "index"
+                await self._index(job, tracker, spec, profiles["index"], intel, final, rows, cost)
+            await tracker.completed(final, cost.view())
+            total = len(rows)
+            summary = f"{total} item dianalisis" if total else "0 item"
+            return JobResult(
+                result={
+                    "summary": summary,
+                    "total": total,
+                    "cost": {"llm_tokens": cost.view()["llm_tokens"], "external_units": 0},
+                },
+                result_handle=handle,
+            )
         except JobCancelled:
             await tracker.cancelled()
             raise
@@ -198,15 +215,15 @@ class IntelPipelineHandler:
         profile: AgentProfile,
         collected: Collected,
         cost: CostTracker,
-    ) -> JobResult:
+    ) -> tuple[dict[str, Any], list[dict[str, Any]], str | None]:
+        """(hasil final tervalidasi, baris item berlabel, handle item) — belum `completed`."""
         tz = job.services.settings.timezone
         warnings = list(collected.warnings)
         if not collected.items:
             warnings.append({"code": "NO_ITEMS", "message": "Tidak ada data teks pada periode ini"})
             await tracker.stage_completed("analyze", skipped=True, warnings=warnings)
             result = self._validated(self._result([], None, collected, warnings, tz, handle=None))
-            await tracker.completed(result, cost.view())
-            return JobResult(result={"summary": "0 item", "total": 0})
+            return result, [], None
 
         await tracker.stage_started("analyze", profile.agent_key)
         cfg = spec.stages.analyze
@@ -273,15 +290,54 @@ class IntelPipelineHandler:
         await tracker.stage_completed(
             "analyze", stats={"labeled": total}, warnings=warnings[len(collected.warnings) :]
         )
-        await tracker.completed(final, cost.view())
-        return JobResult(
-            result={
-                "summary": f"{total} item dianalisis",
-                "total": total,
-                "cost": {"llm_tokens": cost.view()["llm_tokens"], "external_units": 0},
-            },
-            result_handle=rs.handle,
+        return final, rows, rs.handle
+
+    # ------------------------------------------------------------------ Indeks (KB)
+    async def _index(
+        self,
+        job: JobCtx,
+        tracker: IntelTracker,
+        spec: JobSpec,
+        profile: AgentProfile,
+        intel: Any,
+        final: dict[str, Any],
+        rows: list[dict[str, Any]],
+        cost: CostTracker,
+    ) -> None:
+        """Simpan ke KB. Gagal = tidak fatal: tahap `skipped` + peringatan INDEX_FAILED."""
+        docs = kb_index.build_docs(job.job_id, spec.title, rows, final)
+        if not docs:
+            warning = {"code": "NO_ITEMS", "message": "Tidak ada konten untuk Knowledge Base"}
+            await tracker.stage_completed("index", skipped=True, warnings=[warning])
+            return
+        await tracker.stage_started("index", profile.agent_key)
+
+        async def on_progress(done: int, total: int) -> None:
+            await tracker.progress("index", done, total, "embedding ke Knowledge Base")
+
+        try:
+            with context.context_scope(agent_key=profile.agent_key, stage="index"):
+                coll = await kb_index.intel_collection(job.services, intel.workspace_id)
+                embedder = embedder_for(
+                    job.services, coll.embed_model, coll.embed_dim, stage_budget(profile)
+                )
+                stats = await kb_index.index_documents(
+                    job.services.db,
+                    coll,
+                    docs,
+                    embedder,
+                    progress=on_progress,
+                    checkpoint=job.raise_if_cancelled,
+                )
+        except ToolError as exc:
+            warning = {"code": "INDEX_FAILED", "message": f"Gagal menyimpan ke KB: {exc.message}"}
+            final["warnings"].append({k: v[:300] for k, v in warning.items()})
+            await tracker.stage_completed("index", skipped=True, warnings=[final["warnings"][-1]])
+            return
+        cost.add_llm(
+            "index", profile.agent_key, stats.tokens, usd_for_tokens(stats.tokens, "embed")
         )
+        await tracker.stage_completed("index", stats=stats.view(coll.name))
 
     @staticmethod
     def _add_llm_cost(

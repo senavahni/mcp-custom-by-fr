@@ -20,8 +20,12 @@ from mcp_marketing.schemas.intel import (
 from mcp_marketing.services.intel.sources import PreparedSource, prepare_source
 from mcp_marketing.services.nlp.sentiment_model import model_available
 
-# USD per 1.000 token (campuran input/output) per tier route
-USD_PER_1K_TOKENS = {"fast": 0.0006, "smart": 0.005}
+# USD per 1.000 token (campuran input/output) per tier route; embed = text-embedding-3-small
+USD_PER_1K_TOKENS = {"fast": 0.0006, "smart": 0.005, "embed": 0.00002}
+INDEX_TOKENS_PER_ITEM = 80
+INDEX_SUMMARY_TOKENS = 600
+INDEX_ITEMS_PER_SECOND = 50
+INDEX_BASE_SECONDS = 10
 SENTIMENT_TOKENS_PER_ITEM = 90
 SENTIMENT_BATCH = 50
 SENTIMENT_BATCH_OVERHEAD = 300
@@ -78,12 +82,31 @@ def analysis_llm(
     return sent + synth, round(usd, 4), stage
 
 
+def index_llm(
+    services: Any, index_profile: AgentProfile, items: int
+) -> tuple[int, float, EstimateStage]:
+    """(token, usd, rincian tahap index) — embedding per item + dokumen ringkasan."""
+    tokens = items * INDEX_TOKENS_PER_ITEM + INDEX_SUMMARY_TOKENS if items > 0 else 0
+    stage = EstimateStage(
+        stage="index",
+        agent_key=index_profile.agent_key,
+        route=services.settings.llm.llm_route_embed,
+        tokens_est=tokens,
+    )
+    return tokens, usd_for_tokens(tokens, "embed"), stage
+
+
 async def build_estimate(
     services: Any, spec: JobSpec, profiles: dict[str, AgentProfile]
 ) -> tuple[Estimate, list[PreparedSource]]:
     prepared = [await prepare_source(services, src, spec.period) for src in spec.sources]
     items = sum(p.expected_items for p in prepared)
     tokens, usd_llm, stage = analysis_llm(services, spec, profiles["analyze"], items)
+    stages = [stage]
+    if "index" in profiles:
+        idx_tokens, idx_usd, idx_stage = index_llm(services, profiles["index"], items)
+        tokens, usd_llm = tokens + idx_tokens, round(usd_llm + idx_usd, 4)
+        stages.append(idx_stage)
     usd_external = round(sum(p.usd_external for p in prepared), 4)
     warnings = [IntelWarning(**w) for p in prepared for w in p.warnings]
     if items > 0 and not model_available(services.settings.nlp.sentiment_model_dir):
@@ -96,6 +119,8 @@ async def build_estimate(
     seconds = sum(p.seconds for p in prepared)
     if items:
         seconds += ANALYSIS_BASE_SECONDS + items // ANALYSIS_ITEMS_PER_SECOND
+        if "index" in profiles:
+            seconds += INDEX_BASE_SECONDS + items // INDEX_ITEMS_PER_SECOND
     estimate = Estimate(
         seconds=seconds,
         sources=[
@@ -107,7 +132,7 @@ async def build_estimate(
             )
             for p in prepared
         ],
-        llm=EstimateLlm(tokens_est=tokens, usd_est=usd_llm, by_stage=[stage]),
+        llm=EstimateLlm(tokens_est=tokens, usd_est=usd_llm, by_stage=stages),
         requires_confirmation=usd_external > 0 or usd_llm > CONFIRM_USD_THRESHOLD,
         warnings=warnings,
     )

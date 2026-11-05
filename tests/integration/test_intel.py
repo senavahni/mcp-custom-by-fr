@@ -36,7 +36,7 @@ from mcp_marketing.worker.handlers import default_registry
 from mcp_marketing.worker.handlers.base import JobCtx, JobResult
 from mcp_marketing.worker.queue import JobQueue
 from mcp_marketing.worker.runner import Worker
-from tests.fakes import FakeGateway, completion
+from tests.fakes import FakeGateway, HashEmbedder, completion
 from tests.integration.conftest import make_client
 from tests.integration.helpers import FakeDashboard
 
@@ -111,6 +111,18 @@ def gateway_reply(request: httpx2.Request) -> httpx2.Response:
         label = "neg" if re.search(r"kecewa|mahal|terlambat", m.group(2)) else "pos"
         lines.append(f"{m.group(1)}|{label}|0.9")
     return httpx2.Response(200, json=completion("\n".join(lines), prompt=120, completion_tokens=30))
+
+
+def embed_reply(request: httpx2.Request) -> httpx2.Response:
+    texts = json.loads(request.content)["input"]
+    vector = HashEmbedder().vector
+    data = [
+        {"object": "embedding", "index": i, "embedding": vector(t)} for i, t in enumerate(texts)
+    ]
+    usage = {"prompt_tokens": 12 * len(texts), "total_tokens": 12 * len(texts)}
+    return httpx2.Response(
+        200, json={"object": "list", "data": data, "model": "embed-default", "usage": usage}
+    )
 
 
 @dataclass
@@ -192,6 +204,7 @@ async def env(services: Services, monkeypatch: pytest.MonkeyPatch) -> AsyncItera
     gateway = (
         FakeGateway()
         .on("/chat/completions", gateway_reply)
+        .on("/embeddings", embed_reply)
         .on(
             "/models",
             httpx2.Response(
@@ -317,6 +330,72 @@ async def test_full_pipeline_events_view_and_attribution(env: Env) -> None:
     status = await env.ok("intel_llm_status", {"range_days": 7})
     analyst = next(a for a in status["agents"] if a["agent_key"] == "analyst")
     assert analyst["usage"]["calls"] == len(calls) and analyst["key_source"] == "env"
+
+
+async def test_index_stage_saves_to_kb_scoped_and_purgeable(env: Env) -> None:
+    spec_ = spec("x", "threads")
+    spec_["stages"]["index"] = {"agent_key": "strategist", "enabled": True}
+    est = await env.ok("intel_job_estimate", {"workspace_id": WS, "spec": spec_})
+    assert [s["stage"] for s in est["llm"]["by_stage"]] == ["analyze", "index"]
+
+    job_id = (await env.ok("intel_job_create", create_args(spec_)))["mcp_job_id"]
+    view = await env.wait_status(job_id, ("completed", "failed"))
+    assert view["status"] == "completed", view
+    assert [(s["stage"], s["status"]) for s in view["stages"]] == [
+        ("collect", "completed"),
+        ("analyze", "completed"),
+        ("index", "completed"),
+    ]
+    index_cost = next(c for c in view["cost"]["by_stage"] if c["stage"] == "index")
+    assert index_cost["agent_key"] == "strategist" and index_cost["llm_tokens"] > 0
+
+    # event tahap index: progres + statistik (5 post + 1 ringkasan; ringkasan bisa > 1 chunk)
+    await env.drain()
+    events = [p for p in env.dashboard.processed_order if p.get("mcp_job_id") == job_id]
+    for p in events:
+        validate_intel_event_data(p["event_type"], p["data"])
+    done = [
+        p["data"]
+        for p in events
+        if p["event_type"] == "intel.job.stage.completed" and p["data"]["stage"] == "index"
+    ]
+    stats = done[0]["stats"]
+    assert stats["documents"] == stats["created"] == 6 and stats["skipped"] == 0
+    assert stats["chunks"] >= 6 and stats["collection"] == f"intel:{WS}"
+    assert any(
+        p["event_type"] == "intel.job.progress" and p["data"]["stage"] == "index" for p in events
+    )
+
+    # embedding memakai key/atribusi agent tahap index
+    embeds = env.gateway.calls_to("/embeddings")
+    assert embeds and all(c.headers.get("x-caller-agent") == "strategist" for c in embeds)
+    await env.services.llm.drain()  # type: ignore[union-attr]
+    async with env.services.db.session() as s:
+        calls = (await s.scalars(select(LlmCall).where(LlmCall.job_id == job_id))).all()
+    assert ("strategist", "index") in {(c.agent_key, c.stage) for c in calls}
+
+    # kb_search: agent di workspace yang sama menemukan post; workspace lain tidak
+    _, kb_client = await make_client(env.services, name="kb-ws", toolsets=["kb"], workspace_id=WS)
+    _, outsider = await make_client(
+        env.services, name="kb-luar", toolsets=["kb"], workspace_id=OTHER_WS
+    )
+    colls = await env.pipeline.call("kb_collections", {}, client=kb_client)
+    names = colls.structured["items"]["cols"].index("name")
+    coll_id = next(r[0] for r in colls.structured["items"]["rows"] if r[names] == f"intel:{WS}")
+    query = {"collection_id": coll_id, "query": "pengiriman terlambat kecewa", "top_k": 3}
+    hits = await env.pipeline.call("kb_search", query, client=kb_client)
+    assert not hits.is_error and "pengiriman terlambat" in hits.structured["results"][0]["text"]
+    blocked = await env.pipeline.call("kb_search", query, client=outsider)
+    assert blocked.is_error and blocked.structured["code"] == "NOT_FOUND"
+
+    # hapus job di Dashboard -> dokumen job dibuang dari koleksi (workspace lain ditolak)
+    ref = {"workspace_id": WS, "mcp_job_id": job_id}
+    other = await env.call("intel_job_purge_index", {**ref, "workspace_id": OTHER_WS})
+    assert other.is_error and other.structured["code"] == "NOT_FOUND"
+    purged = await env.ok("intel_job_purge_index", ref)
+    assert purged == {"deleted_documents": 6, "deleted_chunks": stats["chunks"]}
+    after = await env.pipeline.call("kb_search", {**query, "mode": "keyword"}, client=kb_client)
+    assert after.structured["results"] == []
 
 
 async def test_one_source_fails_other_continues(env: Env, monkeypatch: pytest.MonkeyPatch) -> None:

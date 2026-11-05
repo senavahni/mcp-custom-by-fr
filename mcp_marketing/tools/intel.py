@@ -25,6 +25,7 @@ from mcp_marketing.models import AgentProfile, IntelJob, Job, LlmCall, LlmCreden
 from mcp_marketing.schemas import intel as c
 from mcp_marketing.server.registry import ToolContext, tool
 from mcp_marketing.services.browser.driver_pool import profile_store
+from mcp_marketing.services.intel import kb_index
 from mcp_marketing.services.intel.analysis import ITEMS_PAGE_COLS
 from mcp_marketing.services.intel.capabilities import capabilities, validate_stage_agents
 from mcp_marketing.services.intel.estimate import build_estimate, route_tier, usd_for_tokens
@@ -39,6 +40,7 @@ log = get_logger(__name__)
 
 TOOLSET = "intel"
 ANALYSIS_TIMEOUT_S = 3_600
+INDEX_TIMEOUT_S = 1_800
 MAX_JOB_TIMEOUT_S = 6 * 3_600
 ORDER_COLUMN = {
     "-created_at": "-posted_at",
@@ -262,11 +264,11 @@ async def intel_job_create(inp: c.JobCreateIn, ctx: ToolContext) -> c.JobAccepte
                 "usd_llm": estimate.llm.usd_est,
             },
         )
-    stage_agents = {
-        "collect": profiles["collect"].agent_key,
-        "analyze": profiles["analyze"].agent_key,
-    }
-    timeout = min(MAX_JOB_TIMEOUT_S, sum(p.timeout_s for p in prepared) + ANALYSIS_TIMEOUT_S)
+    stage_agents = {stage: profile.agent_key for stage, profile in profiles.items()}
+    index_s = INDEX_TIMEOUT_S if "index" in profiles else 0
+    timeout = min(
+        MAX_JOB_TIMEOUT_S, sum(p.timeout_s for p in prepared) + ANALYSIS_TIMEOUT_S + index_s
+    )
     job_id = new_job_id()
     async with ctx.services.db.session() as session:
         # job induk + intel_jobs satu transaksi: worker tak bisa ambil job tanpa barisnya
@@ -348,6 +350,24 @@ async def intel_job_cancel(inp: c.JobRefIn, ctx: ToolContext) -> c.CancelOut:
     else:
         status = await tracker.mark_cancelling()
     return c.CancelOut(cancelled=True, status=status)  # type: ignore[arg-type]
+
+
+@tool(
+    name="intel_job_purge_index",
+    toolset=TOOLSET,
+    summary="Hapus dokumen KB hasil job riset (saat job dihapus)",
+    description="Remove the job's documents (items + summary) from the workspace KB collection "
+    "intel:<workspace_id>. Idempotent; items shared with an earlier job stay with that job.",
+    input_model=c.JobRefIn,
+    output_model=c.PurgeIndexOut,
+    machine_output=True,
+    writes=True,
+)
+async def intel_job_purge_index(inp: c.JobRefIn, ctx: ToolContext) -> c.PurgeIndexOut:
+    intel = await _intel_job(ctx, inp.workspace_id, inp.mcp_job_id)
+    docs, chunks = await kb_index.purge_job(ctx.services, intel.workspace_id, intel.id)
+    log.info("intel.index_purged", mcp_job_id=intel.id, documents=docs, chunks=chunks)
+    return c.PurgeIndexOut(deleted_documents=docs, deleted_chunks=chunks)
 
 
 @tool(
