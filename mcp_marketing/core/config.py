@@ -50,11 +50,19 @@ class DbSettings(_Group):
 class LlmSettings(_Group):
     llm_gateway_url: str = "http://127.0.0.1:8000/v1"
     llm_gateway_api_key: SecretStr = SecretStr("lgw_CHANGE_ME")
+    # admin key Gateway untuk rotasi key dari Dashboard (intel_llm_key_rotate); kosong = rotasi
+    # lewat tool nonaktif. Tidak pernah ditulis ke DB maupun log.
+    llm_gateway_admin_key: SecretStr | None = None
     llm_route_fast: str = "fast"
     llm_route_smart: str = "smart"
     llm_route_embed: str = "embed-default"
     llm_timeout_s: float = Field(default=120, gt=0)
     llm_cache_ttl_s: int = Field(default=86_400, ge=0)
+
+    @field_validator("llm_gateway_admin_key", mode="before")
+    @classmethod
+    def _empty_none(cls, v: Any) -> Any:
+        return None if v == "" else v
 
 
 class DashboardSettings(_Group):
