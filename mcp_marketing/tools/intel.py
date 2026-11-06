@@ -25,7 +25,7 @@ from mcp_marketing.core.errors import (
     ValidationFailed,
 )
 from mcp_marketing.core.logging import get_logger
-from mcp_marketing.models import AgentProfile, IntelJob, Job, LlmCall, LlmCredential
+from mcp_marketing.models import AgentProfile, IntelJob, Job, LlmCall, LlmCredential, Run
 from mcp_marketing.schemas import intel as c
 from mcp_marketing.server.registry import ToolContext, tool
 from mcp_marketing.services.agent.budget import BudgetLayer, BudgetScope
@@ -52,7 +52,8 @@ TOOLSET = "intel"
 ANALYSIS_TIMEOUT_S = 3_600
 INDEX_TIMEOUT_S = 1_800
 MAX_JOB_TIMEOUT_S = 6 * 3_600
-MISSION_PLAN_TIMEOUT_S = 180
+# 2 panggilan gpt-5 (permintaan ulang saat output tidak valid) masing-masing bisa ±90 s
+MISSION_PLAN_TIMEOUT_S = 360
 ORDER_COLUMN = {
     "-created_at": "-posted_at",
     "created_at": "posted_at",
@@ -630,6 +631,66 @@ async def intel_mission_plan(inp: c.MissionPlanIn, ctx: ToolContext) -> c.Missio
     )
     usd = usd_for_tokens(tokens, route_tier(profile.route, ctx.settings.llm))
     return c.MissionPlanOut(plan=final, cost=c.MissionPlanCost(llm_tokens=tokens, usd=usd))
+
+
+# ---------------------------------------------------------------------------- biaya run agent
+
+
+@tool(
+    name="intel_run_costs",
+    toolset=TOOLSET,
+    summary="Biaya LLM per run agent (token & USD) untuk budget misi",
+    description="LLM tokens and estimated USD per agent run (Dashboard run ids) in a workspace.",
+    input_model=c.RunCostsIn,
+    output_model=c.RunCostsOut,
+    machine_output=True,
+)
+async def intel_run_costs(inp: c.RunCostsIn, ctx: ToolContext) -> c.RunCostsOut:
+    async with ctx.services.db.session() as session:
+        # hanya run milik workspace tsb (run_id Dashboard = mcp.runs.run_id)
+        owned = set(
+            (
+                await session.scalars(
+                    select(Run.run_id).where(
+                        Run.run_id.in_(inp.run_ids), Run.workspace_id == inp.workspace_id
+                    )
+                )
+            ).all()
+        )
+        rows = (
+            (
+                await session.execute(
+                    select(
+                        LlmCall.run_id,
+                        LlmCall.route,
+                        func.coalesce(func.sum(LlmCall.prompt_tokens), 0),
+                        func.coalesce(func.sum(LlmCall.completion_tokens), 0),
+                        func.sum(LlmCall.cost_usd),
+                    )
+                    .where(LlmCall.run_id.in_(owned))
+                    .group_by(LlmCall.run_id, LlmCall.route)
+                )
+            ).all()
+            if owned
+            else []
+        )
+    llm = ctx.settings.llm
+    per_run: dict[str, dict[str, float]] = {}
+    for run_id, route, prompt, completion, cost_usd in rows:
+        tokens = int(prompt) + int(completion)
+        usd = (
+            float(cost_usd)
+            if isinstance(cost_usd, Decimal)
+            else usd_for_tokens(tokens, route_tier(route, llm))
+        )
+        agg = per_run.setdefault(str(run_id), {"tokens": 0, "usd": 0.0})
+        agg["tokens"] += tokens
+        agg["usd"] += usd
+    runs = [
+        c.RunCost(run_id=rid, llm_tokens=int(v["tokens"]), usd=round(v["usd"], 6))
+        for rid, v in sorted(per_run.items())
+    ]
+    return c.RunCostsOut(runs=runs, total_usd=round(sum(r.usd for r in runs), 6))
 
 
 # ---------------------------------------------------------------------------- profil browser

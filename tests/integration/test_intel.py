@@ -501,6 +501,81 @@ async def test_outbox_discards_job_stream_on_job_not_active(env: Env) -> None:
     assert intel is not None and intel.status == "completed"  # job tetap selesai di MCP
 
 
+# ---------------------------------------------------------------------------- skenario gagal (M3_TASK_006 §C)
+
+
+async def test_llm_down_during_sentiment_keeps_collected_items(env: Env) -> None:
+    env.gateway.replies["/chat/completions"] = [
+        httpx2.Response(503, json={"error": {"code": "upstream_unavailable", "message": "down"}})
+    ]
+    accepted = await env.ok("intel_job_create", create_args(spec("x")))
+    view = await env.wait_status(accepted["mcp_job_id"], ("completed", "failed"), timeout=60)
+    assert view["status"] == "failed" and view["error"]["code"] == "LLM_UNAVAILABLE"
+    assert view["result"]["partial"] is True
+    page = await env.ok(
+        "intel_items", {"workspace_id": WS, "mcp_job_id": accepted["mcp_job_id"], "limit": 50}
+    )
+    assert page["total"] == len(TEXTS["x"])  # data koleksi tetap bisa dibuka di tab Data mentah
+    sentiment = page["cols"].index("sentiment")
+    assert all(row[sentiment] is None for row in page["rows"])
+
+
+async def test_worker_lost_surfaces_on_intel_job(env: Env) -> None:
+    from sqlalchemy import update
+
+    from mcp_marketing.models import Job
+
+    env.handlers["x"].gate = asyncio.Event()  # job tertahan di tahap collect
+    accepted = await env.ok("intel_job_create", create_args(spec("x")))
+    job_id = accepted["mcp_job_id"]
+    await env.wait_status(job_id, ("collecting",))
+    async with env.services.db.session() as s:
+        await s.execute(
+            update(Job)
+            .where(Job.id == job_id)
+            .values(status="failed", error={"code": "WORKER_LOST", "message": "Worker berhenti"})
+        )
+    view = await env.ok("intel_job_get", {"workspace_id": WS, "mcp_job_id": job_id})
+    assert view["status"] == "failed" and view["error"]["code"] == "WORKER_LOST"
+    env.handlers["x"].gate.set()
+
+
+# ---------------------------------------------------------------------------- biaya run agent
+
+
+async def test_run_costs_sum_per_run_scoped_to_workspace(env: Env) -> None:
+    from decimal import Decimal
+
+    from mcp_marketing.models import LlmCall
+    from tests.integration.helpers import make_run
+
+    mine = await make_run(env.services, workspace_id=uuid.UUID(WS))
+    other = await make_run(env.services, workspace_id=uuid.UUID(OTHER_WS))
+    async with env.services.db.session() as s:
+        for run_id, route, cost in (
+            (mine, "smart", None),
+            (mine, "fast", Decimal("0.01")),
+            (other, "smart", None),
+        ):
+            s.add(
+                LlmCall(
+                    run_id=uuid.UUID(run_id),
+                    purpose="agent_loop",
+                    route=route,
+                    prompt_tokens=1_000,
+                    completion_tokens=500,
+                    cost_usd=cost,
+                    latency_ms=10,
+                    status="ok",
+                )
+            )
+    out = await env.ok("intel_run_costs", {"workspace_id": WS, "run_ids": [mine, other]})
+    assert [r["run_id"] for r in out["runs"]] == [mine]  # run workspace lain tidak dihitung
+    run = out["runs"][0]
+    assert run["llm_tokens"] == 3_000
+    assert run["usd"] > 0.01 and out["total_usd"] == run["usd"]  # smart dihitung dari tarif + 0.01
+
+
 # ---------------------------------------------------------------------------- login profil browser
 
 
@@ -548,9 +623,7 @@ async def _login_wait(env: Env, job_id: str) -> dict[str, Any]:
     raise AssertionError(view)
 
 
-async def test_browser_login_from_dashboard_then_web_uses_profile(
-    env: Env, tmp_path: Path
-) -> None:
+async def test_browser_login_from_dashboard_then_web_uses_profile(env: Env, tmp_path: Path) -> None:
     from mcp_marketing.services.intel.sources import web_profile
     from tests.integration.helpers import no_sleep
 
@@ -672,7 +745,7 @@ async def test_mission_plan_repairs_invalid_output_and_attributes_cost(env: Env)
     first = env.gateway.bodies("/chat/completions")[0]
     assert "Promo bundling" in first["messages"][-1]["content"]
     assert "assistant" not in first["messages"][-1]["content"]  # agent tanpa profil MCP disaring
-    assert first["reasoning_effort"] == "low"  # gpt-5: jatah token tidak habis untuk reasoning
+    assert first["reasoning_effort"] == "minimal"  # gpt-5: cepat, token tak habis
     await env.services.llm.drain()  # type: ignore[union-attr]
 
 

@@ -403,6 +403,7 @@ def test_intel_tools_registered_as_machine_output() -> None:
         "intel_items",
         "intel_llm_status",
         "intel_mission_plan",
+        "intel_run_costs",
         "intel_browser_profiles",
         "intel_browser_profile_create",
         "intel_browser_login_start",

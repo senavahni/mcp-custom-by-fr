@@ -236,25 +236,30 @@ class IntelPipelineHandler:
                 budget=budget,
                 run_cpu=job.run_cpu if job.executor is not None else None,
             )
-            outcome = await analyzer.analyze(
-                analysis.to_sentiment_items(collected.items),
-                method=cfg.method,
-                aspects=list(cfg.aspects) or None,
-            )
+            try:
+                outcome = await analyzer.analyze(
+                    analysis.to_sentiment_items(collected.items),
+                    method=cfg.method,
+                    aspects=list(cfg.aspects) or None,
+                )
+            except ToolError as exc:
+                # LLM tidak tersedia: data koleksi tetap disimpan (tanpa label) agar tab Data
+                # mentah bisa dibuka, lalu job gagal dengan hasil parsial
+                rows = analysis.label_rows(collected.items, None)
+                rs = await self._save_items(job, rows)
+                partial = self._result(rows, None, collected, warnings, tz, handle=rs.handle)
+                partial["items_expire_at"] = rs.expires_at.isoformat()
+                await tracker.failed(
+                    "analyze",
+                    map_error(exc, "analyze"),
+                    result=self._validated({**partial, "partial": True}),
+                    cost=cost.view(),
+                )
+                raise
             sentiment_tokens = int(outcome.cost["llm_tokens"])
             rows = analysis.label_rows(collected.items, outcome)
             sentiment = analysis.sentiment_summary(rows, tz)
-            rs = await job.services.results.create(
-                kind="intel_items",
-                columns=analysis.ITEM_COLS,
-                rows=rows,
-                owner=Owner(client_id=job.client_id),
-                job_id=job.job_id,
-                sort_ts="posted_at",
-                sort_num="engagement",
-                stats=analysis.totals(rows),
-                source_ref={"tool": "intel", "job_id": job.job_id},
-            )
+            rs = await self._save_items(job, rows)
             result = self._result(rows, sentiment, collected, warnings, tz, handle=rs.handle)
             result["items_expire_at"] = rs.expires_at.isoformat()
             await tracker.progress("analyze", total, total, "menyusun ringkasan")
@@ -291,6 +296,20 @@ class IntelPipelineHandler:
             "analyze", stats={"labeled": total}, warnings=warnings[len(collected.warnings) :]
         )
         return final, rows, rs.handle
+
+    @staticmethod
+    async def _save_items(job: JobCtx, rows: list[dict[str, Any]]) -> Any:
+        return await job.services.results.create(
+            kind="intel_items",
+            columns=analysis.ITEM_COLS,
+            rows=rows,
+            owner=Owner(client_id=job.client_id),
+            job_id=job.job_id,
+            sort_ts="posted_at",
+            sort_num="engagement",
+            stats=analysis.totals(rows),
+            source_ref={"tool": "intel", "job_id": job.job_id},
+        )
 
     # ------------------------------------------------------------------ Indeks (KB)
     async def _index(

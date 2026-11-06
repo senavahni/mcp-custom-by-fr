@@ -543,6 +543,27 @@ class MissionPlanOut(BaseModel):
     cost: MissionPlanCost
 
 
+# ---------------------------------------------------------- biaya run agent (M3_TASK_014 Fase B)
+
+RUN_COSTS_MAX = 200
+
+
+class RunCostsIn(_Strict):
+    workspace_id: uuid.UUID
+    run_ids: list[uuid.UUID] = Field(min_length=1, max_length=RUN_COSTS_MAX)
+
+
+class RunCost(BaseModel):
+    run_id: str
+    llm_tokens: int
+    usd: float
+
+
+class RunCostsOut(BaseModel):
+    runs: list[RunCost]
+    total_usd: float
+
+
 # ---------------------------------------------------------- profil browser (login dari Dashboard)
 
 LoginSite = Literal["google", "x", "threads"]

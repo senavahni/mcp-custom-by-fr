@@ -47,7 +47,8 @@ POLICY: dict[str, RouteConfig] = {
     "compact": RouteConfig("fast", 0.0, 400, False),
     "repair": RouteConfig("fast", 0.0, 800, True),
     # rencana misi ≤ 60 task + subtask (M3_TASK_013); model reasoning butuh ruang token lebih
-    "mission_plan": RouteConfig("smart", 0.3, 8_000, True, reasoning_effort="low"),
+    # minimal: rencana JSON terstruktur; reasoning panjang membuat gpt-5 melewati timeout 120 s
+    "mission_plan": RouteConfig("smart", 0.3, 8_000, True, reasoning_effort="minimal"),
 }
 
 
