@@ -261,6 +261,17 @@ def build_console_admin_routes(services: Services, authenticator: Authenticator)
         invalidate_credentials()
         return JSONResponse({"report": report})
 
+    async def get_llm_models(request: Request) -> Response:
+        """Pilihan route/model untuk form agent, dari Gateway (sesuai izin key agent/system)."""
+        try:
+            agent = await resolve_agent(request.query_params.get("agent") or SYSTEM)
+            if services.llm is None:
+                raise UpstreamError("Klien LLM Gateway belum aktif di MCP", retryable=True)
+            models = await services.llm.model_catalog(agent)
+        except ToolError as err:  # termasuk UpstreamError (Gateway mati / key ditolak)
+            return _error(err)
+        return JSONResponse({"models": models, "agent": agent})
+
     async def get_agents(request: Request) -> Response:
         async with services.db.session() as session:
             agents = await list_profiles(session)
@@ -285,6 +296,7 @@ def build_console_admin_routes(services: Services, authenticator: Authenticator)
         return JSONResponse({"agent": agent})
 
     return [
+        Route("/admin/llm-models", get_llm_models, methods=["GET"]),
         Route("/admin/agents", get_agents, methods=["GET"]),
         Route("/admin/agents", post_agent, methods=["POST"]),
         Route("/admin/agents/{agent_key}", patch_agent, methods=["PATCH"]),

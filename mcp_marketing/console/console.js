@@ -2,7 +2,7 @@
 'use strict';
 
 (() => {
-  const { h, api, toast, confirm, showSecret, form, help, badge, table, btn, action, when, genBase64, genUrlSafe } = Kit;
+  const { h, api, toast, confirm, showSecret, form, priceLabel, help, badge, table, btn, action, when, genBase64, genUrlSafe } = Kit;
   const root = document.getElementById('root');
   let meta = null;
 
@@ -177,7 +177,30 @@
   }
 
   // ============================================================= Agent
-  const ROUTE_HELP = 'fast / smart (route bawaan), atau alias model Gateway, mis. openrouter/gemma-4-31b. Alias model wajib diizinkan di project Gateway (mis. pola openrouter/*).';
+  const ROUTE_HELP = 'Klik untuk melihat pilihan, ketik untuk mencari. Daftar = route & model yang diizinkan key LLM agent ini di Gateway. Harga = estimasi.';
+
+  // Pilihan route/model agent: tier MCP (selalu ada) + route & model chat dari Gateway.
+  async function routeItems(agentKey) {
+    const items = [
+      { value: 'smart', label: 'smart', group: 'Tier bawaan MCP (auto)', sub: 'route Gateway sesuai LLM_ROUTE_SMART · tugas berat/agent' },
+      { value: 'fast', label: 'fast', group: 'Tier bawaan MCP (auto)', sub: 'route Gateway sesuai LLM_ROUTE_FAST · tugas ringan' },
+    ];
+    let models = [];
+    try {
+      models = (await api('GET', `/admin/llm-models${agentKey ? `?agent=${encodeURIComponent(agentKey)}` : ''}`)).models;
+    } catch (e) {
+      toast(`Daftar model Gateway tidak terbaca: ${e.message}. Hanya fast/smart yang ditampilkan.`, 'err');
+    }
+    const caps = (m) => m.x_capabilities || {};
+    const chatOnly = models.filter((m) => !caps(m).embedding && !caps(m).image && !['fast', 'smart'].includes(m.id));
+    const capText = (m) => ['tools', 'json', 'vision'].filter((c) => caps(m)[c]).join(', ');
+    const sub = (m, extra) => [priceLabel(m.x_pricing), capText(m), extra].filter(Boolean).join(' · ');
+    const routes = chatOnly.filter((m) => m.owned_by === 'gateway-route');
+    routes.filter((m) => !m.id.endsWith('/auto')).forEach((m) => items.push({ value: m.id, label: m.id, group: 'Route Gateway (auto)', sub: sub(m, m.description || `kandidat: ${(m.x_targets || []).join(' → ')}`) }));
+    routes.filter((m) => m.id.endsWith('/auto')).forEach((m) => items.push({ value: m.id, label: m.id, group: 'Auto per provider', sub: sub(m, `kandidat: ${(m.x_targets || []).join(' → ')}`) }));
+    chatOnly.filter((m) => m.owned_by !== 'gateway-route').forEach((m) => items.push({ value: m.id, label: m.id, group: `Model · ${m.owned_by}`, sub: sub(m) }));
+    return items;
+  }
   const splitList = (s) => s.split(',').map((x) => x.trim()).filter(Boolean);
   const reloadMeta = async () => { meta = await api('GET', '/admin/meta'); };
 
@@ -211,17 +234,18 @@
       help('Setelah membuat agent', [
         'Dashboard: Admin → Agents → buat agent dengan mcp_agent_key sama persis dengan Key agent di sini.',
         'Key LLM: agent baru memakai key system / LLM_GATEWAY_API_KEY sampai diberi key sendiri (menu Key LLM per agent → Provision otomatis atau Impor).',
-        'Model gratis OpenRouter: isi Route dengan alias model, mis. openrouter/gemma-4-31b, lalu izinkan openrouter/* di project marketing-mcp pada Konsol Gateway.',
-        'Mode ringan (mention/prompt block pendek) tetap memakai route fast.',
+        'Model gratis OpenRouter: pilih openrouter/auto atau model openrouter/… (label GRATIS) di Route / model. Pilihan hanya muncul bila key LLM agent ini diizinkan di Gateway (pola openrouter/*).',
+        'Route khusus (bukan fast/smart) dipakai untuk SEMUA panggilan LLM agent, termasuk mode ringan & ringkasan riwayat.',
       ]),
     );
   }
 
-  function agentFields(toolsets, a = {}) {
+  async function agentFields(toolsets, a = {}) {
+    const routes = await routeItems(a.agent_key);
     return [
       { name: 'display_name', label: 'Nama tampilan', required: true, value: a.display_name, placeholder: 'mis. Agent Copywriter (free)' },
       { name: 'role_prompt', label: 'Prompt peran', type: 'textarea', rows: 10, required: true, value: a.role_prompt, help: 'Siapa agent ini & apa tugasnya. Aturan umum agent (agent_rules) otomatis digabung, tidak perlu ditulis.' },
-      { name: 'route', label: 'Route / model LLM', required: true, value: a.route || 'smart', help: ROUTE_HELP },
+      { name: 'route', label: 'Route / model LLM', type: 'picker', required: true, items: routes, value: a.route || 'smart', help: ROUTE_HELP },
       { name: 'toolsets', label: 'Toolset', type: 'checks', value: a.toolsets || ['pm_agent', 'kb'], options: toolsets.map((t) => ({ value: t, label: t })), help: 'pm_agent dibutuhkan untuk membaca konteks task. db & task bisa menulis data.' },
       { name: 'tool_denylist', label: 'Tool yang dilarang', value: (a.tool_denylist || []).join(', '), help: 'nama tool dipisah koma (opsional).' },
       { name: 'run_token_budget', label: 'Budget token per run', type: 'number', min: 1000, max: 2000000, step: 1000, value: a.run_token_budget || 120000 },
@@ -245,7 +269,7 @@
   async function createAgent(toolsets, refresh) {
     const v = await form({
       title: 'Agent baru',
-      fields: [{ name: 'agent_key', label: 'Key agent', required: true, placeholder: 'mis. copywriter-free', help: 'huruf kecil, angka, - atau _; tidak bisa diubah. Sama dengan mcp_agent_key di Dashboard.' }, ...agentFields(toolsets)],
+      fields: [{ name: 'agent_key', label: 'Key agent', required: true, placeholder: 'mis. copywriter-free', help: 'huruf kecil, angka, - atau _; tidak bisa diubah. Sama dengan mcp_agent_key di Dashboard.' }, ...(await agentFields(toolsets))],
       submitLabel: 'Buat agent',
     });
     if (!v) return;
@@ -256,7 +280,7 @@
   }
 
   async function editAgent(a, toolsets, refresh) {
-    const v = await form({ title: `Ubah agent · ${a.agent_key}`, fields: agentFields(toolsets, a) });
+    const v = await form({ title: `Ubah agent · ${a.agent_key}`, fields: await agentFields(toolsets, a) });
     if (!v) return;
     await api('PATCH', `/admin/agents/${encodeURIComponent(a.agent_key)}`, agentBody(v));
     await reloadMeta();

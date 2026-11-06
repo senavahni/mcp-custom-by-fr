@@ -287,6 +287,36 @@ def test_parse_json_text_variants() -> None:
     assert parse_json_text('Berikut: {"a": 2} ok') == {"a": 2}
 
 
+async def test_model_catalog_returns_full_objects_and_maps_errors(
+    client: GatewayClient, gw: FakeGateway
+) -> None:
+    gw.on(
+        "/models",
+        httpx2.Response(
+            200,
+            json={
+                "object": "list",
+                "data": [
+                    {
+                        "id": "openrouter/gemma-4-31b",
+                        "object": "model",
+                        "created": 0,
+                        "owned_by": "openrouter",
+                        "x_pricing": {"kind": "free", "estimate": True},
+                    }
+                ],
+            },
+        ),
+        httpx2.Response(502, json={"error": {"code": "upstream_error", "message": "x"}}),
+    )
+    models = await client.model_catalog()
+    assert models[0]["id"] == "openrouter/gemma-4-31b"
+    assert models[0]["x_pricing"]["kind"] == "free"  # field tambahan Gateway ikut terbawa
+    with pytest.raises(ToolError) as exc:
+        await client.model_catalog()
+    assert exc.value.code == "UPSTREAM_ERROR" and "Gateway" in str(exc.value)
+
+
 def test_openai_imported_only_in_gateway_client() -> None:
     root = Path(__file__).resolve().parents[2] / "mcp_marketing"
     offenders = [

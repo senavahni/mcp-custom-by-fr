@@ -19,9 +19,11 @@ Mode ringan (prompt block / mention sederhana ≤ 500 char tanpa kata data/riset
 
 ### Lewat Admin Console (tanpa deploy)
 Konsol MCP → **Agent** → **+ Agent baru**: isi key agent, nama, prompt peran (aturan umum
-`agent_rules` digabung otomatis), route/model, toolset, budget token, dan maks langkah. Route boleh
-`fast`/`smart` atau alias model Gateway (mis. `openrouter/gemma-4-31b`; izinkan polanya di project
-Gateway). Ubah/nonaktifkan dari halaman yang sama; berlaku untuk run berikutnya. API:
+`agent_rules` digabung otomatis), route/model, toolset, budget token, dan maks langkah. Route/model
+dipilih dari daftar yang bisa dicari: tier `fast`/`smart`, route Gateway, auto per provider
+(mis. `openrouter/auto`), atau model spesifik, lengkap dengan harga estimasi. Daftar diambil dari
+Gateway (`GET /admin/llm-models?agent=<key>`) sesuai izin key LLM agent tsb. Route selain
+`fast`/`smart` dipakai untuk semua panggilan LLM agent (termasuk mode ringan & ringkasan riwayat). Ubah/nonaktifkan dari halaman yang sama; berlaku untuk run berikutnya. API:
 `GET/POST /admin/agents`, `PATCH /admin/agents/{agent_key}` (klien admin). Lalu buat agent di
 Dashboard dengan `mcp_agent_key` yang sama, dan beri key LLM (menu Key LLM per agent).
 

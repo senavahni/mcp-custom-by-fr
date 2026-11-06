@@ -223,3 +223,20 @@ textarea.input { height: auto; min-height: 120px; padding: 8px 10px; resize: ver
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+/* pemilih model (dropdown yang bisa dicari) */
+.picker { display: grid; gap: 4px; }
+.picker-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.picker-chips:empty { display: none; }
+.picker-chip { display: inline-flex; align-items: center; gap: 2px; padding: 2px 4px 2px 8px; border-radius: 999px; font: 12px var(--mono); background: color-mix(in srgb, var(--accent) 12%, white); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
+.picker-chip.picker-unknown { background: var(--warn-bg); border-color: var(--warn); }
+.picker-x { border: 0; background: none; cursor: pointer; font-size: 14px; line-height: 1; padding: 0 4px; color: var(--ink-faint); border-radius: 50%; }
+.picker-x:hover, .picker-x:focus-visible { color: var(--ink); background: var(--mute-bg); outline: none; }
+.picker-list { max-height: 260px; overflow-y: auto; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); box-shadow: var(--shadow); }
+.picker-list[hidden] { display: none; }
+.picker-group { position: sticky; top: 0; padding: 6px 10px 4px; font: 600 11px var(--font); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); background: #faf9f6; border-bottom: 1px solid var(--line); }
+.picker-opt { display: grid; gap: 1px; padding: 6px 10px; cursor: pointer; border-left: 3px solid transparent; }
+.picker-opt:hover, .picker-opt.is-active { background: color-mix(in srgb, var(--accent) 9%, var(--surface)); border-left-color: var(--accent); }
+.picker-opt.is-selected .picker-label { font-weight: 600; }
+.picker-label { font: 13px var(--mono); }
+.picker-sub { font-size: 11.5px; color: var(--ink-faint); }
+.picker-empty { padding: 10px; color: var(--ink-faint); font-size: 13px; }

@@ -156,6 +156,136 @@ const Kit = (() => {
     });
   }
 
+  // ------------------------------------------------------- pemilih model
+  // Dropdown yang bisa dicari. items: [{value, label, group, sub, search}] (value unik).
+  // multiple=false → value string; multiple=true → array (chip). Hanya nilai dari items yang
+  // bisa dipilih (anti salah ketik); nilai lama yang tidak ada di items tetap ditampilkan.
+  function picker({ items, value, multiple = false, placeholder = 'Ketik untuk mencari…' }) {
+    const known = new Map(items.map((it) => [it.value, it]));
+    let selected = multiple ? [...(value || [])] : value ? [value] : [];
+    let active = -1;
+    let shown = [];
+    const chips = h('div', { class: 'picker-chips' });
+    const search = h('input', { class: 'input', type: 'text', placeholder, autocomplete: 'off', spellcheck: 'false', role: 'combobox', 'aria-expanded': 'false' });
+    const list = h('div', { class: 'picker-list', role: 'listbox', hidden: true });
+    const root = h('div', { class: 'picker' + (multiple ? ' picker-multi' : '') }, multiple ? chips : null, search, list);
+
+    const labelOf = (v) => (known.get(v) || { label: v }).label;
+    const hay = (it) => `${it.value} ${it.label} ${it.group || ''} ${it.search || ''}`.toLowerCase();
+
+    function renderChips() {
+      if (!multiple) return;
+      chips.replaceChildren(
+        ...selected.map((v) =>
+          h('span', { class: 'picker-chip' + (known.has(v) ? '' : ' picker-unknown'), title: known.has(v) ? v : `${v} (tidak ada di katalog)` }, v,
+            h('button', { type: 'button', class: 'picker-x', 'aria-label': `hapus ${v}`, onclick: () => { selected = selected.filter((x) => x !== v); renderChips(); renderList(); } }, '×')),
+        ),
+      );
+    }
+
+    function renderList() {
+      const q = search.value.trim().toLowerCase();
+      const singleText = !multiple && selected.length && search.value === selected[0];
+      shown = items.filter((it) => !(multiple && selected.includes(it.value)) && (!q || singleText || hay(it).includes(q)));
+      active = Math.min(Math.max(active, 0), shown.length - 1);
+      const rows = [];
+      let group = null;
+      shown.forEach((it, i) => {
+        if (it.group !== group) {
+          group = it.group;
+          if (group) rows.push(h('div', { class: 'picker-group', text: group }));
+        }
+        rows.push(
+          h('div', {
+            class: 'picker-opt' + (i === active ? ' is-active' : '') + (selected.includes(it.value) ? ' is-selected' : ''),
+            role: 'option',
+            onmousedown: (e) => { e.preventDefault(); choose(it.value); },
+          }, h('span', { class: 'picker-label', text: it.label }), it.sub ? h('span', { class: 'picker-sub', text: it.sub }) : null),
+        );
+      });
+      list.replaceChildren(...(rows.length ? rows : [h('div', { class: 'picker-empty', text: 'Tidak ada yang cocok.' })]));
+      const cur = list.querySelector('.is-active');
+      if (cur) cur.scrollIntoView({ block: 'nearest' });
+    }
+
+    function open() {
+      list.hidden = false;
+      search.setAttribute('aria-expanded', 'true');
+      renderList();
+    }
+    function close() {
+      list.hidden = true;
+      search.setAttribute('aria-expanded', 'false');
+      if (!multiple) search.value = selected[0] || '';
+    }
+    function choose(v) {
+      if (multiple) {
+        if (!selected.includes(v)) selected.push(v);
+        search.value = '';
+        renderChips();
+        renderList();
+      } else {
+        selected = [v];
+        search.value = v;
+        close();
+        search.title = labelOf(v);
+      }
+    }
+
+    search.addEventListener('focus', open);
+    search.addEventListener('click', open);
+    search.addEventListener('blur', close);
+    search.addEventListener('input', () => { active = 0; open(); });
+    search.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (list.hidden) return open();
+        active = (active + (e.key === 'ArrowDown' ? 1 : -1) + shown.length) % Math.max(shown.length, 1);
+        renderList();
+      } else if (e.key === 'Enter') {
+        e.preventDefault(); // jangan submit dialog
+        if (!list.hidden && shown[active]) choose(shown[active].value);
+      } else if (e.key === 'Escape' && !list.hidden) {
+        e.preventDefault();
+        e.stopPropagation(); // tutup daftar dulu, bukan dialog
+        close();
+      } else if (e.key === 'Backspace' && multiple && !search.value && selected.length) {
+        selected.pop();
+        renderChips();
+        renderList();
+      }
+    });
+
+    search.value = multiple ? '' : selected[0] || '';
+    renderChips();
+    return {
+      el: root,
+      getValue: () => (multiple ? [...selected] : selected[0] || ''),
+      get value() { return multiple ? selected.join(',') : selected[0] || ''; },
+    };
+  }
+
+  // Label harga ESTIMASI dari `pricing` katalog Gateway (model: kind; route: kinds + rentang).
+  const usdFmt = (n) => `$${Number(n).toLocaleString('en-US', { maximumFractionDigits: 3 })}`;
+  const range = (r) => (r[0] === r[1] ? usdFmt(r[0]) : `${usdFmt(r[0])}–${usdFmt(r[1])}`);
+  function priceLabel(p) {
+    if (!p) return '';
+    if (p.kind) {
+      if (p.kind === 'free') return 'GRATIS';
+      if (p.kind === 'local') return 'lokal (gratis)';
+      if (p.kind === 'unset') return 'harga belum diisi';
+      if (p.per_image) return `${usdFmt(p.per_image)}/gambar (estimasi)`;
+      return `${usdFmt(p.input_per_mtok)} in / ${usdFmt(p.output_per_mtok)} out per 1 jt token (estimasi)`;
+    }
+    const kinds = p.kinds || [];
+    if (!kinds.length) return 'tanpa model aktif';
+    const parts = [];
+    if (kinds.includes('free') || kinds.includes('local')) parts.push(kinds.includes('paid') ? 'gratis s/d' : 'GRATIS');
+    if (p.input_per_mtok) parts.push(`${range(p.input_per_mtok)} in / ${range(p.output_per_mtok)} out per 1 jt token (estimasi)`);
+    if (kinds.includes('unset')) parts.push(parts.length ? '+ ada yang harganya belum diisi' : 'harga belum diisi');
+    return parts.join(' ');
+  }
+
   // fields: [{name,label,type,help,required,placeholder,value,min,max,step,options,secret,rows}]
   function form({ title, intro, fields, submitLabel = 'Simpan' }) {
     return new Promise((resolve) => {
@@ -177,6 +307,10 @@ const Kit = (() => {
           }) };
           inputs[f.name] = input;
           return h('div', { class: 'field' }, h('span', { class: 'field-label', text: f.label }), box, f.help ? h('small', { class: 'field-help', text: f.help }) : null);
+        } else if (f.type === 'picker') {
+          const p = picker({ items: f.items, value: f.value, multiple: f.multiple, placeholder: f.placeholder });
+          inputs[f.name] = p;
+          return h('div', { class: 'field' }, h('span', { class: 'field-label' }, f.label, f.required ? h('span', { class: 'req', text: ' *' }) : null), p.el, f.help ? h('small', { class: 'field-help', text: f.help }) : null);
         } else if (f.type === 'textarea') {
           input = h('textarea', { class: 'input', name: f.name, rows: f.rows || 8, placeholder: f.placeholder, required: f.required, spellcheck: 'false' });
           input.value = f.value || '';
@@ -218,6 +352,7 @@ const Kit = (() => {
           const el = inputs[f.name];
           if (f.type === 'checkbox') out[f.name] = el.checked;
           else if (f.type === 'checks') out[f.name] = el.boxes.filter((b) => b.checked).map((b) => b.value);
+          else if (f.type === 'picker') out[f.name] = el.getValue();
           else if (f.type === 'number') out[f.name] = el.value === '' ? null : Number(el.value);
           else out[f.name] = el.value.trim();
           if (f.secret) el.value = '';
@@ -402,7 +537,7 @@ const Kit = (() => {
     );
   }
 
-  return { h, api, ApiError, toast, fail, confirm, showSecret, form, help, badge, table, btn, action, when, genBase64, genUrlSafe, shell, loginScreen, flow, checklist, unlock, lock, setOnLock };
+  return { h, api, ApiError, toast, fail, confirm, showSecret, form, picker, priceLabel, help, badge, table, btn, action, when, genBase64, genUrlSafe, shell, loginScreen, flow, checklist, unlock, lock, setOnLock };
 })();
 
 // lebar progress diset lewat JS (CSP melarang atribut style inline dari markup)

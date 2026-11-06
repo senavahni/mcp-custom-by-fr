@@ -9,6 +9,7 @@ import httpx
 import pytest_asyncio
 from pydantic import SecretStr
 
+from mcp_marketing.core.errors import UpstreamError
 from mcp_marketing.server.services import Services
 from mcp_marketing.services.agent.profile_admin import compose_prompt
 from mcp_marketing.services.agent.profiles import get_active_profile
@@ -224,6 +225,58 @@ async def test_create_agent_rejects_invalid_input(console, live_server: LiveServ
             assert r.status_code == 422, body
         listed = (await http.get("/admin/agents")).json()["agents"]
     assert "copywriter-free" not in {a["agent_key"] for a in listed}
+
+
+class FakeCatalogLLM:
+    """`model_catalog` palsu: mencatat key agent yang dipakai, atau melempar error Gateway."""
+
+    def __init__(self, fail: bool = False) -> None:
+        self.fail = fail
+        self.agents: list[str | None] = []
+
+    async def model_catalog(self, agent_key: str | None = None) -> list[dict[str, object]]:
+        self.agents.append(agent_key)
+        if self.fail:
+            raise UpstreamError("Daftar model dari LLM Gateway tidak bisa diambil", retryable=True)
+        return [
+            {
+                "id": "openrouter/auto",
+                "owned_by": "gateway-route",
+                "x_pricing": {"kinds": ["free"], "estimate": True},
+                "x_targets": ["openrouter/gemma-4-31b"],
+            },
+            {
+                "id": "openrouter/gemma-4-31b",
+                "owned_by": "openrouter",
+                "x_pricing": {"kind": "free", "estimate": True},
+            },
+        ]
+
+
+async def test_llm_models_uses_agent_key_and_reports_gateway_errors(
+    console, live_server: LiveServer
+) -> None:
+    services, _ = console
+    original = services.llm
+    fake = FakeCatalogLLM()
+    services.llm = fake  # type: ignore[assignment]
+    try:
+        async with await _admin(services, live_server) as http:
+            r = await http.get("/admin/llm-models")
+            assert r.status_code == 200, r.text
+            assert [m["id"] for m in r.json()["models"]] == [
+                "openrouter/auto",
+                "openrouter/gemma-4-31b",
+            ]
+            assert (await http.get("/admin/llm-models?agent=analyst")).status_code == 200
+            assert fake.agents == [None, "analyst"]  # tanpa agent = key system
+            assert (await http.get("/admin/llm-models?agent=hacker")).status_code == 422
+
+            fake.fail = True
+            r = await http.get("/admin/llm-models")
+            assert r.status_code == 502 and "Gateway" in r.json()["error"]["message"]
+    finally:
+        services.llm = original
 
 
 async def test_env_status_redacts_secrets(services: Services, live_server: LiveServer) -> None:

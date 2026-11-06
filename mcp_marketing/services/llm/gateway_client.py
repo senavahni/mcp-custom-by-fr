@@ -622,6 +622,22 @@ class GatewayClient:
         page = await client.models.list()
         return [m.id for m in page.data]
 
+    async def model_catalog(self, agent_key: str | None = None) -> list[dict[str, Any]]:
+        """Objek `/v1/models` lengkap (x_pricing, x_capabilities, x_targets) yang boleh dipakai
+        key agent (`None` = key system/env) — sumber pemilih model di Admin Console."""
+        gk = await self.key_for(agent_key)
+        client = self._clients.get(gk.key) or self._make_client(gk.key)
+        try:
+            page = await client.models.list()
+        except (openai.OpenAIError, httpx2.HTTPError) as exc:
+            raise UpstreamError(
+                "Daftar model dari LLM Gateway tidak bisa diambil — pastikan Gateway berjalan "
+                "dan key LLM agent/system valid.",
+                retryable=True,
+                details={"error": _short_error(exc)},
+            ) from exc
+        return [m.model_dump() for m in page.data]
+
     async def close(self) -> None:
         await self.drain()
         for client in self._clients.values():
