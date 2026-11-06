@@ -50,6 +50,16 @@ SLOW_TOOL_S = 10.0
 SUPERVISE_EVERY_S = 60.0
 LIGHT_MAX_STEPS = 6
 LIGHT_TOOLSETS = frozenset({"kb", "pm_agent"})
+TIER_ROUTES = frozenset({"fast", "smart"})
+
+
+def pinned_route(route: str) -> str | None:
+    """Route agent yang BUKAN tier (mis. `openrouter/gemma-4-31b`) dipakai untuk SEMUA panggilan
+    LLM run (mode ringan & ringkasan riwayat juga), agar agent tidak bocor ke route lain dan tetap
+    lolos bila key LLM-nya dibatasi ke model tertentu di Gateway. Tier → None (perilaku lama)."""
+    return None if route in TIER_ROUTES else route
+
+
 # output toolset ini bisa berisi teks pihak luar (web/sosmed, handle hasil crawl, KB, dokumen
 # Dashboard yang ditulis user) -> selalu dibungkus untrusted_content
 UNTRUSTED_TOOLSETS = frozenset(
@@ -162,7 +172,7 @@ class AgentRuntime:
         light = run.trigger in ("mention", "prompt_block") and brief.is_light_request(run_input)
         if light:
             toolsets = toolsets & LIGHT_TOOLSETS
-            max_steps, route = min(max_steps, LIGHT_MAX_STEPS), "fast"
+            max_steps, route = min(max_steps, LIGHT_MAX_STEPS), pinned_route(route) or "fast"
         identity = ClientIdentity(
             id=None,
             name=f"agent:{profile.agent_key}",
@@ -271,7 +281,9 @@ class AgentRuntime:
                     count_tokens(messages)
                     > self.services.settings.agent.agent_history_compact_at_tokens
                 ):
-                    messages = await self._compact(messages, len(head), memory, budget)
+                    messages = await self._compact(
+                        messages, len(head), memory, budget, pinned_route(state.route)
+                    )
                 step_no += 1
                 await self.registry.update(run_id, steps=step_no)
                 try:
@@ -325,11 +337,16 @@ class AgentRuntime:
         await self._finalize(state, virtual)
 
     async def _compact(
-        self, messages: list[dict[str, Any]], head_len: int, memory: RunMemory, budget: Any
+        self,
+        messages: list[dict[str, Any]],
+        head_len: int,
+        memory: RunMemory,
+        budget: Any,
+        route: str | None = None,
     ) -> list[dict[str, Any]]:
         try:
             new_messages, summary, tokens = await compact_history(
-                self.llm, messages, head_len, budget=budget
+                self.llm, messages, head_len, budget=budget, route=route
             )
         except ToolError as err:
             log.warning("agent.compact_failed", code=err.code)

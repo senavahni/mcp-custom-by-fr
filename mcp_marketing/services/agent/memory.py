@@ -177,9 +177,15 @@ def history_text(middle: list[dict[str, Any]]) -> str:
 
 
 async def compact_history(
-    llm: Any, messages: list[dict[str, Any]], head_len: int, *, budget: Any = None
+    llm: Any,
+    messages: list[dict[str, Any]],
+    head_len: int,
+    *,
+    budget: Any = None,
+    route: str | None = None,
 ) -> tuple[list[dict[str, Any]], str | None, int]:
-    """`(pesan_baru, teks_ringkasan, token)`; tanpa perubahan bila tak ada bagian tengah."""
+    """`(pesan_baru, teks_ringkasan, token)`; tanpa perubahan bila tak ada bagian tengah.
+    `route` = route agent khusus (None = route `fast` bawaan purpose compact)."""
     middle, tail = split_for_compaction(messages, head_len)
     if not middle:
         return messages, None, 0
@@ -190,6 +196,7 @@ async def compact_history(
         "compact",
         [{"role": "user", "content": prompt}],
         max_tokens=SUMMARY_MAX_TOKENS,
+        route_override=route,
         budget=budget,
         prompt_version="v1",
     )

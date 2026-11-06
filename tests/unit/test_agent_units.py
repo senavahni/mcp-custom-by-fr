@@ -17,6 +17,7 @@ from mcp_marketing.services.agent.memory import (
     split_for_compaction,
 )
 from mcp_marketing.services.agent.profiles import DEFAULT_PROFILES
+from mcp_marketing.services.agent.runtime import pinned_route
 from mcp_marketing.utils.tokens import count_tokens
 from tests.fakes import ScriptedLLM
 
@@ -162,6 +163,19 @@ async def test_compaction_30k_to_under_12k_keeps_handles() -> None:
     assert summary is not None and "h_0123456789" in summary and "h_abcdefghjk" in summary
     assert new[:2] == msgs[:2] and new[-4:] == msgs[-4:]  # 2 langkah terakhir utuh
     assert tokens == 240
+
+
+async def test_compaction_uses_agent_route_when_given() -> None:
+    llm = ScriptedLLM()
+    await compact_history(llm, _history(6, 50), 2, route="openrouter/gemma-4-31b")
+    await compact_history(llm, _history(6, 50), 2)
+    assert [c.get("route_override") for c in llm.calls] == ["openrouter/gemma-4-31b", None]
+
+
+def test_pinned_route_only_for_non_tier_routes() -> None:
+    assert pinned_route("fast") is None and pinned_route("smart") is None
+    assert pinned_route("openrouter/gemma-4-31b") == "openrouter/gemma-4-31b"
+    assert pinned_route("smart-premium") == "smart-premium"
 
 
 def test_split_requires_more_than_tail() -> None:
