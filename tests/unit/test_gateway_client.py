@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
+from typing import get_args
 
 import httpx2
 import pytest
@@ -14,7 +16,7 @@ from mcp_marketing.core.errors import ToolError
 from mcp_marketing.services.agent.budget import BudgetLayer, BudgetScope
 from mcp_marketing.services.llm import prompts
 from mcp_marketing.services.llm.gateway_client import GatewayClient, parse_json_text
-from mcp_marketing.services.llm.route_policy import resolve
+from mcp_marketing.services.llm.route_policy import POLICY, Purpose, resolve
 from tests.fakes import FakeGateway, completion, err, ok, tool_call
 
 CHAT = "/chat/completions"
@@ -251,6 +253,25 @@ def test_route_policy_overrides(monkeypatch: pytest.MonkeyPatch) -> None:
     assert resolve("agent_loop", s, route_override="custom-route")[0] == "custom-route"
     with pytest.raises(ValueError):
         resolve("tidak-ada", s)
+
+
+def test_route_policy_task_breakdown() -> None:
+    route, cfg = resolve("task_breakdown", load_settings().llm)
+    assert route == "fast"
+    assert (cfg.tier, cfg.temperature, cfg.max_tokens, cfg.json) == ("fast", 0.2, 2_000, True)
+    assert cfg.reasoning_effort == "low"
+
+
+def test_every_literal_purpose_in_code_is_known_to_policy() -> None:
+    root = Path(__file__).resolve().parents[2] / "mcp_marketing"
+    used = {
+        match
+        for path in root.rglob("*.py")
+        for match in re.findall(r"\.chat(?:_json)?\(\s*\"([a-z_]+)\"", path.read_text("utf-8"))
+    }
+    # tpl_generate: bug serupa yang sudah ada, di luar cakupan perbaikan task_breakdown
+    assert used and used - set(POLICY) <= {"tpl_generate"}
+    assert set(get_args(Purpose)) == set(POLICY)
 
 
 def test_prompts_render_and_missing_var() -> None:

@@ -20,6 +20,7 @@ Purpose = Literal[
     "compact",
     "repair",
     "mission_plan",
+    "task_breakdown",
 ]
 Tier = Literal["fast", "smart"]
 
@@ -48,6 +49,7 @@ POLICY: dict[str, RouteConfig] = {
     "repair": RouteConfig("fast", 0.0, 800, True),
     # rencana misi ≤ 60 task + subtask (M3_TASK_013); model reasoning butuh ruang token lebih
     "mission_plan": RouteConfig("smart", 0.3, 8_000, True, reasoning_effort="low"),
+    "task_breakdown": RouteConfig("fast", 0.2, 2_000, True, reasoning_effort="low"),
 }
 
 
