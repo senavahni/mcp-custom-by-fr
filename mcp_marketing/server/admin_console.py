@@ -28,6 +28,14 @@ from mcp_marketing.core.errors import (
 from mcp_marketing.models import AgentProfile, LlmCredential
 from mcp_marketing.server.auth import Authenticator
 from mcp_marketing.server.services import Services
+from mcp_marketing.services.agent.profile_admin import (
+    AGENT_TOOLSETS,
+    AgentCreate,
+    AgentUpdate,
+    create_profile,
+    list_profiles,
+    update_profile,
+)
 from mcp_marketing.services.clients import client_summary, rotate_client
 from mcp_marketing.services.env_status import env_vars, gateway_key_state, secret_key_state
 from mcp_marketing.services.llm.credentials import (
@@ -253,7 +261,33 @@ def build_console_admin_routes(services: Services, authenticator: Authenticator)
         invalidate_credentials()
         return JSONResponse({"report": report})
 
+    async def get_agents(request: Request) -> Response:
+        async with services.db.session() as session:
+            agents = await list_profiles(session)
+        return JSONResponse({"agents": agents, "toolsets": list(AGENT_TOOLSETS)})
+
+    async def post_agent(request: Request) -> Response:
+        try:
+            body = await parse(request, AgentCreate)
+            async with services.db.session() as session:
+                agent = await create_profile(session, body)
+        except ToolError as err:
+            return _error(err)
+        return JSONResponse({"agent": agent}, status_code=201)
+
+    async def patch_agent(request: Request) -> Response:
+        try:
+            body = await parse(request, AgentUpdate)
+            async with services.db.session() as session:
+                agent = await update_profile(session, request.path_params["agent_key"], body)
+        except ToolError as err:
+            return _error(err)
+        return JSONResponse({"agent": agent})
+
     return [
+        Route("/admin/agents", get_agents, methods=["GET"]),
+        Route("/admin/agents", post_agent, methods=["POST"]),
+        Route("/admin/agents/{agent_key}", patch_agent, methods=["PATCH"]),
         Route("/admin/meta", get_meta, methods=["GET"]),
         Route("/admin/env-status", get_env, methods=["GET"]),
         Route("/admin/clients/{client_id}/rotate", post_rotate, methods=["POST"]),

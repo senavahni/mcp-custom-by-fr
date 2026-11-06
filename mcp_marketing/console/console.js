@@ -176,6 +176,102 @@
     refresh();
   }
 
+  // ============================================================= Agent
+  const ROUTE_HELP = 'fast / smart (route bawaan), atau alias model Gateway, mis. openrouter/gemma-4-31b. Alias model wajib diizinkan di project Gateway (mis. pola openrouter/*).';
+  const splitList = (s) => s.split(',').map((x) => x.trim()).filter(Boolean);
+  const reloadMeta = async () => { meta = await api('GET', '/admin/meta'); };
+
+  async function agentsPage({ refresh }) {
+    const { agents, toolsets } = await api('GET', '/admin/agents');
+    return h(
+      'div',
+      { class: 'stack' },
+      pageHead('Agent', 'Profil agent', 'Peran, route/model LLM, toolset, dan batas tiap agent. Perubahan berlaku untuk run berikutnya tanpa restart.', [action('+ Agent baru', () => createAgent(toolsets, refresh), 'primary')]),
+      h(
+        'section',
+        { class: 'card' },
+        table(
+          [
+            { label: 'Agent', render: (a) => h('div', {}, h('strong', { text: a.display_name }), h('span', { class: 'sub', text: a.agent_key })) },
+            { label: 'Route / model', render: (a) => h('code', { text: a.route }) },
+            { label: 'Toolset', render: (a) => h('div', {}, a.toolsets.map((t) => h('span', { class: 'tag', text: t }))) },
+            { label: 'Budget token', class: 'num', render: (a) => a.run_token_budget.toLocaleString('id-ID') },
+            { label: 'Maks langkah', class: 'num', render: (a) => a.max_steps },
+            { label: 'Status', render: (a) => h('div', {}, a.is_active ? badge('active', 'Aktif') : badge('archived', 'Nonaktif'), h('span', { class: 'sub', text: `v${a.version} · ${when(a.updated_at)}` })) },
+            {
+              label: 'Aksi',
+              class: 'actions',
+              render: (a) => h('span', {}, action('Ubah', () => editAgent(a, toolsets, refresh), 'ghost', small), action(a.is_active ? 'Nonaktifkan' : 'Aktifkan', () => toggleAgent(a, refresh), a.is_active ? 'danger' : 'ghost', a.is_active ? smallDanger : small)),
+            },
+          ],
+          agents,
+          { empty: 'Belum ada agent. Jalankan manage.py seed atau buat agent baru.' },
+        ),
+      ),
+      help('Setelah membuat agent', [
+        'Dashboard: Admin → Agents → buat agent dengan mcp_agent_key sama persis dengan Key agent di sini.',
+        'Key LLM: agent baru memakai key system / LLM_GATEWAY_API_KEY sampai diberi key sendiri (menu Key LLM per agent → Provision otomatis atau Impor).',
+        'Model gratis OpenRouter: isi Route dengan alias model, mis. openrouter/gemma-4-31b, lalu izinkan openrouter/* di project marketing-mcp pada Konsol Gateway.',
+        'Mode ringan (mention/prompt block pendek) tetap memakai route fast.',
+      ]),
+    );
+  }
+
+  function agentFields(toolsets, a = {}) {
+    return [
+      { name: 'display_name', label: 'Nama tampilan', required: true, value: a.display_name, placeholder: 'mis. Agent Copywriter (free)' },
+      { name: 'role_prompt', label: 'Prompt peran', type: 'textarea', rows: 10, required: true, value: a.role_prompt, help: 'Siapa agent ini & apa tugasnya. Aturan umum agent (agent_rules) otomatis digabung, tidak perlu ditulis.' },
+      { name: 'route', label: 'Route / model LLM', required: true, value: a.route || 'smart', help: ROUTE_HELP },
+      { name: 'toolsets', label: 'Toolset', type: 'checks', value: a.toolsets || ['pm_agent', 'kb'], options: toolsets.map((t) => ({ value: t, label: t })), help: 'pm_agent dibutuhkan untuk membaca konteks task. db & task bisa menulis data.' },
+      { name: 'tool_denylist', label: 'Tool yang dilarang', value: (a.tool_denylist || []).join(', '), help: 'nama tool dipisah koma (opsional).' },
+      { name: 'run_token_budget', label: 'Budget token per run', type: 'number', min: 1000, max: 2000000, step: 1000, value: a.run_token_budget || 120000 },
+      { name: 'max_steps', label: 'Maks langkah per run', type: 'number', min: 1, max: 100, value: a.max_steps || 25 },
+    ];
+  }
+
+  function agentBody(v) {
+    if (!v.toolsets.length) throw new Error('Pilih minimal satu toolset.');
+    return {
+      display_name: v.display_name,
+      role_prompt: v.role_prompt,
+      route: v.route,
+      toolsets: v.toolsets,
+      tool_denylist: splitList(v.tool_denylist),
+      run_token_budget: v.run_token_budget,
+      max_steps: v.max_steps,
+    };
+  }
+
+  async function createAgent(toolsets, refresh) {
+    const v = await form({
+      title: 'Agent baru',
+      fields: [{ name: 'agent_key', label: 'Key agent', required: true, placeholder: 'mis. copywriter-free', help: 'huruf kecil, angka, - atau _; tidak bisa diubah. Sama dengan mcp_agent_key di Dashboard.' }, ...agentFields(toolsets)],
+      submitLabel: 'Buat agent',
+    });
+    if (!v) return;
+    const r = await api('POST', '/admin/agents', { agent_key: v.agent_key, ...agentBody(v) });
+    await reloadMeta();
+    toast(`Agent ${r.agent.agent_key} dibuat`);
+    refresh();
+  }
+
+  async function editAgent(a, toolsets, refresh) {
+    const v = await form({ title: `Ubah agent · ${a.agent_key}`, fields: agentFields(toolsets, a) });
+    if (!v) return;
+    await api('PATCH', `/admin/agents/${encodeURIComponent(a.agent_key)}`, agentBody(v));
+    await reloadMeta();
+    toast(`Agent ${a.agent_key} disimpan`);
+    refresh();
+  }
+
+  async function toggleAgent(a, refresh) {
+    if (a.is_active && !(await confirm({ title: `Nonaktifkan ${a.display_name}?`, message: 'Run baru untuk agent ini ditolak (UNKNOWN_AGENT). Riwayat run tetap ada; bisa diaktifkan lagi kapan saja.', confirmLabel: 'Nonaktifkan', danger: true }))) return;
+    await api('PATCH', `/admin/agents/${encodeURIComponent(a.agent_key)}`, { is_active: !a.is_active });
+    await reloadMeta();
+    toast(a.is_active ? 'Agent dinonaktifkan' : 'Agent diaktifkan');
+    refresh();
+  }
+
   // ================================================== 03 Key LLM per agent
   async function llmPage({ refresh }) {
     const creds = await api('GET', '/admin/llm-credentials');
@@ -389,6 +485,7 @@
       pages: [
         { id: 'start', label: 'Mulai di sini', hint: 'alur key & checklist', render: startPage },
         { id: 'clients', label: 'Klien MCP', hint: 'key mcpk_: buat, rotasi, cabut', render: clientsPage },
+        { id: 'agents', label: 'Agent', hint: 'tambah, ubah, aktif/nonaktif', render: agentsPage },
         { id: 'llm', label: 'Key LLM per agent', hint: 'provision, impor, nonaktifkan', render: llmPage },
         { id: 'env', label: 'File .env', hint: 'status variabel & secret baru', render: envPage },
       ],

@@ -34,7 +34,15 @@ log = get_logger(__name__)
 DEFAULT_PROJECT = "marketing-mcp"
 KEY_SCOPES = ["chat", "embeddings", "models:read", "usage:read"]
 # route DAN kandidatnya harus diizinkan (Gateway docs/admin-api.http)
-ALLOWED_MODELS = ["fast", "smart", "embed-default", "openai/*", "anthropic/*", "gemini/*"]
+ALLOWED_MODELS = [
+    "fast",
+    "smart",
+    "embed-default",
+    "openai/*",
+    "anthropic/*",
+    "gemini/*",
+    "openrouter/*",
+]
 
 
 def admin_base_url(gateway_v1_url: str) -> str:

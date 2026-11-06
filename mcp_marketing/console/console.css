@@ -63,6 +63,7 @@ p { margin: 0 0 8px; }
 .input.mono { font-family: var(--mono); font-size: 13px; }
 .input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
 select.input { padding-right: 4px; }
+textarea.input { height: auto; min-height: 120px; padding: 8px 10px; resize: vertical; line-height: 1.5; }
 .field { display: grid; gap: 4px; margin-bottom: 12px; }
 .field-label { font-weight: 600; font-size: 13px; }
 .field-help { color: var(--ink-faint); font-size: 12px; }

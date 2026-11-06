@@ -16,6 +16,16 @@ Mode ringan (prompt block / mention sederhana ≤ 500 char tanpa kata data/riset
 `kb` + `pm_agent`, route `fast`.
 
 ## Menambah agent baru
+
+### Lewat Admin Console (tanpa deploy)
+Konsol MCP → **Agent** → **+ Agent baru**: isi key agent, nama, prompt peran (aturan umum
+`agent_rules` digabung otomatis), route/model, toolset, budget token, dan maks langkah. Route boleh
+`fast`/`smart` atau alias model Gateway (mis. `openrouter/gemma-4-31b`; izinkan polanya di project
+Gateway). Ubah/nonaktifkan dari halaman yang sama; berlaku untuk run berikutnya. API:
+`GET/POST /admin/agents`, `PATCH /admin/agents/{agent_key}` (klien admin). Lalu buat agent di
+Dashboard dengan `mcp_agent_key` yang sama, dan beri key LLM (menu Key LLM per agent).
+
+### Lewat kode (profil bawaan)
 1. **Prompt peran**: `mcp_marketing/services/llm/prompts/agent_<key>.v1.md` (aturan umum di
    `agent_rules.v1.md` otomatis digabung; total ≤ 600 token, diuji).
 2. **Profil**: tambahkan `ProfileSeed` di `mcp_marketing/services/agent/profiles.py` (toolsets,

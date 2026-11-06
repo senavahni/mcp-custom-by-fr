@@ -156,7 +156,7 @@ const Kit = (() => {
     });
   }
 
-  // fields: [{name,label,type,help,required,placeholder,value,min,max,step,options,secret}]
+  // fields: [{name,label,type,help,required,placeholder,value,min,max,step,options,secret,rows}]
   function form({ title, intro, fields, submitLabel = 'Simpan' }) {
     return new Promise((resolve) => {
       const inputs = {};
@@ -177,6 +177,9 @@ const Kit = (() => {
           }) };
           inputs[f.name] = input;
           return h('div', { class: 'field' }, h('span', { class: 'field-label', text: f.label }), box, f.help ? h('small', { class: 'field-help', text: f.help }) : null);
+        } else if (f.type === 'textarea') {
+          input = h('textarea', { class: 'input', name: f.name, rows: f.rows || 8, placeholder: f.placeholder, required: f.required, spellcheck: 'false' });
+          input.value = f.value || '';
         } else {
           input = h('input', {
             class: f.secret ? 'input mono' : 'input',
