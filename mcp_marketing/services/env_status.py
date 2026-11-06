@@ -144,6 +144,13 @@ def env_vars(settings: Settings) -> list[dict[str, Any]]:
             required=False,
         ),
         _var(
+            "LLM_GATEWAY_ADMIN_KEY",
+            GATEWAY,
+            "Admin key Gateway untuk rotasi key per agent dari Dashboard. Opsional; hak tinggi.",
+            state=secret_state(_raw(llm.llm_gateway_admin_key)),
+            required=False,
+        ),
+        _var(
             "X_BEARER_TOKEN",
             SOURCES,
             "Token X API resmi (berbayar per post).",

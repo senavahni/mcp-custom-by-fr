@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import UTC, date, datetime
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
@@ -7,7 +8,9 @@ from uuid import uuid4
 
 import pytest
 
+from mcp_marketing.core.config import get_settings
 from mcp_marketing.core.errors import Forbidden, HierarchyDepthExceeded, NotFound, ValidationFailed
+from mcp_marketing.services.llm.gateway_client import GatewayClient
 from mcp_marketing.tools import task as task_tools
 from mcp_marketing.tools.task import (
     BreakdownItem,
@@ -18,6 +21,7 @@ from mcp_marketing.tools.task import (
     TaskRescheduleInput,
     TaskUpdateInput,
 )
+from tests.fakes import FakeGateway, completion, ok
 
 
 class _Rows:
@@ -395,6 +399,33 @@ async def test_task_comment_uses_service_api_for_external_task(
 
     assert result.id == "c1"
     assert api.create_comment.await_args.args[1]["entity_id"] == str(task_id)
+
+
+@pytest.mark.asyncio
+async def test_task_breakdown_uses_known_llm_purpose(monkeypatch: pytest.MonkeyPatch) -> None:
+    task = SimpleNamespace(
+        id=uuid4(),
+        project_id=uuid4(),
+        title="Campaign",
+        start_date=date(2026, 11, 5),
+        end_date=date(2026, 11, 20),
+    )
+    plan = {"subtasks": [{"client_ref": "research", "title": "Research", "duration_days": 2}]}
+    gateway = FakeGateway().on("/chat/completions", ok(completion(json.dumps(plan))))
+    client = GatewayClient(get_settings(), http_client=gateway.client())
+    context = _ctx(_Session(scalar_rows=[[], []]), llm=client)
+    monkeypatch.setattr(task_tools, "_run", AsyncMock(return_value=None))
+    monkeypatch.setattr(task_tools, "_scoped_task", AsyncMock(return_value=task))
+
+    preview = await task_tools.task_breakdown(
+        task_tools.BreakdownInput(task_id=task.id, mode="preview", max_subtasks=5), context
+    )
+
+    assert preview.subtasks[0]["title"] == "Research"
+    body = gateway.bodies("/chat/completions")[0]
+    assert body["model"] == "fast" and body["temperature"] == 0.2 and body["max_tokens"] == 2_000
+    assert body["reasoning_effort"] == "low"
+    await client.close()
 
 
 @pytest.mark.asyncio

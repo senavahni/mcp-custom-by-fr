@@ -2,6 +2,18 @@
 
 ## 0.5.0-dev — 2026-11-04
 
+### Rotasi key LLM Gateway dari Dashboard (M3_TASK_009 P1)
+- Tool `intel_llm_key_rotate {agent_key}` (toolset `intel`, `machine_output`, `writes`; modul
+  `tools/intel_keys.py`): buat key baru lewat Admin API Gateway, simpan terenkripsi, lalu cabut key
+  lama. Respons hanya `{agent_key, key_prefix, rotated_at, old_key_revoked}` — tidak pernah key lengkap.
+- Butuh `LLM_GATEWAY_ADMIN_KEY` (opsional, hak tinggi) + `MCP_SECRET_KEY` di `.env` MCP; tanpa itu
+  tool menjawab `CONFLICT`. Key baru yang gagal disimpan dicabut lagi; key lama yang gagal dicabut
+  dilaporkan (`old_key_revoked=false`) tanpa membatalkan rotasi.
+- `CredentialStore.mark_invalid` mengabaikan penolakan 2 menit setelah `rotated_at`: proses lain
+  (worker) masih bisa memegang key lama dari cache 60 s dan tidak boleh menandai key baru `invalid`.
+- `route_policy`: purpose `task_breakdown` (fast, temp 0.2, 2.000 token, JSON, `reasoning_effort=low`);
+  sebelumnya `task_breakdown` gagal `purpose LLM tidak dikenal`.
+
 ### Admin Console kredensial (`/console`)
 - Halaman statis `http://127.0.0.1:4100/console` (HTML/JS/CSS tanpa build, CSP `script-src 'self'`,
   `frame-ancestors 'none'`, `no-store`): hanya dari peer loopback + Host lokal (anti DNS rebinding).

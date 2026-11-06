@@ -20,6 +20,7 @@ from mcp_marketing.services.env_status import (
 from mcp_marketing.utils.secretbox import generate_key
 
 SENTINEL = "x-bearer-SENTINEL-must-never-leak-0123456789"
+ADMIN_SENTINEL = "lgw_admin-SENTINEL-must-never-leak-0123456789"
 
 
 def _client(peer: str = "127.0.0.1", host: str = "127.0.0.1:4100") -> httpx.AsyncClient:
@@ -77,6 +78,7 @@ def test_secret_states() -> None:
 
 def test_env_vars_never_expose_secret_values(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("X_BEARER_TOKEN", SENTINEL)
+    monkeypatch.setenv("LLM_GATEWAY_ADMIN_KEY", ADMIN_SENTINEL)
     monkeypatch.setenv("MCP_SECRET_KEY", generate_key())
     get_settings.cache_clear()
     settings = get_settings()
@@ -84,6 +86,7 @@ def test_env_vars_never_expose_secret_values(monkeypatch: pytest.MonkeyPatch) ->
     dumped = json.dumps(rows)
     for secret in (
         SENTINEL,
+        ADMIN_SENTINEL,
         settings.mcp_key_pepper.get_secret_value(),
         settings.dashboard.mcp_server_api_key.get_secret_value(),
         settings.dashboard.mcp_webhook_secret.get_secret_value(),

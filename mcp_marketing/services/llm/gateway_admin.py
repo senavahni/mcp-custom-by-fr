@@ -1,24 +1,35 @@
 """Provisioning project & key LLM Gateway untuk agent MCP lewat Admin API Gateway (M3_TASK_009).
 
-Admin key Gateway hanya dipakai selama perintah berjalan (`manage.py gateway-keys provision`),
-tidak pernah disimpan. Hasil: project `marketing-mcp` + satu key per agent + key `system`,
+Admin key Gateway untuk `manage.py gateway-keys provision` hanya dipakai selama perintah berjalan,
+tidak pernah disimpan. Rotasi dari Dashboard (`intel_llm_key_rotate`) membacanya dari
+`LLM_GATEWAY_ADMIN_KEY` di environment MCP; nilainya tidak pernah ditulis ke DB atau log.
+Hasil: project `marketing-mcp` + satu key per agent + key `system`,
 disimpan terenkripsi di `mcp.llm_credentials`.
 """
 
 from __future__ import annotations
 
+import asyncio
+import contextlib
 import uuid
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
 import httpx
+from sqlalchemy import select
 
-from mcp_marketing.core.errors import UpstreamError
+from mcp_marketing.core.errors import NotFound, UpstreamError
+from mcp_marketing.core.logging import get_logger
+from mcp_marketing.models import LlmCredential
 from mcp_marketing.services.llm.credentials import (
     credential_name,
     list_credentials,
     save_credential,
 )
+from mcp_marketing.utils.time import now
+
+log = get_logger(__name__)
 
 DEFAULT_PROJECT = "marketing-mcp"
 KEY_SCOPES = ["chat", "embeddings", "models:read", "usage:read"]
@@ -138,3 +149,63 @@ async def provision(
                 action = f"rotated (cabut key lama gagal: {exc.message})"
         report.append({"name": name, "prefix": prefix, "action": action})
     return report
+
+
+@dataclass(frozen=True)
+class RotatedKey:
+    """Hasil rotasi; sengaja tanpa key lengkap."""
+
+    prefix: str
+    rotated_at: datetime
+    old_key_revoked: bool
+
+
+# satu rotasi sekali jalan: dua rotasi paralel untuk agent sama akan menyisakan key yatim di Gateway
+_ROTATE_LOCK = asyncio.Lock()
+
+
+async def rotate_credential(
+    db: Any,
+    secret_key: str,
+    admin: GatewayAdmin,
+    *,
+    agent_key: str | None,
+    project_slug: str = DEFAULT_PROJECT,
+) -> RotatedKey:
+    """Ganti key milik `agent_key` (None = system): buat baru, simpan, baru cabut yang lama.
+
+    Urutan ini menjaga agent tetap punya key valid bila ada langkah yang gagal. Key lama yang
+    gagal dicabut (atau hasil impor tanpa id Gateway) dilaporkan lewat `old_key_revoked=False`.
+    """
+    name = credential_name(agent_key)
+    async with _ROTATE_LOCK:
+        async with db.session() as session:
+            current = await session.scalar(select(LlmCredential).where(LlmCredential.name == name))
+            old_key_id = current.gateway_key_id if current is not None else None
+        if current is None:
+            raise NotFound(f"Belum ada key untuk {agent_key or 'system'}; jalankan provision dulu")
+        project = await admin.ensure_project(project_slug)
+        created = await admin.create_key(project["id"], f"mcp-{agent_key or 'system'}", rpm=None)
+        try:
+            async with db.session() as session:
+                row = await save_credential(
+                    session,
+                    secret_key,
+                    agent_key=agent_key,
+                    full_key=created["key"],
+                    gateway_key_id=uuid.UUID(created["id"]),
+                )
+                prefix, rotated_at = row.key_prefix, row.rotated_at or now()
+        except Exception:
+            # key baru belum tersimpan di mana pun: cabut agar tidak jadi key yatim
+            with contextlib.suppress(UpstreamError):
+                await admin.revoke_key(created["id"], "rotasi gagal disimpan")
+            raise
+        revoked = False
+        if old_key_id is not None:
+            try:
+                await admin.revoke_key(str(old_key_id), f"diganti -> {prefix}")
+                revoked = True
+            except UpstreamError as exc:
+                log.warning("llm.rotate_revoke_old_failed", name=name, status=exc.details)
+    return RotatedKey(prefix=prefix, rotated_at=rotated_at, old_key_revoked=revoked)

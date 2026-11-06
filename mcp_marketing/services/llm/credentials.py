@@ -10,9 +10,10 @@ import re
 import time
 import uuid
 from dataclasses import dataclass
+from datetime import timedelta
 from typing import Any, Literal
 
-from sqlalchemy import select, update
+from sqlalchemy import or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from mcp_marketing.core.errors import ValidationFailed
@@ -25,6 +26,7 @@ log = get_logger(__name__)
 
 SYSTEM = "system"
 CACHE_TTL_S = 60.0
+ROTATION_GRACE_S = CACHE_TTL_S * 2
 GATEWAY_KEY_RE = re.compile(r"^(lgw_[a-z0-9]{8})_[A-Za-z0-9_\-]{43}$")
 KeySource = Literal["agent", "system", "env"]
 
@@ -105,14 +107,25 @@ class CredentialStore:
         return self.env_key()
 
     async def mark_invalid(self, credential_id: uuid.UUID, error: str) -> None:
+        # proses lain (worker) bisa masih memegang key lama dari cache sesaat setelah rotasi;
+        # penolakan itu bukan tanda key baru rusak
+        cutoff = now() - timedelta(seconds=ROTATION_GRACE_S)
         async with self.db.session() as session:
-            await session.execute(
+            res = await session.execute(
                 update(LlmCredential)
-                .where(LlmCredential.id == credential_id)
+                .where(
+                    LlmCredential.id == credential_id,
+                    or_(LlmCredential.rotated_at.is_(None), LlmCredential.rotated_at < cutoff),
+                )
                 .values(status="invalid", last_error=error[:300], last_checked_at=now())
+                .returning(LlmCredential.id)
             )
+            marked = res.first() is not None
         self.invalidate()
-        log.critical("llm.credential_invalid", credential_id=str(credential_id))
+        if marked:
+            log.critical("llm.credential_invalid", credential_id=str(credential_id))
+        else:
+            log.warning("llm.credential_rejection_ignored_after_rotation")
 
 
 async def save_credential(

@@ -402,6 +402,7 @@ def test_intel_tools_registered_as_machine_output() -> None:
         "intel_kb_projection",
         "intel_items",
         "intel_llm_status",
+        "intel_llm_key_rotate",
         "intel_mission_plan",
         "intel_run_costs",
         "intel_browser_profiles",
@@ -412,7 +413,7 @@ def test_intel_tools_registered_as_machine_output() -> None:
     }
     assert all(t.machine_output for t in intel.values())
     assert intel["intel_job_create"].writes and intel["intel_job_cancel"].writes
-    assert intel["intel_job_purge_index"].writes
+    assert intel["intel_job_purge_index"].writes and intel["intel_llm_key_rotate"].writes
     # profil agent tidak boleh memakai toolset intel (khusus klien Dashboard)
     assert all("intel" not in p.toolsets for p in DEFAULT_PROFILES)
 
