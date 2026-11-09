@@ -1,0 +1,2712 @@
+kbli_code,isic_code,isic_name,match_level
+A,A,"Agriculture, forestry and fishing",exact
+B,B,Mining and quarrying,exact
+C,C,Manufacturing,exact
+D,D,"Electricity, gas, steam and air conditioning supply",exact
+E,E,"Water supply; sewerage, waste management and remediation activities",exact
+F,F,Construction,exact
+G,G,Wholesale and retail trade; repair of motor vehicles and motorcycles,exact
+H,H,Transportation and storage,exact
+I,I,Accommodation and food service activities,exact
+J,J,Information and communication,exact
+K,K,Financial and insurance activities,exact
+L,L,Real estate activities,exact
+M,M,"Professional, scientific and technical activities",exact
+N,N,Administrative and support service activities,exact
+O,O,Public administration and defence; compulsory social security,exact
+P,P,Education,exact
+Q,Q,Human health and social work activities,exact
+R,R,"Arts, entertainment and recreation",exact
+S,S,Other service activities,exact
+T,T,Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use,exact
+U,U,Activities of extraterritorial organizations and bodies,exact
+01,01,"Crop and animal production, hunting and related service activities",exact
+011,011,Growing of non-perennial crops,exact
+0111,0111,"Growing of cereals (except rice), leguminous crops and oil seeds",exact
+01111,0111,"Growing of cereals (except rice), leguminous crops and oil seeds",class
+01112,0111,"Growing of cereals (except rice), leguminous crops and oil seeds",class
+01113,0111,"Growing of cereals (except rice), leguminous crops and oil seeds",class
+01114,0111,"Growing of cereals (except rice), leguminous crops and oil seeds",class
+01115,0111,"Growing of cereals (except rice), leguminous crops and oil seeds",class
+01116,0111,"Growing of cereals (except rice), leguminous crops and oil seeds",class
+01117,0111,"Growing of cereals (except rice), leguminous crops and oil seeds",class
+01118,0111,"Growing of cereals (except rice), leguminous crops and oil seeds",class
+01119,0111,"Growing of cereals (except rice), leguminous crops and oil seeds",class
+0112,0112,Growing of rice,exact
+01121,0112,Growing of rice,class
+01122,0112,Growing of rice,class
+0113,0113,"Growing of vegetables and melons, roots and tubers",exact
+01131,0113,"Growing of vegetables and melons, roots and tubers",class
+01132,0113,"Growing of vegetables and melons, roots and tubers",class
+01133,0113,"Growing of vegetables and melons, roots and tubers",class
+01134,0113,"Growing of vegetables and melons, roots and tubers",class
+01135,0113,"Growing of vegetables and melons, roots and tubers",class
+01136,0113,"Growing of vegetables and melons, roots and tubers",class
+01137,0113,"Growing of vegetables and melons, roots and tubers",class
+01139,0113,"Growing of vegetables and melons, roots and tubers",class
+0114,0114,Growing of sugar cane,exact
+01140,0114,Growing of sugar cane,class
+0115,0115,Growing of tobacco,exact
+01150,0115,Growing of tobacco,class
+0116,0116,Growing of fibre crops,exact
+01160,0116,Growing of fibre crops,class
+0119,0119,Growing of other non-perennial crops,exact
+01191,0119,Growing of other non-perennial crops,class
+01192,0119,Growing of other non-perennial crops,class
+01193,0119,Growing of other non-perennial crops,class
+01194,0119,Growing of other non-perennial crops,class
+01199,0119,Growing of other non-perennial crops,class
+012,012,Growing of perennial crops,exact
+0121,0121,Growing of grapes,exact
+01210,0121,Growing of grapes,class
+0122,0122,Growing of tropical and subtropical fruits,exact
+01220,0122,Growing of tropical and subtropical fruits,class
+0123,0123,Growing of citrus fruits,exact
+01230,0123,Growing of citrus fruits,class
+0124,0124,Growing of pome fruits and stone fruits,exact
+01240,0124,Growing of pome fruits and stone fruits,class
+0125,0125,Growing of other tree and bush fruits and nuts,exact
+01251,0125,Growing of other tree and bush fruits and nuts,class
+01252,0125,Growing of other tree and bush fruits and nuts,class
+01253,0125,Growing of other tree and bush fruits and nuts,class
+01259,0125,Growing of other tree and bush fruits and nuts,class
+0126,0126,Growing of oleaginous fruits,exact
+01261,0126,Growing of oleaginous fruits,class
+01262,0126,Growing of oleaginous fruits,class
+01269,0126,Growing of oleaginous fruits,class
+0127,0127,Growing of beverage crops,exact
+01270,0127,Growing of beverage crops,class
+0128,0128,"Growing of spices, aromatic, drug and pharmaceutical crops",exact
+01281,0128,"Growing of spices, aromatic, drug and pharmaceutical crops",class
+01282,0128,"Growing of spices, aromatic, drug and pharmaceutical crops",class
+01283,0128,"Growing of spices, aromatic, drug and pharmaceutical crops",class
+01284,0128,"Growing of spices, aromatic, drug and pharmaceutical crops",class
+01285,0128,"Growing of spices, aromatic, drug and pharmaceutical crops",class
+01286,0128,"Growing of spices, aromatic, drug and pharmaceutical crops",class
+01287,0128,"Growing of spices, aromatic, drug and pharmaceutical crops",class
+01289,0128,"Growing of spices, aromatic, drug and pharmaceutical crops",class
+0129,0129,Growing of other perennial crops,exact
+01291,0129,Growing of other perennial crops,class
+01299,0129,Growing of other perennial crops,class
+013,013,Plant propagation,exact
+0130,0130,Plant propagation,exact
+01301,0130,Plant propagation,class
+01302,0130,Plant propagation,class
+014,014,Animal production,exact
+0141,0141,Raising of cattle and buffaloes,exact
+01411,0141,Raising of cattle and buffaloes,class
+01412,0141,Raising of cattle and buffaloes,class
+01413,0141,Raising of cattle and buffaloes,class
+01414,0141,Raising of cattle and buffaloes,class
+0142,0142,Raising of horses and other equines,exact
+01420,0142,Raising of horses and other equines,class
+0143,0143,Raising of camels and camelids,exact
+01430,0143,Raising of camels and camelids,class
+0144,0144,Raising of sheep and goats,exact
+01441,0144,Raising of sheep and goats,class
+01442,0144,Raising of sheep and goats,class
+01443,0144,Raising of sheep and goats,class
+01444,0144,Raising of sheep and goats,class
+01445,0144,Raising of sheep and goats,class
+0145,0145,Raising of swine/pigs,exact
+01450,0145,Raising of swine/pigs,class
+0146,0146,Raising of poultry,exact
+01461,0146,Raising of poultry,class
+01462,0146,Raising of poultry,class
+01463,0146,Raising of poultry,class
+01464,0146,Raising of poultry,class
+01465,0146,Raising of poultry,class
+01466,0146,Raising of poultry,class
+01467,0146,Raising of poultry,class
+01468,0146,Raising of poultry,class
+01469,0146,Raising of poultry,class
+0149,0149,Raising of other animals,exact
+01491,0149,Raising of other animals,class
+01492,0149,Raising of other animals,class
+01493,0149,Raising of other animals,class
+01494,0149,Raising of other animals,class
+01495,0149,Raising of other animals,class
+01496,0149,Raising of other animals,class
+01497,0149,Raising of other animals,class
+01499,0149,Raising of other animals,class
+016,016,Support activities to agriculture and post-harvest crop activities,exact
+0161,0161,Support activities for crop production,exact
+01611,0161,Support activities for crop production,class
+01612,0161,Support activities for crop production,class
+01613,0161,Support activities for crop production,class
+01614,0161,Support activities for crop production,class
+01619,0161,Support activities for crop production,class
+0162,0162,Support activities for animal production,exact
+01621,0162,Support activities for animal production,class
+01622,0162,Support activities for animal production,class
+01623,0162,Support activities for animal production,class
+01629,0162,Support activities for animal production,class
+0163,0163,Post-harvest crop activities,exact
+01630,0163,Post-harvest crop activities,class
+0164,0164,Seed processing for propagation,exact
+01640,0164,Seed processing for propagation,class
+017,017,"Hunting, trapping and related service activities",exact
+0171,017,"Hunting, trapping and related service activities",group
+01711,017,"Hunting, trapping and related service activities",group
+01712,017,"Hunting, trapping and related service activities",group
+01713,017,"Hunting, trapping and related service activities",group
+01714,017,"Hunting, trapping and related service activities",group
+01715,017,"Hunting, trapping and related service activities",group
+01719,017,"Hunting, trapping and related service activities",group
+0172,017,"Hunting, trapping and related service activities",group
+01721,017,"Hunting, trapping and related service activities",group
+01722,017,"Hunting, trapping and related service activities",group
+01723,017,"Hunting, trapping and related service activities",group
+01724,017,"Hunting, trapping and related service activities",group
+01725,017,"Hunting, trapping and related service activities",group
+01726,017,"Hunting, trapping and related service activities",group
+01727,017,"Hunting, trapping and related service activities",group
+01729,017,"Hunting, trapping and related service activities",group
+02,02,Forestry and logging,exact
+021,021,Silviculture and other forestry activities,exact
+0211,021,Silviculture and other forestry activities,group
+02111,021,Silviculture and other forestry activities,group
+02112,021,Silviculture and other forestry activities,group
+02113,021,Silviculture and other forestry activities,group
+02119,021,Silviculture and other forestry activities,group
+0212,021,Silviculture and other forestry activities,group
+02121,021,Silviculture and other forestry activities,group
+02122,021,Silviculture and other forestry activities,group
+0213,021,Silviculture and other forestry activities,group
+02130,021,Silviculture and other forestry activities,group
+0214,021,Silviculture and other forestry activities,group
+02140,021,Silviculture and other forestry activities,group
+022,022,Logging,exact
+0220,0220,Logging,exact
+02201,0220,Logging,class
+02202,0220,Logging,class
+02209,0220,Logging,class
+023,023,Gathering of non-wood forest products,exact
+0230,0230,Gathering of non-wood forest products,exact
+02301,0230,Gathering of non-wood forest products,class
+02302,0230,Gathering of non-wood forest products,class
+02303,0230,Gathering of non-wood forest products,class
+02304,0230,Gathering of non-wood forest products,class
+02305,0230,Gathering of non-wood forest products,class
+02306,0230,Gathering of non-wood forest products,class
+02307,0230,Gathering of non-wood forest products,class
+02308,0230,Gathering of non-wood forest products,class
+02309,0230,Gathering of non-wood forest products,class
+024,024,Support services to forestry,exact
+0240,0240,Support services to forestry,exact
+02401,0240,Support services to forestry,class
+02402,0240,Support services to forestry,class
+02403,0240,Support services to forestry,class
+02404,0240,Support services to forestry,class
+02409,0240,Support services to forestry,class
+03,03,Fishing and aquaculture,exact
+031,031,Fishing,exact
+0311,0311,Marine fishing,exact
+03111,0311,Marine fishing,class
+03112,0311,Marine fishing,class
+03113,0311,Marine fishing,class
+03114,0311,Marine fishing,class
+03115,0311,Marine fishing,class
+03116,0311,Marine fishing,class
+03117,0311,Marine fishing,class
+03118,0311,Marine fishing,class
+03119,0311,Marine fishing,class
+0312,0312,Freshwater fishing,exact
+03121,0312,Freshwater fishing,class
+03122,0312,Freshwater fishing,class
+03123,0312,Freshwater fishing,class
+03124,0312,Freshwater fishing,class
+03125,0312,Freshwater fishing,class
+03126,0312,Freshwater fishing,class
+03129,0312,Freshwater fishing,class
+0313,031,Fishing,group
+03131,031,Fishing,group
+03132,031,Fishing,group
+03133,031,Fishing,group
+0314,031,Fishing,group
+03141,031,Fishing,group
+03142,031,Fishing,group
+03143,031,Fishing,group
+0315,031,Fishing,group
+03151,031,Fishing,group
+03152,031,Fishing,group
+03153,031,Fishing,group
+03154,031,Fishing,group
+03155,031,Fishing,group
+03156,031,Fishing,group
+03157,031,Fishing,group
+03158,031,Fishing,group
+03159,031,Fishing,group
+032,032,Aquaculture,exact
+0321,0321,Marine aquaculture,exact
+03211,0321,Marine aquaculture,class
+03212,0321,Marine aquaculture,class
+03213,0321,Marine aquaculture,class
+03214,0321,Marine aquaculture,class
+03215,0321,Marine aquaculture,class
+03216,0321,Marine aquaculture,class
+03217,0321,Marine aquaculture,class
+03219,0321,Marine aquaculture,class
+0322,0322,Freshwater aquaculture,exact
+03221,0322,Freshwater aquaculture,class
+03222,0322,Freshwater aquaculture,class
+03223,0322,Freshwater aquaculture,class
+03224,0322,Freshwater aquaculture,class
+03225,0322,Freshwater aquaculture,class
+03226,0322,Freshwater aquaculture,class
+03227,0322,Freshwater aquaculture,class
+03229,0322,Freshwater aquaculture,class
+0323,032,Aquaculture,group
+03231,032,Aquaculture,group
+03232,032,Aquaculture,group
+03233,032,Aquaculture,group
+0324,032,Aquaculture,group
+03241,032,Aquaculture,group
+03242,032,Aquaculture,group
+03243,032,Aquaculture,group
+0325,032,Aquaculture,group
+03251,032,Aquaculture,group
+03252,032,Aquaculture,group
+03253,032,Aquaculture,group
+03254,032,Aquaculture,group
+03255,032,Aquaculture,group
+03259,032,Aquaculture,group
+0326,032,Aquaculture,group
+03261,032,Aquaculture,group
+03262,032,Aquaculture,group
+03263,032,Aquaculture,group
+0327,032,Aquaculture,group
+03271,032,Aquaculture,group
+03272,032,Aquaculture,group
+03273,032,Aquaculture,group
+03274,032,Aquaculture,group
+03275,032,Aquaculture,group
+03276,032,Aquaculture,group
+03277,032,Aquaculture,group
+03278,032,Aquaculture,group
+03279,032,Aquaculture,group
+05,05,Mining of coal and lignite,exact
+051,051,Mining of hard coal,exact
+0510,0510,Mining of hard coal,exact
+05100,0510,Mining of hard coal,class
+052,052,Mining of lignite,exact
+0520,0520,Mining of lignite,exact
+05200,0520,Mining of lignite,class
+06,06,Extraction of crude petroleum and natural gas,exact
+061,061,Extraction of crude petroleum,exact
+0610,0610,Extraction of crude petroleum,exact
+06100,0610,Extraction of crude petroleum,class
+062,062,Extraction of natural gas,exact
+0620,0620,Extraction of natural gas,exact
+06201,0620,Extraction of natural gas,class
+06202,0620,Extraction of natural gas,class
+07,07,Mining of metal ores,exact
+071,071,Mining of iron ores,exact
+0710,0710,Mining of iron ores,exact
+07101,0710,Mining of iron ores,class
+07102,0710,Mining of iron ores,class
+072,072,Mining of non-ferrous metal ores,exact
+0721,0721,Mining of uranium and thorium ores,exact
+07210,0721,Mining of uranium and thorium ores,class
+0729,0729,Mining of other non-ferrous metal ores,exact
+07291,0729,Mining of other non-ferrous metal ores,class
+07292,0729,Mining of other non-ferrous metal ores,class
+07293,0729,Mining of other non-ferrous metal ores,class
+07294,0729,Mining of other non-ferrous metal ores,class
+07295,0729,Mining of other non-ferrous metal ores,class
+07296,0729,Mining of other non-ferrous metal ores,class
+07299,0729,Mining of other non-ferrous metal ores,class
+073,07,Mining of metal ores,division
+0730,07,Mining of metal ores,division
+07301,07,Mining of metal ores,division
+07309,07,Mining of metal ores,division
+08,08,Other mining and quarrying,exact
+081,081,"Quarrying of stone, sand and clay",exact
+0810,0810,"Quarrying of stone, sand and clay",exact
+08101,0810,"Quarrying of stone, sand and clay",class
+08102,0810,"Quarrying of stone, sand and clay",class
+08103,0810,"Quarrying of stone, sand and clay",class
+08104,0810,"Quarrying of stone, sand and clay",class
+08105,0810,"Quarrying of stone, sand and clay",class
+08106,0810,"Quarrying of stone, sand and clay",class
+08107,0810,"Quarrying of stone, sand and clay",class
+08108,0810,"Quarrying of stone, sand and clay",class
+08109,0810,"Quarrying of stone, sand and clay",class
+089,089,Mining and quarrying n.e.c.,exact
+0891,0891,Mining of chemical and fertilizer minerals,exact
+08911,0891,Mining of chemical and fertilizer minerals,class
+08912,0891,Mining of chemical and fertilizer minerals,class
+08913,0891,Mining of chemical and fertilizer minerals,class
+08914,0891,Mining of chemical and fertilizer minerals,class
+08915,0891,Mining of chemical and fertilizer minerals,class
+08919,0891,Mining of chemical and fertilizer minerals,class
+0892,0892,Extraction of peat,exact
+08920,0892,Extraction of peat,class
+0893,0893,Extraction of salt,exact
+08930,0893,Extraction of salt,class
+0899,0899,Other mining and quarrying n.e.c.,exact
+08991,0899,Other mining and quarrying n.e.c.,class
+08992,0899,Other mining and quarrying n.e.c.,class
+08993,0899,Other mining and quarrying n.e.c.,class
+08994,0899,Other mining and quarrying n.e.c.,class
+08995,0899,Other mining and quarrying n.e.c.,class
+08999,0899,Other mining and quarrying n.e.c.,class
+09,09,Mining support service activities,exact
+091,091,Support activities for petroleum and natural gas extraction,exact
+0910,0910,Support activities for petroleum and natural gas extraction,exact
+09100,0910,Support activities for petroleum and natural gas extraction,class
+099,099,Support activities for other mining and quarrying,exact
+0990,0990,Support activities for other mining and quarrying,exact
+09900,0990,Support activities for other mining and quarrying,class
+10,10,Manufacture of food products,exact
+101,101,Processing and preserving of meat,exact
+1011,101,Processing and preserving of meat,group
+10110,101,Processing and preserving of meat,group
+1012,101,Processing and preserving of meat,group
+10120,101,Processing and preserving of meat,group
+1013,101,Processing and preserving of meat,group
+10130,101,Processing and preserving of meat,group
+102,102,"Processing and preserving of fish, crustaceans and molluscs",exact
+1021,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10211,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10212,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10213,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10214,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10215,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10216,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10217,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10219,102,"Processing and preserving of fish, crustaceans and molluscs",group
+1022,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10221,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10222,102,"Processing and preserving of fish, crustaceans and molluscs",group
+1029,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10291,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10292,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10293,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10294,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10295,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10296,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10297,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10298,102,"Processing and preserving of fish, crustaceans and molluscs",group
+10299,102,"Processing and preserving of fish, crustaceans and molluscs",group
+103,103,Processing and preserving of fruit and vegetables,exact
+1031,103,Processing and preserving of fruit and vegetables,group
+10311,103,Processing and preserving of fruit and vegetables,group
+10312,103,Processing and preserving of fruit and vegetables,group
+10313,103,Processing and preserving of fruit and vegetables,group
+10314,103,Processing and preserving of fruit and vegetables,group
+1032,103,Processing and preserving of fruit and vegetables,group
+10320,103,Processing and preserving of fruit and vegetables,group
+1033,103,Processing and preserving of fruit and vegetables,group
+10330,103,Processing and preserving of fruit and vegetables,group
+1039,103,Processing and preserving of fruit and vegetables,group
+10391,103,Processing and preserving of fruit and vegetables,group
+10392,103,Processing and preserving of fruit and vegetables,group
+10393,103,Processing and preserving of fruit and vegetables,group
+10399,103,Processing and preserving of fruit and vegetables,group
+104,104,Manufacture of vegetable and animal oils and fats,exact
+1041,104,Manufacture of vegetable and animal oils and fats,group
+10411,104,Manufacture of vegetable and animal oils and fats,group
+10412,104,Manufacture of vegetable and animal oils and fats,group
+10413,104,Manufacture of vegetable and animal oils and fats,group
+10414,104,Manufacture of vegetable and animal oils and fats,group
+10415,104,Manufacture of vegetable and animal oils and fats,group
+1042,104,Manufacture of vegetable and animal oils and fats,group
+10421,104,Manufacture of vegetable and animal oils and fats,group
+10422,104,Manufacture of vegetable and animal oils and fats,group
+10423,104,Manufacture of vegetable and animal oils and fats,group
+10424,104,Manufacture of vegetable and animal oils and fats,group
+1043,104,Manufacture of vegetable and animal oils and fats,group
+10431,104,Manufacture of vegetable and animal oils and fats,group
+10432,104,Manufacture of vegetable and animal oils and fats,group
+10433,104,Manufacture of vegetable and animal oils and fats,group
+10434,104,Manufacture of vegetable and animal oils and fats,group
+10435,104,Manufacture of vegetable and animal oils and fats,group
+10436,104,Manufacture of vegetable and animal oils and fats,group
+10437,104,Manufacture of vegetable and animal oils and fats,group
+1049,104,Manufacture of vegetable and animal oils and fats,group
+10490,104,Manufacture of vegetable and animal oils and fats,group
+105,105,Manufacture of dairy products,exact
+1051,105,Manufacture of dairy products,group
+10510,105,Manufacture of dairy products,group
+1052,105,Manufacture of dairy products,group
+10520,105,Manufacture of dairy products,group
+1053,105,Manufacture of dairy products,group
+10531,105,Manufacture of dairy products,group
+10532,105,Manufacture of dairy products,group
+1059,105,Manufacture of dairy products,group
+10590,105,Manufacture of dairy products,group
+106,106,"Manufacture of grain mill products, starches and starch products",exact
+1061,1061,Manufacture of grain mill products,exact
+10611,1061,Manufacture of grain mill products,class
+10612,1061,Manufacture of grain mill products,class
+10613,1061,Manufacture of grain mill products,class
+10614,1061,Manufacture of grain mill products,class
+10615,1061,Manufacture of grain mill products,class
+10616,1061,Manufacture of grain mill products,class
+1062,1062,Manufacture of starches and starch products,exact
+10621,1062,Manufacture of starches and starch products,class
+10622,1062,Manufacture of starches and starch products,class
+10623,1062,Manufacture of starches and starch products,class
+10629,1062,Manufacture of starches and starch products,class
+1063,106,"Manufacture of grain mill products, starches and starch products",group
+10631,106,"Manufacture of grain mill products, starches and starch products",group
+10632,106,"Manufacture of grain mill products, starches and starch products",group
+10633,106,"Manufacture of grain mill products, starches and starch products",group
+10634,106,"Manufacture of grain mill products, starches and starch products",group
+10635,106,"Manufacture of grain mill products, starches and starch products",group
+10636,106,"Manufacture of grain mill products, starches and starch products",group
+107,107,Manufacture of other food products,exact
+1071,1071,Manufacture of bakery products,exact
+10710,1071,Manufacture of bakery products,class
+1072,1072,Manufacture of sugar,exact
+10721,1072,Manufacture of sugar,class
+10722,1072,Manufacture of sugar,class
+10723,1072,Manufacture of sugar,class
+10729,1072,Manufacture of sugar,class
+1073,1073,"Manufacture of cocoa, chocolate and sugar confectionery",exact
+10731,1073,"Manufacture of cocoa, chocolate and sugar confectionery",class
+10732,1073,"Manufacture of cocoa, chocolate and sugar confectionery",class
+10733,1073,"Manufacture of cocoa, chocolate and sugar confectionery",class
+10734,1073,"Manufacture of cocoa, chocolate and sugar confectionery",class
+10739,1073,"Manufacture of cocoa, chocolate and sugar confectionery",class
+1074,1074,"Manufacture of macaroni, noodles, couscous and similar farinaceous products",exact
+10740,1074,"Manufacture of macaroni, noodles, couscous and similar farinaceous products",class
+1075,1075,Manufacture of prepared meals and dishes,exact
+10750,1075,Manufacture of prepared meals and dishes,class
+1076,107,Manufacture of other food products,group
+10761,107,Manufacture of other food products,group
+10762,107,Manufacture of other food products,group
+10763,107,Manufacture of other food products,group
+1077,107,Manufacture of other food products,group
+10771,107,Manufacture of other food products,group
+10772,107,Manufacture of other food products,group
+10773,107,Manufacture of other food products,group
+10774,107,Manufacture of other food products,group
+10779,107,Manufacture of other food products,group
+1079,1079,Manufacture of other food products n.e.c.,exact
+10791,1079,Manufacture of other food products n.e.c.,class
+10792,1079,Manufacture of other food products n.e.c.,class
+10793,1079,Manufacture of other food products n.e.c.,class
+10794,1079,Manufacture of other food products n.e.c.,class
+10795,1079,Manufacture of other food products n.e.c.,class
+10796,1079,Manufacture of other food products n.e.c.,class
+10799,1079,Manufacture of other food products n.e.c.,class
+108,108,Manufacture of prepared animal feeds,exact
+1080,1080,Manufacture of prepared animal feeds,exact
+10801,1080,Manufacture of prepared animal feeds,class
+10802,1080,Manufacture of prepared animal feeds,class
+11,11,Manufacture of beverages,exact
+110,110,Manufacture of beverages,exact
+1101,1101,"Distilling, rectifying and blending of spirits",exact
+11010,1101,"Distilling, rectifying and blending of spirits",class
+1102,1102,Manufacture of wines,exact
+11020,1102,Manufacture of wines,class
+1103,1103,Manufacture of malt liquors and malt,exact
+11031,1103,Manufacture of malt liquors and malt,class
+11032,1103,Manufacture of malt liquors and malt,class
+1104,1104,Manufacture of soft drinks; production of mineral waters and other bottled waters,exact
+11040,1104,Manufacture of soft drinks; production of mineral waters and other bottled waters,class
+1105,110,Manufacture of beverages,group
+11051,110,Manufacture of beverages,group
+11052,110,Manufacture of beverages,group
+1109,110,Manufacture of beverages,group
+11090,110,Manufacture of beverages,group
+12,12,Manufacture of tobacco products,exact
+120,120,Manufacture of tobacco products,exact
+1201,120,Manufacture of tobacco products,group
+12011,120,Manufacture of tobacco products,group
+12012,120,Manufacture of tobacco products,group
+12013,120,Manufacture of tobacco products,group
+12019,120,Manufacture of tobacco products,group
+1209,120,Manufacture of tobacco products,group
+12091,120,Manufacture of tobacco products,group
+12099,120,Manufacture of tobacco products,group
+13,13,Manufacture of textiles,exact
+131,131,"Spinning, weaving and finishing of textiles",exact
+1311,1311,Preparation and spinning of textile fibres,exact
+13111,1311,Preparation and spinning of textile fibres,class
+13112,1311,Preparation and spinning of textile fibres,class
+13113,1311,Preparation and spinning of textile fibres,class
+1312,1312,Weaving of textiles,exact
+13121,1312,Weaving of textiles,class
+13122,1312,Weaving of textiles,class
+13123,1312,Weaving of textiles,class
+1313,1313,Finishing of textiles,exact
+13131,1313,Finishing of textiles,class
+13132,1313,Finishing of textiles,class
+13133,1313,Finishing of textiles,class
+13134,1313,Finishing of textiles,class
+139,139,Manufacture of other textiles,exact
+1391,1391,Manufacture of knitted and crocheted fabrics,exact
+13911,1391,Manufacture of knitted and crocheted fabrics,class
+13912,1391,Manufacture of knitted and crocheted fabrics,class
+13913,1391,Manufacture of knitted and crocheted fabrics,class
+1392,1392,"Manufacture of made-up textile articles, except apparel",exact
+13921,1392,"Manufacture of made-up textile articles, except apparel",class
+13922,1392,"Manufacture of made-up textile articles, except apparel",class
+13923,1392,"Manufacture of made-up textile articles, except apparel",class
+13924,1392,"Manufacture of made-up textile articles, except apparel",class
+13925,1392,"Manufacture of made-up textile articles, except apparel",class
+13926,1392,"Manufacture of made-up textile articles, except apparel",class
+13929,1392,"Manufacture of made-up textile articles, except apparel",class
+1393,1393,Manufacture of carpets and rugs,exact
+13930,1393,Manufacture of carpets and rugs,class
+1394,1394,"Manufacture of cordage, rope, twine and netting",exact
+13941,1394,"Manufacture of cordage, rope, twine and netting",class
+13942,1394,"Manufacture of cordage, rope, twine and netting",class
+1399,1399,Manufacture of other textiles n.e.c.,exact
+13991,1399,Manufacture of other textiles n.e.c.,class
+13992,1399,Manufacture of other textiles n.e.c.,class
+13993,1399,Manufacture of other textiles n.e.c.,class
+13994,1399,Manufacture of other textiles n.e.c.,class
+13995,1399,Manufacture of other textiles n.e.c.,class
+13996,1399,Manufacture of other textiles n.e.c.,class
+13999,1399,Manufacture of other textiles n.e.c.,class
+14,14,Manufacture of wearing apparel,exact
+141,141,"Manufacture of wearing apparel, except fur apparel",exact
+1411,141,"Manufacture of wearing apparel, except fur apparel",group
+14111,141,"Manufacture of wearing apparel, except fur apparel",group
+14112,141,"Manufacture of wearing apparel, except fur apparel",group
+1412,141,"Manufacture of wearing apparel, except fur apparel",group
+14120,141,"Manufacture of wearing apparel, except fur apparel",group
+1413,141,"Manufacture of wearing apparel, except fur apparel",group
+14131,141,"Manufacture of wearing apparel, except fur apparel",group
+14132,141,"Manufacture of wearing apparel, except fur apparel",group
+142,142,Manufacture of articles of fur,exact
+1420,1420,Manufacture of articles of fur,exact
+14200,1420,Manufacture of articles of fur,class
+143,143,Manufacture of knitted and crocheted apparel,exact
+1430,1430,Manufacture of knitted and crocheted apparel,exact
+14301,1430,Manufacture of knitted and crocheted apparel,class
+14302,1430,Manufacture of knitted and crocheted apparel,class
+14303,1430,Manufacture of knitted and crocheted apparel,class
+15,15,Manufacture of leather and related products,exact
+151,151,"Tanning and dressing of leather; manufacture of luggage, handbags, saddlery and harness; dressing and dyeing of fur",exact
+1511,1511,Tanning and dressing of leather; dressing and dyeing of fur,exact
+15111,1511,Tanning and dressing of leather; dressing and dyeing of fur,class
+15112,1511,Tanning and dressing of leather; dressing and dyeing of fur,class
+15113,1511,Tanning and dressing of leather; dressing and dyeing of fur,class
+15114,1511,Tanning and dressing of leather; dressing and dyeing of fur,class
+1512,1512,"Manufacture of luggage, handbags and the like, saddlery and harness",exact
+15121,1512,"Manufacture of luggage, handbags and the like, saddlery and harness",class
+15122,1512,"Manufacture of luggage, handbags and the like, saddlery and harness",class
+15123,1512,"Manufacture of luggage, handbags and the like, saddlery and harness",class
+15129,1512,"Manufacture of luggage, handbags and the like, saddlery and harness",class
+152,152,Manufacture of footwear,exact
+1520,1520,Manufacture of footwear,exact
+15201,1520,Manufacture of footwear,class
+15202,1520,Manufacture of footwear,class
+15203,1520,Manufacture of footwear,class
+15209,1520,Manufacture of footwear,class
+16,16,"Manufacture of wood and of products of wood and cork, except furniture; manufacture of articles of straw and plaiting materials",exact
+161,161,Sawmilling and planing of wood,exact
+1610,1610,Sawmilling and planing of wood,exact
+16101,1610,Sawmilling and planing of wood,class
+16102,1610,Sawmilling and planing of wood,class
+16103,1610,Sawmilling and planing of wood,class
+16104,1610,Sawmilling and planing of wood,class
+16105,1610,Sawmilling and planing of wood,class
+162,162,"Manufacture of products of wood, cork, straw and plaiting materials",exact
+1621,1621,Manufacture of veneer sheets and wood-based panels,exact
+16211,1621,Manufacture of veneer sheets and wood-based panels,class
+16212,1621,Manufacture of veneer sheets and wood-based panels,class
+16213,1621,Manufacture of veneer sheets and wood-based panels,class
+16214,1621,Manufacture of veneer sheets and wood-based panels,class
+16215,1621,Manufacture of veneer sheets and wood-based panels,class
+1622,1622,Manufacture of builders' carpentry and joinery,exact
+16221,1622,Manufacture of builders' carpentry and joinery,class
+16222,1622,Manufacture of builders' carpentry and joinery,class
+1623,1623,Manufacture of wooden containers,exact
+16230,1623,Manufacture of wooden containers,class
+1629,1629,"Manufacture of other products of wood; manufacture of articles of cork, straw and plaiting materials",exact
+16291,1629,"Manufacture of other products of wood; manufacture of articles of cork, straw and plaiting materials",class
+16292,1629,"Manufacture of other products of wood; manufacture of articles of cork, straw and plaiting materials",class
+16293,1629,"Manufacture of other products of wood; manufacture of articles of cork, straw and plaiting materials",class
+16294,1629,"Manufacture of other products of wood; manufacture of articles of cork, straw and plaiting materials",class
+16295,1629,"Manufacture of other products of wood; manufacture of articles of cork, straw and plaiting materials",class
+16299,1629,"Manufacture of other products of wood; manufacture of articles of cork, straw and plaiting materials",class
+17,17,Manufacture of paper and paper products,exact
+170,170,Manufacture of paper and paper products,exact
+1701,1701,"Manufacture of pulp, paper and paperboard",exact
+17011,1701,"Manufacture of pulp, paper and paperboard",class
+17012,1701,"Manufacture of pulp, paper and paperboard",class
+17013,1701,"Manufacture of pulp, paper and paperboard",class
+17014,1701,"Manufacture of pulp, paper and paperboard",class
+17019,1701,"Manufacture of pulp, paper and paperboard",class
+1702,1702,Manufacture of corrugated paper and paperboard and of containers of paper and paperboard,exact
+17021,1702,Manufacture of corrugated paper and paperboard and of containers of paper and paperboard,class
+17022,1702,Manufacture of corrugated paper and paperboard and of containers of paper and paperboard,class
+1709,1709,Manufacture of other articles of paper and paperboard,exact
+17091,1709,Manufacture of other articles of paper and paperboard,class
+17099,1709,Manufacture of other articles of paper and paperboard,class
+18,18,Printing and reproduction of recorded media,exact
+181,181,Printing and service activities related to printing,exact
+1811,1811,Printing,exact
+18111,1811,Printing,class
+18112,1811,Printing,class
+18113,1811,Printing,class
+1812,1812,Service activities related to printing,exact
+18120,1812,Service activities related to printing,class
+182,182,Reproduction of recorded media,exact
+1820,1820,Reproduction of recorded media,exact
+18201,1820,Reproduction of recorded media,class
+18202,1820,Reproduction of recorded media,class
+19,19,Manufacture of coke and refined petroleum products,exact
+191,191,Manufacture of coke oven products,exact
+1910,1910,Manufacture of coke oven products,exact
+19100,1910,Manufacture of coke oven products,class
+192,192,Manufacture of refined petroleum products,exact
+1921,192,Manufacture of refined petroleum products,group
+19211,192,Manufacture of refined petroleum products,group
+19212,192,Manufacture of refined petroleum products,group
+19213,192,Manufacture of refined petroleum products,group
+19214,192,Manufacture of refined petroleum products,group
+1929,192,Manufacture of refined petroleum products,group
+19291,192,Manufacture of refined petroleum products,group
+19292,192,Manufacture of refined petroleum products,group
+20,20,Manufacture of chemicals and chemical products,exact
+201,201,"Manufacture of basic chemicals, fertilizers and nitrogen compounds, plastics and synthetic rubber in primary forms",exact
+2011,2011,Manufacture of basic chemicals,exact
+20111,2011,Manufacture of basic chemicals,class
+20112,2011,Manufacture of basic chemicals,class
+20113,2011,Manufacture of basic chemicals,class
+20114,2011,Manufacture of basic chemicals,class
+20115,2011,Manufacture of basic chemicals,class
+20116,2011,Manufacture of basic chemicals,class
+20117,2011,Manufacture of basic chemicals,class
+20118,2011,Manufacture of basic chemicals,class
+20119,2011,Manufacture of basic chemicals,class
+2012,2012,Manufacture of fertilizers and nitrogen compounds,exact
+20121,2012,Manufacture of fertilizers and nitrogen compounds,class
+20122,2012,Manufacture of fertilizers and nitrogen compounds,class
+20123,2012,Manufacture of fertilizers and nitrogen compounds,class
+20124,2012,Manufacture of fertilizers and nitrogen compounds,class
+20125,2012,Manufacture of fertilizers and nitrogen compounds,class
+20126,2012,Manufacture of fertilizers and nitrogen compounds,class
+20127,2012,Manufacture of fertilizers and nitrogen compounds,class
+20128,2012,Manufacture of fertilizers and nitrogen compounds,class
+20129,2012,Manufacture of fertilizers and nitrogen compounds,class
+2013,2013,Manufacture of plastics and synthetic rubber in primary forms,exact
+20131,2013,Manufacture of plastics and synthetic rubber in primary forms,class
+20132,2013,Manufacture of plastics and synthetic rubber in primary forms,class
+202,202,Manufacture of other chemical products,exact
+2021,2021,Manufacture of pesticides and other agrochemical products,exact
+20211,2021,Manufacture of pesticides and other agrochemical products,class
+20212,2021,Manufacture of pesticides and other agrochemical products,class
+20213,2021,Manufacture of pesticides and other agrochemical products,class
+20214,2021,Manufacture of pesticides and other agrochemical products,class
+2022,2022,"Manufacture of paints, varnishes and similar coatings, printing ink and mastics",exact
+20221,2022,"Manufacture of paints, varnishes and similar coatings, printing ink and mastics",class
+20222,2022,"Manufacture of paints, varnishes and similar coatings, printing ink and mastics",class
+20223,2022,"Manufacture of paints, varnishes and similar coatings, printing ink and mastics",class
+2023,2023,"Manufacture of soap and detergents, cleaning and polishing preparations, perfumes and toilet preparations",exact
+20231,2023,"Manufacture of soap and detergents, cleaning and polishing preparations, perfumes and toilet preparations",class
+20232,2023,"Manufacture of soap and detergents, cleaning and polishing preparations, perfumes and toilet preparations",class
+20233,2023,"Manufacture of soap and detergents, cleaning and polishing preparations, perfumes and toilet preparations",class
+20234,2023,"Manufacture of soap and detergents, cleaning and polishing preparations, perfumes and toilet preparations",class
+2029,2029,Manufacture of other chemical products n.e.c.,exact
+20291,2029,Manufacture of other chemical products n.e.c.,class
+20292,2029,Manufacture of other chemical products n.e.c.,class
+20293,2029,Manufacture of other chemical products n.e.c.,class
+20294,2029,Manufacture of other chemical products n.e.c.,class
+20295,2029,Manufacture of other chemical products n.e.c.,class
+20296,2029,Manufacture of other chemical products n.e.c.,class
+20299,2029,Manufacture of other chemical products n.e.c.,class
+203,203,Manufacture of man-made fibres,exact
+2030,2030,Manufacture of man-made fibres,exact
+20301,2030,Manufacture of man-made fibres,class
+20302,2030,Manufacture of man-made fibres,class
+21,21,Manufacture of basic pharmaceutical products and pharmaceutical preparations,exact
+210,210,"Manufacture of pharmaceuticals, medicinal chemical and botanical products",exact
+2101,210,"Manufacture of pharmaceuticals, medicinal chemical and botanical products",group
+21011,210,"Manufacture of pharmaceuticals, medicinal chemical and botanical products",group
+21012,210,"Manufacture of pharmaceuticals, medicinal chemical and botanical products",group
+21013,210,"Manufacture of pharmaceuticals, medicinal chemical and botanical products",group
+21014,210,"Manufacture of pharmaceuticals, medicinal chemical and botanical products",group
+21015,210,"Manufacture of pharmaceuticals, medicinal chemical and botanical products",group
+2102,210,"Manufacture of pharmaceuticals, medicinal chemical and botanical products",group
+21021,210,"Manufacture of pharmaceuticals, medicinal chemical and botanical products",group
+21022,210,"Manufacture of pharmaceuticals, medicinal chemical and botanical products",group
+21023,210,"Manufacture of pharmaceuticals, medicinal chemical and botanical products",group
+21024,210,"Manufacture of pharmaceuticals, medicinal chemical and botanical products",group
+22,22,Manufacture of rubber and plastics products,exact
+221,221,Manufacture of rubber products,exact
+2211,2211,Manufacture of rubber tyres and tubes; retreading and rebuilding of rubber tyres,exact
+22111,2211,Manufacture of rubber tyres and tubes; retreading and rebuilding of rubber tyres,class
+22112,2211,Manufacture of rubber tyres and tubes; retreading and rebuilding of rubber tyres,class
+2212,221,Manufacture of rubber products,group
+22121,221,Manufacture of rubber products,group
+22122,221,Manufacture of rubber products,group
+22123,221,Manufacture of rubber products,group
+2219,2219,Manufacture of other rubber products,exact
+22191,2219,Manufacture of other rubber products,class
+22192,2219,Manufacture of other rubber products,class
+22193,2219,Manufacture of other rubber products,class
+22194,2219,Manufacture of other rubber products,class
+22199,2219,Manufacture of other rubber products,class
+222,222,Manufacture of plastics products,exact
+2221,222,Manufacture of plastics products,group
+22210,222,Manufacture of plastics products,group
+2222,222,Manufacture of plastics products,group
+22220,222,Manufacture of plastics products,group
+2223,222,Manufacture of plastics products,group
+22230,222,Manufacture of plastics products,group
+2229,222,Manufacture of plastics products,group
+22291,222,Manufacture of plastics products,group
+22292,222,Manufacture of plastics products,group
+22293,222,Manufacture of plastics products,group
+22299,222,Manufacture of plastics products,group
+23,23,Manufacture of other non-metallic mineral products,exact
+231,231,Manufacture of glass and glass products,exact
+2311,231,Manufacture of glass and glass products,group
+23111,231,Manufacture of glass and glass products,group
+23112,231,Manufacture of glass and glass products,group
+23119,231,Manufacture of glass and glass products,group
+2312,231,Manufacture of glass and glass products,group
+23121,231,Manufacture of glass and glass products,group
+23122,231,Manufacture of glass and glass products,group
+23123,231,Manufacture of glass and glass products,group
+23124,231,Manufacture of glass and glass products,group
+23129,231,Manufacture of glass and glass products,group
+239,239,Manufacture of non-metallic mineral products n.e.c.,exact
+2391,2391,Manufacture of refractory products,exact
+23911,2391,Manufacture of refractory products,class
+23919,2391,Manufacture of refractory products,class
+2392,2392,Manufacture of clay building materials,exact
+23921,2392,Manufacture of clay building materials,class
+23922,2392,Manufacture of clay building materials,class
+23923,2392,Manufacture of clay building materials,class
+23929,2392,Manufacture of clay building materials,class
+2393,2393,Manufacture of other porcelain and ceramic products,exact
+23931,2393,Manufacture of other porcelain and ceramic products,class
+23932,2393,Manufacture of other porcelain and ceramic products,class
+23933,2393,Manufacture of other porcelain and ceramic products,class
+23939,2393,Manufacture of other porcelain and ceramic products,class
+2394,2394,"Manufacture of cement, lime and plaster",exact
+23941,2394,"Manufacture of cement, lime and plaster",class
+23942,2394,"Manufacture of cement, lime and plaster",class
+23943,2394,"Manufacture of cement, lime and plaster",class
+2395,2395,"Manufacture of articles of concrete, cement and plaster",exact
+23951,2395,"Manufacture of articles of concrete, cement and plaster",class
+23952,2395,"Manufacture of articles of concrete, cement and plaster",class
+23953,2395,"Manufacture of articles of concrete, cement and plaster",class
+23954,2395,"Manufacture of articles of concrete, cement and plaster",class
+23955,2395,"Manufacture of articles of concrete, cement and plaster",class
+23956,2395,"Manufacture of articles of concrete, cement and plaster",class
+23957,2395,"Manufacture of articles of concrete, cement and plaster",class
+23959,2395,"Manufacture of articles of concrete, cement and plaster",class
+2396,2396,"Cutting, shaping and finishing of stone",exact
+23961,2396,"Cutting, shaping and finishing of stone",class
+23962,2396,"Cutting, shaping and finishing of stone",class
+23963,2396,"Cutting, shaping and finishing of stone",class
+23969,2396,"Cutting, shaping and finishing of stone",class
+2399,2399,Manufacture of other non-metallic mineral products n.e.c.,exact
+23990,2399,Manufacture of other non-metallic mineral products n.e.c.,class
+24,24,Manufacture of basic metals,exact
+241,241,Manufacture of basic iron and steel,exact
+2410,2410,Manufacture of basic iron and steel,exact
+24101,2410,Manufacture of basic iron and steel,class
+24102,2410,Manufacture of basic iron and steel,class
+24103,2410,Manufacture of basic iron and steel,class
+242,242,Manufacture of basic precious and other non-ferrous metals,exact
+2420,2420,Manufacture of basic precious and other non-ferrous metals,exact
+24201,2420,Manufacture of basic precious and other non-ferrous metals,class
+24202,2420,Manufacture of basic precious and other non-ferrous metals,class
+24203,2420,Manufacture of basic precious and other non-ferrous metals,class
+24204,2420,Manufacture of basic precious and other non-ferrous metals,class
+24205,2420,Manufacture of basic precious and other non-ferrous metals,class
+24206,2420,Manufacture of basic precious and other non-ferrous metals,class
+243,243,Casting of metals,exact
+2431,2431,Casting of iron and steel,exact
+24310,2431,Casting of iron and steel,class
+2432,2432,Casting of non-ferrous metals,exact
+24320,2432,Casting of non-ferrous metals,class
+25,25,"Manufacture of fabricated metal products, except machinery and equipment",exact
+251,251,"Manufacture of structural metal products, tanks, reservoirs and steam generators",exact
+2511,2511,Manufacture of structural metal products,exact
+25111,2511,Manufacture of structural metal products,class
+25112,2511,Manufacture of structural metal products,class
+25113,2511,Manufacture of structural metal products,class
+25119,2511,Manufacture of structural metal products,class
+2512,2512,"Manufacture of tanks, reservoirs and containers of metal",exact
+25120,2512,"Manufacture of tanks, reservoirs and containers of metal",class
+2513,2513,"Manufacture of steam generators, except central heating hot water boilers",exact
+25130,2513,"Manufacture of steam generators, except central heating hot water boilers",class
+252,252,Manufacture of weapons and ammunition,exact
+2520,2520,Manufacture of weapons and ammunition,exact
+25200,2520,Manufacture of weapons and ammunition,class
+259,259,Manufacture of other fabricated metal products; metalworking service activities,exact
+2591,2591,"Forging, pressing, stamping and roll-forming of metal; powder metallurgy",exact
+25910,2591,"Forging, pressing, stamping and roll-forming of metal; powder metallurgy",class
+2592,2592,Treatment and coating of metals; machining,exact
+25920,2592,Treatment and coating of metals; machining,class
+2593,2593,"Manufacture of cutlery, hand tools and general hardware",exact
+25931,2593,"Manufacture of cutlery, hand tools and general hardware",class
+25932,2593,"Manufacture of cutlery, hand tools and general hardware",class
+25933,2593,"Manufacture of cutlery, hand tools and general hardware",class
+25934,2593,"Manufacture of cutlery, hand tools and general hardware",class
+2594,259,Manufacture of other fabricated metal products; metalworking service activities,group
+25940,259,Manufacture of other fabricated metal products; metalworking service activities,group
+2595,259,Manufacture of other fabricated metal products; metalworking service activities,group
+25951,259,Manufacture of other fabricated metal products; metalworking service activities,group
+25952,259,Manufacture of other fabricated metal products; metalworking service activities,group
+2599,2599,Manufacture of other fabricated metal products n.e.c.,exact
+25991,2599,Manufacture of other fabricated metal products n.e.c.,class
+25992,2599,Manufacture of other fabricated metal products n.e.c.,class
+25993,2599,Manufacture of other fabricated metal products n.e.c.,class
+25994,2599,Manufacture of other fabricated metal products n.e.c.,class
+25995,2599,Manufacture of other fabricated metal products n.e.c.,class
+25999,2599,Manufacture of other fabricated metal products n.e.c.,class
+26,26,"Manufacture of computer, electronic and optical products",exact
+261,261,Manufacture of electronic components and boards,exact
+2611,261,Manufacture of electronic components and boards,group
+26110,261,Manufacture of electronic components and boards,group
+2612,261,Manufacture of electronic components and boards,group
+26120,261,Manufacture of electronic components and boards,group
+262,262,Manufacture of computers and peripheral equipment,exact
+2621,262,Manufacture of computers and peripheral equipment,group
+26210,262,Manufacture of computers and peripheral equipment,group
+2622,262,Manufacture of computers and peripheral equipment,group
+26220,262,Manufacture of computers and peripheral equipment,group
+263,263,Manufacture of communication equipment,exact
+2631,263,Manufacture of communication equipment,group
+26310,263,Manufacture of communication equipment,group
+2632,263,Manufacture of communication equipment,group
+26320,263,Manufacture of communication equipment,group
+2639,263,Manufacture of communication equipment,group
+26391,263,Manufacture of communication equipment,group
+26399,263,Manufacture of communication equipment,group
+264,264,Manufacture of consumer electronics,exact
+2641,264,Manufacture of consumer electronics,group
+26410,264,Manufacture of consumer electronics,group
+2642,264,Manufacture of consumer electronics,group
+26420,264,Manufacture of consumer electronics,group
+2649,264,Manufacture of consumer electronics,group
+26490,264,Manufacture of consumer electronics,group
+265,265,"Manufacture of measuring, testing, navigating and control equipment; watches and clocks",exact
+2651,2651,"Manufacture of measuring, testing, navigating and control equipment",exact
+26511,2651,"Manufacture of measuring, testing, navigating and control equipment",class
+26512,2651,"Manufacture of measuring, testing, navigating and control equipment",class
+26513,2651,"Manufacture of measuring, testing, navigating and control equipment",class
+26514,2651,"Manufacture of measuring, testing, navigating and control equipment",class
+2652,2652,Manufacture of watches and clocks,exact
+26520,2652,Manufacture of watches and clocks,class
+266,266,"Manufacture of irradiation, electromedical and electrotherapeutic equipment",exact
+2660,2660,"Manufacture of irradiation, electromedical and electrotherapeutic equipment",exact
+26601,2660,"Manufacture of irradiation, electromedical and electrotherapeutic equipment",class
+26602,2660,"Manufacture of irradiation, electromedical and electrotherapeutic equipment",class
+267,267,Manufacture of optical instruments and photographic equipment,exact
+2671,267,Manufacture of optical instruments and photographic equipment,group
+26710,267,Manufacture of optical instruments and photographic equipment,group
+2679,267,Manufacture of optical instruments and photographic equipment,group
+26791,267,Manufacture of optical instruments and photographic equipment,group
+26792,267,Manufacture of optical instruments and photographic equipment,group
+268,268,Manufacture of magnetic and optical media,exact
+2680,2680,Manufacture of magnetic and optical media,exact
+26800,2680,Manufacture of magnetic and optical media,class
+27,27,Manufacture of electrical equipment,exact
+271,271,"Manufacture of electric motors, generators, transformers and electricity distribution and control apparatus",exact
+2711,271,"Manufacture of electric motors, generators, transformers and electricity distribution and control apparatus",group
+27111,271,"Manufacture of electric motors, generators, transformers and electricity distribution and control apparatus",group
+27112,271,"Manufacture of electric motors, generators, transformers and electricity distribution and control apparatus",group
+27113,271,"Manufacture of electric motors, generators, transformers and electricity distribution and control apparatus",group
+2712,271,"Manufacture of electric motors, generators, transformers and electricity distribution and control apparatus",group
+27120,271,"Manufacture of electric motors, generators, transformers and electricity distribution and control apparatus",group
+272,272,Manufacture of batteries and accumulators,exact
+2720,2720,Manufacture of batteries and accumulators,exact
+27201,2720,Manufacture of batteries and accumulators,class
+27202,2720,Manufacture of batteries and accumulators,class
+27203,2720,Manufacture of batteries and accumulators,class
+273,273,Manufacture of wiring and wiring devices,exact
+2731,2731,Manufacture of fibre optic cables,exact
+27310,2731,Manufacture of fibre optic cables,class
+2732,2732,Manufacture of other electronic and electric wires and cables,exact
+27320,2732,Manufacture of other electronic and electric wires and cables,class
+2733,2733,Manufacture of wiring devices,exact
+27330,2733,Manufacture of wiring devices,class
+274,274,Manufacture of electric lighting equipment,exact
+2740,2740,Manufacture of electric lighting equipment,exact
+27401,2740,Manufacture of electric lighting equipment,class
+27402,2740,Manufacture of electric lighting equipment,class
+27403,2740,Manufacture of electric lighting equipment,class
+27404,2740,Manufacture of electric lighting equipment,class
+27409,2740,Manufacture of electric lighting equipment,class
+275,275,Manufacture of domestic appliances,exact
+2751,275,Manufacture of domestic appliances,group
+27510,275,Manufacture of domestic appliances,group
+2752,275,Manufacture of domestic appliances,group
+27520,275,Manufacture of domestic appliances,group
+2753,275,Manufacture of domestic appliances,group
+27530,275,Manufacture of domestic appliances,group
+279,279,Manufacture of other electrical equipment,exact
+2790,2790,Manufacture of other electrical equipment,exact
+27900,2790,Manufacture of other electrical equipment,class
+28,28,Manufacture of machinery and equipment n.e.c.,exact
+281,281,Manufacture of general-purpose machinery,exact
+2811,2811,"Manufacture of engines and turbines, except aircraft, vehicle and cycle engines",exact
+28111,2811,"Manufacture of engines and turbines, except aircraft, vehicle and cycle engines",class
+28112,2811,"Manufacture of engines and turbines, except aircraft, vehicle and cycle engines",class
+28113,2811,"Manufacture of engines and turbines, except aircraft, vehicle and cycle engines",class
+2812,2812,Manufacture of fluid power equipment,exact
+28120,2812,Manufacture of fluid power equipment,class
+2813,2813,"Manufacture of other pumps, compressors, taps and valves",exact
+28130,2813,"Manufacture of other pumps, compressors, taps and valves",class
+2814,2814,"Manufacture of bearings, gears, gearing and driving elements",exact
+28140,2814,"Manufacture of bearings, gears, gearing and driving elements",class
+2815,2815,"Manufacture of ovens, furnaces and furnace burners",exact
+28151,2815,"Manufacture of ovens, furnaces and furnace burners",class
+28152,2815,"Manufacture of ovens, furnaces and furnace burners",class
+2816,2816,Manufacture of lifting and handling equipment,exact
+28160,2816,Manufacture of lifting and handling equipment,class
+2817,2817,Manufacture of office machinery and equipment (except computers and peripheral equipment),exact
+28171,2817,Manufacture of office machinery and equipment (except computers and peripheral equipment),class
+28172,2817,Manufacture of office machinery and equipment (except computers and peripheral equipment),class
+28173,2817,Manufacture of office machinery and equipment (except computers and peripheral equipment),class
+28174,2817,Manufacture of office machinery and equipment (except computers and peripheral equipment),class
+28179,2817,Manufacture of office machinery and equipment (except computers and peripheral equipment),class
+2818,2818,Manufacture of power-driven hand tools,exact
+28180,2818,Manufacture of power-driven hand tools,class
+2819,2819,Manufacture of other general-purpose machinery,exact
+28191,2819,Manufacture of other general-purpose machinery,class
+28192,2819,Manufacture of other general-purpose machinery,class
+28193,2819,Manufacture of other general-purpose machinery,class
+28199,2819,Manufacture of other general-purpose machinery,class
+282,282,Manufacture of special-purpose machinery,exact
+2821,2821,Manufacture of agricultural and forestry machinery,exact
+28210,2821,Manufacture of agricultural and forestry machinery,class
+2822,2822,Manufacture of metal-forming machinery and machine tools,exact
+28221,2822,Manufacture of metal-forming machinery and machine tools,class
+28222,2822,Manufacture of metal-forming machinery and machine tools,class
+28223,2822,Manufacture of metal-forming machinery and machine tools,class
+28224,2822,Manufacture of metal-forming machinery and machine tools,class
+2823,2823,Manufacture of machinery for metallurgy,exact
+28230,2823,Manufacture of machinery for metallurgy,class
+2824,2824,"Manufacture of machinery for mining, quarrying and construction",exact
+28240,2824,"Manufacture of machinery for mining, quarrying and construction",class
+2825,2825,"Manufacture of machinery for food, beverage and tobacco processing",exact
+28250,2825,"Manufacture of machinery for food, beverage and tobacco processing",class
+2826,2826,"Manufacture of machinery for textile, apparel and leather production",exact
+28261,2826,"Manufacture of machinery for textile, apparel and leather production",class
+28262,2826,"Manufacture of machinery for textile, apparel and leather production",class
+28263,2826,"Manufacture of machinery for textile, apparel and leather production",class
+28264,2826,"Manufacture of machinery for textile, apparel and leather production",class
+28265,2826,"Manufacture of machinery for textile, apparel and leather production",class
+2829,2829,Manufacture of other special-purpose machinery,exact
+28291,2829,Manufacture of other special-purpose machinery,class
+28292,2829,Manufacture of other special-purpose machinery,class
+28299,2829,Manufacture of other special-purpose machinery,class
+29,29,"Manufacture of motor vehicles, trailers and semi-trailers",exact
+291,291,Manufacture of motor vehicles,exact
+2910,2910,Manufacture of motor vehicles,exact
+29101,2910,Manufacture of motor vehicles,class
+29102,2910,Manufacture of motor vehicles,class
+292,292,Manufacture of bodies (coachwork) for motor vehicles; manufacture of trailers and semi-trailers,exact
+2920,2920,Manufacture of bodies (coachwork) for motor vehicles; manufacture of trailers and semi-trailers,exact
+29200,2920,Manufacture of bodies (coachwork) for motor vehicles; manufacture of trailers and semi-trailers,class
+293,293,Manufacture of parts and accessories for motor vehicles,exact
+2930,2930,Manufacture of parts and accessories for motor vehicles,exact
+29300,2930,Manufacture of parts and accessories for motor vehicles,class
+30,30,Manufacture of other transport equipment,exact
+301,301,Building of ships and boats,exact
+3011,3011,Building of ships and floating structures,exact
+30111,3011,Building of ships and floating structures,class
+30112,3011,Building of ships and floating structures,class
+30113,3011,Building of ships and floating structures,class
+3012,3012,Building of pleasure and sporting boats,exact
+30120,3012,Building of pleasure and sporting boats,class
+302,302,Manufacture of railway locomotives and rolling stock,exact
+3020,3020,Manufacture of railway locomotives and rolling stock,exact
+30200,3020,Manufacture of railway locomotives and rolling stock,class
+303,303,Manufacture of air and spacecraft and related machinery,exact
+3030,3030,Manufacture of air and spacecraft and related machinery,exact
+30300,3030,Manufacture of air and spacecraft and related machinery,class
+304,304,Manufacture of military fighting vehicles,exact
+3040,3040,Manufacture of military fighting vehicles,exact
+30400,3040,Manufacture of military fighting vehicles,class
+309,309,Manufacture of transport equipment n.e.c.,exact
+3091,3091,Manufacture of motorcycles,exact
+30911,3091,Manufacture of motorcycles,class
+30912,3091,Manufacture of motorcycles,class
+3092,3092,Manufacture of bicycles and invalid carriages,exact
+30921,3092,Manufacture of bicycles and invalid carriages,class
+30922,3092,Manufacture of bicycles and invalid carriages,class
+3099,3099,Manufacture of other transport equipment n.e.c.,exact
+30990,3099,Manufacture of other transport equipment n.e.c.,class
+31,31,Manufacture of furniture,exact
+310,310,Manufacture of furniture,exact
+3100,3100,Manufacture of furniture,exact
+31001,3100,Manufacture of furniture,class
+31002,3100,Manufacture of furniture,class
+31003,3100,Manufacture of furniture,class
+31004,3100,Manufacture of furniture,class
+31009,3100,Manufacture of furniture,class
+32,32,Other manufacturing,exact
+321,321,"Manufacture of jewellery, bijouterie and related articles",exact
+3211,3211,Manufacture of jewellery and related articles,exact
+32111,3211,Manufacture of jewellery and related articles,class
+32112,3211,Manufacture of jewellery and related articles,class
+32113,3211,Manufacture of jewellery and related articles,class
+32114,3211,Manufacture of jewellery and related articles,class
+32115,3211,Manufacture of jewellery and related articles,class
+32119,3211,Manufacture of jewellery and related articles,class
+3212,3212,Manufacture of imitation jewellery and related articles,exact
+32120,3212,Manufacture of imitation jewellery and related articles,class
+322,322,Manufacture of musical instruments,exact
+3220,3220,Manufacture of musical instruments,exact
+32201,3220,Manufacture of musical instruments,class
+32202,3220,Manufacture of musical instruments,class
+323,323,Manufacture of sports goods,exact
+3230,3230,Manufacture of sports goods,exact
+32300,3230,Manufacture of sports goods,class
+324,324,Manufacture of games and toys,exact
+3240,3240,Manufacture of games and toys,exact
+32401,3240,Manufacture of games and toys,class
+32402,3240,Manufacture of games and toys,class
+325,325,Manufacture of medical and dental instruments and supplies,exact
+3250,3250,Manufacture of medical and dental instruments and supplies,exact
+32501,3250,Manufacture of medical and dental instruments and supplies,class
+32502,3250,Manufacture of medical and dental instruments and supplies,class
+32503,3250,Manufacture of medical and dental instruments and supplies,class
+32509,3250,Manufacture of medical and dental instruments and supplies,class
+329,329,Other manufacturing n.e.c.,exact
+3290,3290,Other manufacturing n.e.c.,exact
+32901,3290,Other manufacturing n.e.c.,class
+32902,3290,Other manufacturing n.e.c.,class
+32903,3290,Other manufacturing n.e.c.,class
+32904,3290,Other manufacturing n.e.c.,class
+32905,3290,Other manufacturing n.e.c.,class
+32906,3290,Other manufacturing n.e.c.,class
+32907,3290,Other manufacturing n.e.c.,class
+32909,3290,Other manufacturing n.e.c.,class
+33,33,Repair and installation of machinery and equipment,exact
+331,331,"Repair of fabricated metal products, machinery and equipment",exact
+3311,3311,Repair of fabricated metal products,exact
+33111,3311,Repair of fabricated metal products,class
+33112,3311,Repair of fabricated metal products,class
+33119,3311,Repair of fabricated metal products,class
+3312,3312,Repair of machinery,exact
+33121,3312,Repair of machinery,class
+33122,3312,Repair of machinery,class
+3313,3313,Repair of electronic and optical equipment,exact
+33131,3313,Repair of electronic and optical equipment,class
+33132,3313,Repair of electronic and optical equipment,class
+33133,3313,Repair of electronic and optical equipment,class
+3314,3314,Repair of electrical equipment,exact
+33141,3314,Repair of electrical equipment,class
+33142,3314,Repair of electrical equipment,class
+33149,3314,Repair of electrical equipment,class
+3315,3315,"Repair of transport equipment, except motor vehicles",exact
+33151,3315,"Repair of transport equipment, except motor vehicles",class
+33152,3315,"Repair of transport equipment, except motor vehicles",class
+33153,3315,"Repair of transport equipment, except motor vehicles",class
+33159,3315,"Repair of transport equipment, except motor vehicles",class
+3319,3319,Repair of other equipment,exact
+33190,3319,Repair of other equipment,class
+332,332,Installation of industrial machinery and equipment,exact
+3320,3320,Installation of industrial machinery and equipment,exact
+33200,3320,Installation of industrial machinery and equipment,class
+35,35,"Electricity, gas, steam and air conditioning supply",exact
+351,351,"Electric power generation, transmission and distribution",exact
+3511,351,"Electric power generation, transmission and distribution",group
+35111,351,"Electric power generation, transmission and distribution",group
+35112,351,"Electric power generation, transmission and distribution",group
+35113,351,"Electric power generation, transmission and distribution",group
+35114,351,"Electric power generation, transmission and distribution",group
+35115,351,"Electric power generation, transmission and distribution",group
+35116,351,"Electric power generation, transmission and distribution",group
+35117,351,"Electric power generation, transmission and distribution",group
+35118,351,"Electric power generation, transmission and distribution",group
+3512,351,"Electric power generation, transmission and distribution",group
+35121,351,"Electric power generation, transmission and distribution",group
+35122,351,"Electric power generation, transmission and distribution",group
+35129,351,"Electric power generation, transmission and distribution",group
+352,352,Manufacture of gas; distribution of gaseous fuels through mains,exact
+3520,3520,Manufacture of gas; distribution of gaseous fuels through mains,exact
+35201,3520,Manufacture of gas; distribution of gaseous fuels through mains,class
+35202,3520,Manufacture of gas; distribution of gaseous fuels through mains,class
+35203,3520,Manufacture of gas; distribution of gaseous fuels through mains,class
+353,353,Steam and air conditioning supply,exact
+3530,3530,Steam and air conditioning supply,exact
+35301,3530,Steam and air conditioning supply,class
+35302,3530,Steam and air conditioning supply,class
+36,36,"Water collection, treatment and supply",exact
+360,360,"Water collection, treatment and supply",exact
+3600,3600,"Water collection, treatment and supply",exact
+36001,3600,"Water collection, treatment and supply",class
+36002,3600,"Water collection, treatment and supply",class
+36003,3600,"Water collection, treatment and supply",class
+37,37,Sewerage,exact
+370,370,Sewerage,exact
+3701,370,Sewerage,group
+37011,370,Sewerage,group
+37012,370,Sewerage,group
+3702,370,Sewerage,group
+37021,370,Sewerage,group
+37022,370,Sewerage,group
+38,38,"Waste collection, treatment and disposal activities; materials recovery",exact
+381,381,Waste collection,exact
+3811,3811,Collection of non-hazardous waste,exact
+38110,3811,Collection of non-hazardous waste,class
+3812,3812,Collection of hazardous waste,exact
+38120,3812,Collection of hazardous waste,class
+382,382,Waste treatment and disposal,exact
+3821,3821,Treatment and disposal of non-hazardous waste,exact
+38211,3821,Treatment and disposal of non-hazardous waste,class
+38212,3821,Treatment and disposal of non-hazardous waste,class
+3822,3822,Treatment and disposal of hazardous waste,exact
+38220,3822,Treatment and disposal of hazardous waste,class
+383,383,Materials recovery,exact
+3830,3830,Materials recovery,exact
+38301,3830,Materials recovery,class
+38302,3830,Materials recovery,class
+39,39,Remediation activities and other waste management services,exact
+390,390,Remediation activities and other waste management services,exact
+3900,3900,Remediation activities and other waste management services,exact
+39000,3900,Remediation activities and other waste management services,class
+41,41,Construction of buildings,exact
+410,410,Construction of buildings,exact
+4101,410,Construction of buildings,group
+41011,410,Construction of buildings,group
+41012,410,Construction of buildings,group
+41013,410,Construction of buildings,group
+41014,410,Construction of buildings,group
+41015,410,Construction of buildings,group
+41016,410,Construction of buildings,group
+41017,410,Construction of buildings,group
+41018,410,Construction of buildings,group
+41019,410,Construction of buildings,group
+4102,410,Construction of buildings,group
+41020,410,Construction of buildings,group
+42,42,Civil engineering,exact
+421,421,Construction of roads and railways,exact
+4210,4210,Construction of roads and railways,exact
+42101,4210,Construction of roads and railways,class
+42102,4210,Construction of roads and railways,class
+42103,4210,Construction of roads and railways,class
+42104,4210,Construction of roads and railways,class
+422,422,Construction of utility projects,exact
+4220,4220,Construction of utility projects,exact
+42201,4220,Construction of utility projects,class
+42202,4220,Construction of utility projects,class
+42203,4220,Construction of utility projects,class
+42204,4220,Construction of utility projects,class
+42205,4220,Construction of utility projects,class
+42206,4220,Construction of utility projects,class
+42207,4220,Construction of utility projects,class
+42209,4220,Construction of utility projects,class
+429,429,Construction of other civil engineering projects,exact
+4291,429,Construction of other civil engineering projects,group
+42911,429,Construction of other civil engineering projects,group
+42912,429,Construction of other civil engineering projects,group
+42913,429,Construction of other civil engineering projects,group
+42914,429,Construction of other civil engineering projects,group
+42915,429,Construction of other civil engineering projects,group
+42916,429,Construction of other civil engineering projects,group
+42917,429,Construction of other civil engineering projects,group
+42918,429,Construction of other civil engineering projects,group
+42919,429,Construction of other civil engineering projects,group
+4292,429,Construction of other civil engineering projects,group
+42921,429,Construction of other civil engineering projects,group
+42922,429,Construction of other civil engineering projects,group
+42923,429,Construction of other civil engineering projects,group
+42924,429,Construction of other civil engineering projects,group
+42929,429,Construction of other civil engineering projects,group
+4293,429,Construction of other civil engineering projects,group
+42930,429,Construction of other civil engineering projects,group
+43,43,Specialized construction activities,exact
+431,431,Demolition and site preparation,exact
+4311,4311,Demolition,exact
+43110,4311,Demolition,class
+4312,4312,Site preparation,exact
+43120,4312,Site preparation,class
+432,432,"Electrical, plumbing and other construction installation activities",exact
+4321,4321,Electrical installation,exact
+43211,4321,Electrical installation,class
+43212,4321,Electrical installation,class
+43213,4321,Electrical installation,class
+43214,4321,Electrical installation,class
+43215,4321,Electrical installation,class
+43216,4321,Electrical installation,class
+4322,4322,"Plumbing, heat and air-conditioning installation",exact
+43221,4322,"Plumbing, heat and air-conditioning installation",class
+43222,4322,"Plumbing, heat and air-conditioning installation",class
+43223,4322,"Plumbing, heat and air-conditioning installation",class
+43224,4322,"Plumbing, heat and air-conditioning installation",class
+4329,4329,Other construction installation,exact
+43291,4329,Other construction installation,class
+43292,4329,Other construction installation,class
+43293,4329,Other construction installation,class
+43294,4329,Other construction installation,class
+43299,4329,Other construction installation,class
+433,433,Building completion and finishing,exact
+4330,4330,Building completion and finishing,exact
+43301,4330,Building completion and finishing,class
+43302,4330,Building completion and finishing,class
+43303,4330,Building completion and finishing,class
+43304,4330,Building completion and finishing,class
+43305,4330,Building completion and finishing,class
+43309,4330,Building completion and finishing,class
+439,439,Other specialized construction activities,exact
+4390,4390,Other specialized construction activities,exact
+43901,4390,Other specialized construction activities,class
+43902,4390,Other specialized construction activities,class
+43903,4390,Other specialized construction activities,class
+43904,4390,Other specialized construction activities,class
+43905,4390,Other specialized construction activities,class
+43909,4390,Other specialized construction activities,class
+45,45,Wholesale and retail trade and repair of motor vehicles and motorcycles,exact
+451,451,Sale of motor vehicles,exact
+4510,4510,Sale of motor vehicles,exact
+45101,4510,Sale of motor vehicles,class
+45102,4510,Sale of motor vehicles,class
+45103,4510,Sale of motor vehicles,class
+45104,4510,Sale of motor vehicles,class
+452,452,Maintenance and repair of motor vehicles,exact
+4520,4520,Maintenance and repair of motor vehicles,exact
+45201,4520,Maintenance and repair of motor vehicles,class
+45202,4520,Maintenance and repair of motor vehicles,class
+453,453,Sale of motor vehicle parts and accessories,exact
+4530,4530,Sale of motor vehicle parts and accessories,exact
+45301,4530,Sale of motor vehicle parts and accessories,class
+45302,4530,Sale of motor vehicle parts and accessories,class
+454,454,"Sale, maintenance and repair of motorcycles and related parts and accessories",exact
+4540,4540,"Sale, maintenance and repair of motorcycles and related parts and accessories",exact
+45401,4540,"Sale, maintenance and repair of motorcycles and related parts and accessories",class
+45402,4540,"Sale, maintenance and repair of motorcycles and related parts and accessories",class
+45403,4540,"Sale, maintenance and repair of motorcycles and related parts and accessories",class
+45404,4540,"Sale, maintenance and repair of motorcycles and related parts and accessories",class
+45405,4540,"Sale, maintenance and repair of motorcycles and related parts and accessories",class
+45406,4540,"Sale, maintenance and repair of motorcycles and related parts and accessories",class
+45407,4540,"Sale, maintenance and repair of motorcycles and related parts and accessories",class
+46,46,"Wholesale trade, except of motor vehicles and motorcycles",exact
+461,461,Wholesale on a fee or contract basis,exact
+4610,4610,Wholesale on a fee or contract basis,exact
+46100,4610,Wholesale on a fee or contract basis,class
+462,462,Wholesale of agricultural raw materials and live animals,exact
+4620,4620,Wholesale of agricultural raw materials and live animals,exact
+46201,4620,Wholesale of agricultural raw materials and live animals,class
+46202,4620,Wholesale of agricultural raw materials and live animals,class
+46203,4620,Wholesale of agricultural raw materials and live animals,class
+46204,4620,Wholesale of agricultural raw materials and live animals,class
+46205,4620,Wholesale of agricultural raw materials and live animals,class
+46206,4620,Wholesale of agricultural raw materials and live animals,class
+46207,4620,Wholesale of agricultural raw materials and live animals,class
+46208,4620,Wholesale of agricultural raw materials and live animals,class
+46209,4620,Wholesale of agricultural raw materials and live animals,class
+463,463,"Wholesale of food, beverages and tobacco",exact
+4631,463,"Wholesale of food, beverages and tobacco",group
+46311,463,"Wholesale of food, beverages and tobacco",group
+46312,463,"Wholesale of food, beverages and tobacco",group
+46313,463,"Wholesale of food, beverages and tobacco",group
+46314,463,"Wholesale of food, beverages and tobacco",group
+46315,463,"Wholesale of food, beverages and tobacco",group
+46319,463,"Wholesale of food, beverages and tobacco",group
+4632,463,"Wholesale of food, beverages and tobacco",group
+46321,463,"Wholesale of food, beverages and tobacco",group
+46322,463,"Wholesale of food, beverages and tobacco",group
+46323,463,"Wholesale of food, beverages and tobacco",group
+46324,463,"Wholesale of food, beverages and tobacco",group
+46325,463,"Wholesale of food, beverages and tobacco",group
+46326,463,"Wholesale of food, beverages and tobacco",group
+46327,463,"Wholesale of food, beverages and tobacco",group
+46329,463,"Wholesale of food, beverages and tobacco",group
+4633,463,"Wholesale of food, beverages and tobacco",group
+46331,463,"Wholesale of food, beverages and tobacco",group
+46332,463,"Wholesale of food, beverages and tobacco",group
+46333,463,"Wholesale of food, beverages and tobacco",group
+46334,463,"Wholesale of food, beverages and tobacco",group
+46335,463,"Wholesale of food, beverages and tobacco",group
+46339,463,"Wholesale of food, beverages and tobacco",group
+464,464,Wholesale of household goods,exact
+4641,4641,"Wholesale of textiles, clothing and footwear",exact
+46411,4641,"Wholesale of textiles, clothing and footwear",class
+46412,4641,"Wholesale of textiles, clothing and footwear",class
+46413,4641,"Wholesale of textiles, clothing and footwear",class
+46414,4641,"Wholesale of textiles, clothing and footwear",class
+46419,4641,"Wholesale of textiles, clothing and footwear",class
+4642,464,Wholesale of household goods,group
+46421,464,Wholesale of household goods,group
+46422,464,Wholesale of household goods,group
+4643,464,Wholesale of household goods,group
+46430,464,Wholesale of household goods,group
+4644,464,Wholesale of household goods,group
+46441,464,Wholesale of household goods,group
+46442,464,Wholesale of household goods,group
+46443,464,Wholesale of household goods,group
+46444,464,Wholesale of household goods,group
+46445,464,Wholesale of household goods,group
+46446,464,Wholesale of household goods,group
+46447,464,Wholesale of household goods,group
+46448,464,Wholesale of household goods,group
+4649,4649,Wholesale of other household goods,exact
+46491,4649,Wholesale of other household goods,class
+46492,4649,Wholesale of other household goods,class
+46493,4649,Wholesale of other household goods,class
+46494,4649,Wholesale of other household goods,class
+46495,4649,Wholesale of other household goods,class
+46499,4649,Wholesale of other household goods,class
+465,465,"Wholesale of machinery, equipment and supplies",exact
+4651,4651,"Wholesale of computers, computer peripheral equipment and software",exact
+46511,4651,"Wholesale of computers, computer peripheral equipment and software",class
+46512,4651,"Wholesale of computers, computer peripheral equipment and software",class
+4652,4652,Wholesale of electronic and telecommunications equipment and parts,exact
+46521,4652,Wholesale of electronic and telecommunications equipment and parts,class
+46522,4652,Wholesale of electronic and telecommunications equipment and parts,class
+46523,4652,Wholesale of electronic and telecommunications equipment and parts,class
+4653,4653,"Wholesale of agricultural machinery, equipment and supplies",exact
+46530,4653,"Wholesale of agricultural machinery, equipment and supplies",class
+4659,4659,Wholesale of other machinery and equipment,exact
+46591,4659,Wholesale of other machinery and equipment,class
+46592,4659,Wholesale of other machinery and equipment,class
+46593,4659,Wholesale of other machinery and equipment,class
+46594,4659,Wholesale of other machinery and equipment,class
+46599,4659,Wholesale of other machinery and equipment,class
+466,466,Other specialized wholesale,exact
+4661,4661,"Wholesale of solid, liquid and gaseous fuels and related products",exact
+46610,4661,"Wholesale of solid, liquid and gaseous fuels and related products",class
+4662,4662,Wholesale of metals and metal ores,exact
+46620,4662,Wholesale of metals and metal ores,class
+4663,4663,"Wholesale of construction materials, hardware, plumbing and heating equipment and supplies",exact
+46631,4663,"Wholesale of construction materials, hardware, plumbing and heating equipment and supplies",class
+46632,4663,"Wholesale of construction materials, hardware, plumbing and heating equipment and supplies",class
+46633,4663,"Wholesale of construction materials, hardware, plumbing and heating equipment and supplies",class
+46634,4663,"Wholesale of construction materials, hardware, plumbing and heating equipment and supplies",class
+46635,4663,"Wholesale of construction materials, hardware, plumbing and heating equipment and supplies",class
+46636,4663,"Wholesale of construction materials, hardware, plumbing and heating equipment and supplies",class
+46637,4663,"Wholesale of construction materials, hardware, plumbing and heating equipment and supplies",class
+46638,4663,"Wholesale of construction materials, hardware, plumbing and heating equipment and supplies",class
+46639,4663,"Wholesale of construction materials, hardware, plumbing and heating equipment and supplies",class
+4664,466,Other specialized wholesale,group
+46641,466,Other specialized wholesale,group
+46642,466,Other specialized wholesale,group
+46643,466,Other specialized wholesale,group
+4665,466,Other specialized wholesale,group
+46651,466,Other specialized wholesale,group
+46652,466,Other specialized wholesale,group
+46653,466,Other specialized wholesale,group
+46654,466,Other specialized wholesale,group
+4669,4669,Wholesale of waste and scrap and other products n.e.c.,exact
+46691,4669,Wholesale of waste and scrap and other products n.e.c.,class
+46692,4669,Wholesale of waste and scrap and other products n.e.c.,class
+46693,4669,Wholesale of waste and scrap and other products n.e.c.,class
+46694,4669,Wholesale of waste and scrap and other products n.e.c.,class
+46695,4669,Wholesale of waste and scrap and other products n.e.c.,class
+46696,4669,Wholesale of waste and scrap and other products n.e.c.,class
+46699,4669,Wholesale of waste and scrap and other products n.e.c.,class
+469,469,Non-specialized wholesale trade,exact
+4690,4690,Non-specialized wholesale trade,exact
+46900,4690,Non-specialized wholesale trade,class
+47,47,"Retail trade, except of motor vehicles and motorcycles",exact
+471,471,Retail sale in non-specialized stores,exact
+4711,4711,"Retail sale in non-specialized stores with food, beverages or tobacco predominating",exact
+47111,4711,"Retail sale in non-specialized stores with food, beverages or tobacco predominating",class
+47112,4711,"Retail sale in non-specialized stores with food, beverages or tobacco predominating",class
+4719,4719,Other retail sale in non-specialized stores,exact
+47191,4719,Other retail sale in non-specialized stores,class
+47192,4719,Other retail sale in non-specialized stores,class
+472,472,"Retail sale of food, beverages and tobacco in specialized stores",exact
+4721,4721,Retail sale of food in specialized stores,exact
+47211,4721,Retail sale of food in specialized stores,class
+47212,4721,Retail sale of food in specialized stores,class
+47213,4721,Retail sale of food in specialized stores,class
+47214,4721,Retail sale of food in specialized stores,class
+47215,4721,Retail sale of food in specialized stores,class
+47216,4721,Retail sale of food in specialized stores,class
+47219,4721,Retail sale of food in specialized stores,class
+4722,4722,Retail sale of beverages in specialized stores,exact
+47221,4722,Retail sale of beverages in specialized stores,class
+47222,4722,Retail sale of beverages in specialized stores,class
+4723,4723,Retail sale of tobacco products in specialized stores,exact
+47230,4723,Retail sale of tobacco products in specialized stores,class
+4724,472,"Retail sale of food, beverages and tobacco in specialized stores",group
+47241,472,"Retail sale of food, beverages and tobacco in specialized stores",group
+47242,472,"Retail sale of food, beverages and tobacco in specialized stores",group
+47243,472,"Retail sale of food, beverages and tobacco in specialized stores",group
+47244,472,"Retail sale of food, beverages and tobacco in specialized stores",group
+47245,472,"Retail sale of food, beverages and tobacco in specialized stores",group
+47249,472,"Retail sale of food, beverages and tobacco in specialized stores",group
+473,473,Retail sale of automotive fuel in specialized stores,exact
+4730,4730,Retail sale of automotive fuel in specialized stores,exact
+47301,4730,Retail sale of automotive fuel in specialized stores,class
+47302,4730,Retail sale of automotive fuel in specialized stores,class
+47303,4730,Retail sale of automotive fuel in specialized stores,class
+474,474,Retail sale of information and communications equipment in specialized stores,exact
+4741,4741,"Retail sale of computers, peripheral units, software and telecommunications equipment in specialized stores",exact
+47411,4741,"Retail sale of computers, peripheral units, software and telecommunications equipment in specialized stores",class
+47412,4741,"Retail sale of computers, peripheral units, software and telecommunications equipment in specialized stores",class
+47413,4741,"Retail sale of computers, peripheral units, software and telecommunications equipment in specialized stores",class
+47414,4741,"Retail sale of computers, peripheral units, software and telecommunications equipment in specialized stores",class
+47415,4741,"Retail sale of computers, peripheral units, software and telecommunications equipment in specialized stores",class
+4742,4742,Retail sale of audio and video equipment in specialized stores,exact
+47420,4742,Retail sale of audio and video equipment in specialized stores,class
+475,475,Retail sale of other household equipment in specialized stores,exact
+4751,4751,Retail sale of textiles in specialized stores,exact
+47511,4751,Retail sale of textiles in specialized stores,class
+47512,4751,Retail sale of textiles in specialized stores,class
+47513,4751,Retail sale of textiles in specialized stores,class
+4752,4752,"Retail sale of hardware, paints and glass in specialized stores",exact
+47521,4752,"Retail sale of hardware, paints and glass in specialized stores",class
+47522,4752,"Retail sale of hardware, paints and glass in specialized stores",class
+47523,4752,"Retail sale of hardware, paints and glass in specialized stores",class
+47524,4752,"Retail sale of hardware, paints and glass in specialized stores",class
+47525,4752,"Retail sale of hardware, paints and glass in specialized stores",class
+47526,4752,"Retail sale of hardware, paints and glass in specialized stores",class
+47527,4752,"Retail sale of hardware, paints and glass in specialized stores",class
+47528,4752,"Retail sale of hardware, paints and glass in specialized stores",class
+47529,4752,"Retail sale of hardware, paints and glass in specialized stores",class
+4753,4753,"Retail sale of carpets, rugs, wall and floor coverings in specialized stores",exact
+47530,4753,"Retail sale of carpets, rugs, wall and floor coverings in specialized stores",class
+4759,4759,"Retail sale of electrical household appliances, furniture, lighting equipment and other household articles in specialized stores",exact
+47591,4759,"Retail sale of electrical household appliances, furniture, lighting equipment and other household articles in specialized stores",class
+47592,4759,"Retail sale of electrical household appliances, furniture, lighting equipment and other household articles in specialized stores",class
+47593,4759,"Retail sale of electrical household appliances, furniture, lighting equipment and other household articles in specialized stores",class
+47594,4759,"Retail sale of electrical household appliances, furniture, lighting equipment and other household articles in specialized stores",class
+47595,4759,"Retail sale of electrical household appliances, furniture, lighting equipment and other household articles in specialized stores",class
+47596,4759,"Retail sale of electrical household appliances, furniture, lighting equipment and other household articles in specialized stores",class
+47597,4759,"Retail sale of electrical household appliances, furniture, lighting equipment and other household articles in specialized stores",class
+47599,4759,"Retail sale of electrical household appliances, furniture, lighting equipment and other household articles in specialized stores",class
+476,476,Retail sale of cultural and recreation goods in specialized stores,exact
+4761,4761,"Retail sale of books, newspapers and stationary in specialized stores",exact
+47611,4761,"Retail sale of books, newspapers and stationary in specialized stores",class
+47612,4761,"Retail sale of books, newspapers and stationary in specialized stores",class
+4762,4762,Retail sale of music and video recordings in specialized stores,exact
+47620,4762,Retail sale of music and video recordings in specialized stores,class
+4763,4763,Retail sale of sporting equipment in specialized stores,exact
+47630,4763,Retail sale of sporting equipment in specialized stores,class
+4764,4764,Retail sale of games and toys in specialized stores,exact
+47640,4764,Retail sale of games and toys in specialized stores,class
+4765,476,Retail sale of cultural and recreation goods in specialized stores,group
+47650,476,Retail sale of cultural and recreation goods in specialized stores,group
+477,477,Retail sale of other goods in specialized stores,exact
+4771,4771,"Retail sale of clothing, footwear and leather articles in specialized stores",exact
+47711,4771,"Retail sale of clothing, footwear and leather articles in specialized stores",class
+47712,4771,"Retail sale of clothing, footwear and leather articles in specialized stores",class
+47713,4771,"Retail sale of clothing, footwear and leather articles in specialized stores",class
+47714,4771,"Retail sale of clothing, footwear and leather articles in specialized stores",class
+4772,4772,"Retail sale of pharmaceutical and medical goods, cosmetic and toilet articles in specialized stores",exact
+47721,4772,"Retail sale of pharmaceutical and medical goods, cosmetic and toilet articles in specialized stores",class
+47722,4772,"Retail sale of pharmaceutical and medical goods, cosmetic and toilet articles in specialized stores",class
+47723,4772,"Retail sale of pharmaceutical and medical goods, cosmetic and toilet articles in specialized stores",class
+47724,4772,"Retail sale of pharmaceutical and medical goods, cosmetic and toilet articles in specialized stores",class
+47725,4772,"Retail sale of pharmaceutical and medical goods, cosmetic and toilet articles in specialized stores",class
+47726,4772,"Retail sale of pharmaceutical and medical goods, cosmetic and toilet articles in specialized stores",class
+47727,4772,"Retail sale of pharmaceutical and medical goods, cosmetic and toilet articles in specialized stores",class
+47728,4772,"Retail sale of pharmaceutical and medical goods, cosmetic and toilet articles in specialized stores",class
+47729,4772,"Retail sale of pharmaceutical and medical goods, cosmetic and toilet articles in specialized stores",class
+4773,4773,Other retail sale of new goods in specialized stores,exact
+47731,4773,Other retail sale of new goods in specialized stores,class
+47732,4773,Other retail sale of new goods in specialized stores,class
+47733,4773,Other retail sale of new goods in specialized stores,class
+47734,4773,Other retail sale of new goods in specialized stores,class
+47735,4773,Other retail sale of new goods in specialized stores,class
+47736,4773,Other retail sale of new goods in specialized stores,class
+47737,4773,Other retail sale of new goods in specialized stores,class
+47739,4773,Other retail sale of new goods in specialized stores,class
+4774,4774,Retail sale of second-hand goods,exact
+47741,4774,Retail sale of second-hand goods,class
+47742,4774,Retail sale of second-hand goods,class
+47743,4774,Retail sale of second-hand goods,class
+47744,4774,Retail sale of second-hand goods,class
+47745,4774,Retail sale of second-hand goods,class
+47746,4774,Retail sale of second-hand goods,class
+47749,4774,Retail sale of second-hand goods,class
+4775,477,Retail sale of other goods in specialized stores,group
+47751,477,Retail sale of other goods in specialized stores,group
+47752,477,Retail sale of other goods in specialized stores,group
+47753,477,Retail sale of other goods in specialized stores,group
+47754,477,Retail sale of other goods in specialized stores,group
+4776,477,Retail sale of other goods in specialized stores,group
+47761,477,Retail sale of other goods in specialized stores,group
+47762,477,Retail sale of other goods in specialized stores,group
+47763,477,Retail sale of other goods in specialized stores,group
+47764,477,Retail sale of other goods in specialized stores,group
+4777,477,Retail sale of other goods in specialized stores,group
+47771,477,Retail sale of other goods in specialized stores,group
+47772,477,Retail sale of other goods in specialized stores,group
+47773,477,Retail sale of other goods in specialized stores,group
+47774,477,Retail sale of other goods in specialized stores,group
+47779,477,Retail sale of other goods in specialized stores,group
+4778,477,Retail sale of other goods in specialized stores,group
+47781,477,Retail sale of other goods in specialized stores,group
+47782,477,Retail sale of other goods in specialized stores,group
+47783,477,Retail sale of other goods in specialized stores,group
+47784,477,Retail sale of other goods in specialized stores,group
+47785,477,Retail sale of other goods in specialized stores,group
+47789,477,Retail sale of other goods in specialized stores,group
+4779,477,Retail sale of other goods in specialized stores,group
+47791,477,Retail sale of other goods in specialized stores,group
+47792,477,Retail sale of other goods in specialized stores,group
+47793,477,Retail sale of other goods in specialized stores,group
+47794,477,Retail sale of other goods in specialized stores,group
+47795,477,Retail sale of other goods in specialized stores,group
+47796,477,Retail sale of other goods in specialized stores,group
+47797,477,Retail sale of other goods in specialized stores,group
+478,478,Retail sale via stalls and markets,exact
+4781,4781,"Retail sale via stalls and markets of food, beverages and tobacco products",exact
+47811,4781,"Retail sale via stalls and markets of food, beverages and tobacco products",class
+47812,4781,"Retail sale via stalls and markets of food, beverages and tobacco products",class
+47813,4781,"Retail sale via stalls and markets of food, beverages and tobacco products",class
+47814,4781,"Retail sale via stalls and markets of food, beverages and tobacco products",class
+47815,4781,"Retail sale via stalls and markets of food, beverages and tobacco products",class
+47816,4781,"Retail sale via stalls and markets of food, beverages and tobacco products",class
+47819,4781,"Retail sale via stalls and markets of food, beverages and tobacco products",class
+4782,4782,"Retail sale via stalls and markets of textiles, clothing and footwear",exact
+47821,4782,"Retail sale via stalls and markets of textiles, clothing and footwear",class
+47822,4782,"Retail sale via stalls and markets of textiles, clothing and footwear",class
+47823,4782,"Retail sale via stalls and markets of textiles, clothing and footwear",class
+47824,4782,"Retail sale via stalls and markets of textiles, clothing and footwear",class
+47825,4782,"Retail sale via stalls and markets of textiles, clothing and footwear",class
+47826,4782,"Retail sale via stalls and markets of textiles, clothing and footwear",class
+47827,4782,"Retail sale via stalls and markets of textiles, clothing and footwear",class
+47828,4782,"Retail sale via stalls and markets of textiles, clothing and footwear",class
+47829,4782,"Retail sale via stalls and markets of textiles, clothing and footwear",class
+4783,478,Retail sale via stalls and markets,group
+47831,478,Retail sale via stalls and markets,group
+47832,478,Retail sale via stalls and markets,group
+47833,478,Retail sale via stalls and markets,group
+47834,478,Retail sale via stalls and markets,group
+4784,478,Retail sale via stalls and markets,group
+47841,478,Retail sale via stalls and markets,group
+47842,478,Retail sale via stalls and markets,group
+47843,478,Retail sale via stalls and markets,group
+47844,478,Retail sale via stalls and markets,group
+47845,478,Retail sale via stalls and markets,group
+47846,478,Retail sale via stalls and markets,group
+47849,478,Retail sale via stalls and markets,group
+4785,478,Retail sale via stalls and markets,group
+47851,478,Retail sale via stalls and markets,group
+47852,478,Retail sale via stalls and markets,group
+47853,478,Retail sale via stalls and markets,group
+47854,478,Retail sale via stalls and markets,group
+47855,478,Retail sale via stalls and markets,group
+47859,478,Retail sale via stalls and markets,group
+4786,478,Retail sale via stalls and markets,group
+47861,478,Retail sale via stalls and markets,group
+47862,478,Retail sale via stalls and markets,group
+47863,478,Retail sale via stalls and markets,group
+47864,478,Retail sale via stalls and markets,group
+47865,478,Retail sale via stalls and markets,group
+47866,478,Retail sale via stalls and markets,group
+47867,478,Retail sale via stalls and markets,group
+47869,478,Retail sale via stalls and markets,group
+4787,478,Retail sale via stalls and markets,group
+47871,478,Retail sale via stalls and markets,group
+47872,478,Retail sale via stalls and markets,group
+47873,478,Retail sale via stalls and markets,group
+47874,478,Retail sale via stalls and markets,group
+47875,478,Retail sale via stalls and markets,group
+47876,478,Retail sale via stalls and markets,group
+47877,478,Retail sale via stalls and markets,group
+47879,478,Retail sale via stalls and markets,group
+4788,478,Retail sale via stalls and markets,group
+47881,478,Retail sale via stalls and markets,group
+47882,478,Retail sale via stalls and markets,group
+47883,478,Retail sale via stalls and markets,group
+4789,4789,Retail sale via stalls and markets of other goods,exact
+47891,4789,Retail sale via stalls and markets of other goods,class
+47892,4789,Retail sale via stalls and markets of other goods,class
+47893,4789,Retail sale via stalls and markets of other goods,class
+47894,4789,Retail sale via stalls and markets of other goods,class
+47895,4789,Retail sale via stalls and markets of other goods,class
+47896,4789,Retail sale via stalls and markets of other goods,class
+47897,4789,Retail sale via stalls and markets of other goods,class
+47899,4789,Retail sale via stalls and markets of other goods,class
+479,479,"Retail trade not in stores, stalls or markets",exact
+4791,4791,Retail sale via mail order houses or via Internet,exact
+47911,4791,Retail sale via mail order houses or via Internet,class
+47912,4791,Retail sale via mail order houses or via Internet,class
+47913,4791,Retail sale via mail order houses or via Internet,class
+47914,4791,Retail sale via mail order houses or via Internet,class
+47919,4791,Retail sale via mail order houses or via Internet,class
+4792,479,"Retail trade not in stores, stalls or markets",group
+47920,479,"Retail trade not in stores, stalls or markets",group
+4799,4799,"Other retail sale not in stores, stalls or markets",exact
+47991,4799,"Other retail sale not in stores, stalls or markets",class
+47992,4799,"Other retail sale not in stores, stalls or markets",class
+47993,4799,"Other retail sale not in stores, stalls or markets",class
+47994,4799,"Other retail sale not in stores, stalls or markets",class
+47995,4799,"Other retail sale not in stores, stalls or markets",class
+47996,4799,"Other retail sale not in stores, stalls or markets",class
+47997,4799,"Other retail sale not in stores, stalls or markets",class
+47998,4799,"Other retail sale not in stores, stalls or markets",class
+47999,4799,"Other retail sale not in stores, stalls or markets",class
+49,49,Land transport and transport via pipelines,exact
+491,491,Transport via railways,exact
+4911,4911,"Passenger rail transport, interurban",exact
+49110,4911,"Passenger rail transport, interurban",class
+4912,4912,Freight rail transport,exact
+49120,4912,Freight rail transport,class
+492,492,Other land transport,exact
+4921,4921,Urban and suburban passenger land transport,exact
+49211,4921,Urban and suburban passenger land transport,class
+49212,4921,Urban and suburban passenger land transport,class
+49213,4921,Urban and suburban passenger land transport,class
+49214,4921,Urban and suburban passenger land transport,class
+49215,4921,Urban and suburban passenger land transport,class
+49216,4921,Urban and suburban passenger land transport,class
+49219,4921,Urban and suburban passenger land transport,class
+4922,4922,Other passenger land transport,exact
+49221,4922,Other passenger land transport,class
+49229,4922,Other passenger land transport,class
+493,493,Transport via pipeline,exact
+4930,4930,Transport via pipeline,exact
+49300,4930,Transport via pipeline,class
+494,49,Land transport and transport via pipelines,division
+4941,49,Land transport and transport via pipelines,division
+49411,49,Land transport and transport via pipelines,division
+49412,49,Land transport and transport via pipelines,division
+49413,49,Land transport and transport via pipelines,division
+49414,49,Land transport and transport via pipelines,division
+49415,49,Land transport and transport via pipelines,division
+49419,49,Land transport and transport via pipelines,division
+4942,49,Land transport and transport via pipelines,division
+49421,49,Land transport and transport via pipelines,division
+49422,49,Land transport and transport via pipelines,division
+49423,49,Land transport and transport via pipelines,division
+49424,49,Land transport and transport via pipelines,division
+49425,49,Land transport and transport via pipelines,division
+49426,49,Land transport and transport via pipelines,division
+49429,49,Land transport and transport via pipelines,division
+4943,49,Land transport and transport via pipelines,division
+49431,49,Land transport and transport via pipelines,division
+49432,49,Land transport and transport via pipelines,division
+49433,49,Land transport and transport via pipelines,division
+4944,49,Land transport and transport via pipelines,division
+49441,49,Land transport and transport via pipelines,division
+49442,49,Land transport and transport via pipelines,division
+4945,49,Land transport and transport via pipelines,division
+49450,49,Land transport and transport via pipelines,division
+50,50,Water transport,exact
+501,501,Sea and coastal water transport,exact
+5011,5011,Sea and coastal passenger water transport,exact
+50111,5011,Sea and coastal passenger water transport,class
+50112,5011,Sea and coastal passenger water transport,class
+50113,5011,Sea and coastal passenger water transport,class
+50114,5011,Sea and coastal passenger water transport,class
+5012,5012,Sea and coastal freight water transport,exact
+50121,5012,Sea and coastal freight water transport,class
+50122,5012,Sea and coastal freight water transport,class
+5013,501,Sea and coastal water transport,group
+50131,501,Sea and coastal water transport,group
+50132,501,Sea and coastal water transport,group
+50133,501,Sea and coastal water transport,group
+50134,501,Sea and coastal water transport,group
+50135,501,Sea and coastal water transport,group
+5014,501,Sea and coastal water transport,group
+50141,501,Sea and coastal water transport,group
+50142,501,Sea and coastal water transport,group
+50143,501,Sea and coastal water transport,group
+502,502,Inland water transport,exact
+5021,5021,Inland passenger water transport,exact
+50211,5021,Inland passenger water transport,class
+50212,5021,Inland passenger water transport,class
+50213,5021,Inland passenger water transport,class
+50214,5021,Inland passenger water transport,class
+50215,5021,Inland passenger water transport,class
+50216,5021,Inland passenger water transport,class
+50217,5021,Inland passenger water transport,class
+50218,5021,Inland passenger water transport,class
+50219,5021,Inland passenger water transport,class
+5022,5022,Inland freight water transport,exact
+50221,5022,Inland freight water transport,class
+50222,5022,Inland freight water transport,class
+50223,5022,Inland freight water transport,class
+50224,5022,Inland freight water transport,class
+50225,5022,Inland freight water transport,class
+50226,5022,Inland freight water transport,class
+50227,5022,Inland freight water transport,class
+50228,5022,Inland freight water transport,class
+50229,5022,Inland freight water transport,class
+51,51,Air transport,exact
+511,511,Passenger air transport,exact
+5110,5110,Passenger air transport,exact
+51101,5110,Passenger air transport,class
+51102,5110,Passenger air transport,class
+51103,5110,Passenger air transport,class
+51104,5110,Passenger air transport,class
+51105,5110,Passenger air transport,class
+51106,5110,Passenger air transport,class
+51107,5110,Passenger air transport,class
+51108,5110,Passenger air transport,class
+51109,5110,Passenger air transport,class
+512,512,Freight air transport,exact
+5120,5120,Freight air transport,exact
+51201,5120,Freight air transport,class
+51202,5120,Freight air transport,class
+51203,5120,Freight air transport,class
+51204,5120,Freight air transport,class
+52,52,Warehousing and support activities for transportation,exact
+521,521,Warehousing and storage,exact
+5210,5210,Warehousing and storage,exact
+52101,5210,Warehousing and storage,class
+52102,5210,Warehousing and storage,class
+52103,5210,Warehousing and storage,class
+52104,5210,Warehousing and storage,class
+52105,5210,Warehousing and storage,class
+52106,5210,Warehousing and storage,class
+52107,5210,Warehousing and storage,class
+52108,5210,Warehousing and storage,class
+52109,5210,Warehousing and storage,class
+522,522,Support activities for transportation,exact
+5221,5221,Service activities incidental to land transportation,exact
+52211,5221,Service activities incidental to land transportation,class
+52212,5221,Service activities incidental to land transportation,class
+52213,5221,Service activities incidental to land transportation,class
+52214,5221,Service activities incidental to land transportation,class
+52215,5221,Service activities incidental to land transportation,class
+52219,5221,Service activities incidental to land transportation,class
+5222,5222,Service activities incidental to water transportation,exact
+52221,5222,Service activities incidental to water transportation,class
+52222,5222,Service activities incidental to water transportation,class
+52223,5222,Service activities incidental to water transportation,class
+52224,5222,Service activities incidental to water transportation,class
+52225,5222,Service activities incidental to water transportation,class
+52229,5222,Service activities incidental to water transportation,class
+5223,5223,Service activities incidental to air transportation,exact
+52231,5223,Service activities incidental to air transportation,class
+52232,5223,Service activities incidental to air transportation,class
+5224,5224,Cargo handling,exact
+52240,5224,Cargo handling,class
+5229,5229,Other transportation support activities,exact
+52291,5229,Other transportation support activities,class
+52292,5229,Other transportation support activities,class
+52293,5229,Other transportation support activities,class
+52294,5229,Other transportation support activities,class
+52295,5229,Other transportation support activities,class
+52296,5229,Other transportation support activities,class
+52297,5229,Other transportation support activities,class
+52298,5229,Other transportation support activities,class
+52299,5229,Other transportation support activities,class
+53,53,Postal and courier activities,exact
+531,531,Postal activities,exact
+5310,5310,Postal activities,exact
+53100,5310,Postal activities,class
+532,532,Courier activities,exact
+5320,5320,Courier activities,exact
+53201,5320,Courier activities,class
+53202,5320,Courier activities,class
+55,55,Accommodation,exact
+551,551,Short term accommodation activities,exact
+5511,551,Short term accommodation activities,group
+55110,551,Short term accommodation activities,group
+5512,551,Short term accommodation activities,group
+55120,551,Short term accommodation activities,group
+5513,551,Short term accommodation activities,group
+55130,551,Short term accommodation activities,group
+5519,551,Short term accommodation activities,group
+55191,551,Short term accommodation activities,group
+55192,551,Short term accommodation activities,group
+55193,551,Short term accommodation activities,group
+55194,551,Short term accommodation activities,group
+55199,551,Short term accommodation activities,group
+559,559,Other accommodation,exact
+5590,5590,Other accommodation,exact
+55900,5590,Other accommodation,class
+56,56,Food and beverage service activities,exact
+561,561,Restaurants and mobile food service activities,exact
+5610,5610,Restaurants and mobile food service activities,exact
+56101,5610,Restaurants and mobile food service activities,class
+56102,5610,Restaurants and mobile food service activities,class
+56103,5610,Restaurants and mobile food service activities,class
+56104,5610,Restaurants and mobile food service activities,class
+56109,5610,Restaurants and mobile food service activities,class
+562,562,Event catering and other food service activities,exact
+5621,5621,Event catering,exact
+56210,5621,Event catering,class
+5629,5629,Other food service activities,exact
+56290,5629,Other food service activities,class
+563,563,Beverage serving activities,exact
+5630,5630,Beverage serving activities,exact
+56301,5630,Beverage serving activities,class
+56302,5630,Beverage serving activities,class
+56303,5630,Beverage serving activities,class
+56304,5630,Beverage serving activities,class
+56305,5630,Beverage serving activities,class
+56306,5630,Beverage serving activities,class
+58,58,Publishing activities,exact
+581,581,"Publishing of books, periodicals and other publishing activities",exact
+5811,5811,Book publishing,exact
+58110,5811,Book publishing,class
+5812,5812,Publishing of directories and mailing lists,exact
+58120,5812,Publishing of directories and mailing lists,class
+5813,5813,"Publishing of newspapers, journals and periodicals",exact
+58130,5813,"Publishing of newspapers, journals and periodicals",class
+5819,5819,Other publishing activities,exact
+58190,5819,Other publishing activities,class
+582,582,Software publishing,exact
+5820,5820,Software publishing,exact
+58200,5820,Software publishing,class
+59,59,"Motion picture, video and television programme production, sound recording and music publishing activities",exact
+591,591,"Motion picture, video and television programme activities",exact
+5911,5911,"Motion picture, video and television programme production activities",exact
+59111,5911,"Motion picture, video and television programme production activities",class
+59112,5911,"Motion picture, video and television programme production activities",class
+5912,5912,"Motion picture, video and television programme post-production activities",exact
+59121,5912,"Motion picture, video and television programme post-production activities",class
+59122,5912,"Motion picture, video and television programme post-production activities",class
+5913,5913,"Motion picture, video and television programme distribution activities",exact
+59131,5913,"Motion picture, video and television programme distribution activities",class
+59132,5913,"Motion picture, video and television programme distribution activities",class
+5914,5914,Motion picture projection activities,exact
+59140,5914,Motion picture projection activities,class
+592,592,Sound recording and music publishing activities,exact
+5920,5920,Sound recording and music publishing activities,exact
+59201,5920,Sound recording and music publishing activities,class
+59202,5920,Sound recording and music publishing activities,class
+60,60,Programming and broadcasting activities,exact
+601,601,Radio broadcasting,exact
+6010,6010,Radio broadcasting,exact
+60101,6010,Radio broadcasting,class
+60102,6010,Radio broadcasting,class
+602,602,Television programming and broadcasting activities,exact
+6020,6020,Television programming and broadcasting activities,exact
+60201,6020,Television programming and broadcasting activities,class
+60202,6020,Television programming and broadcasting activities,class
+61,61,Telecommunications,exact
+611,611,Wired telecommunications activities,exact
+6110,6110,Wired telecommunications activities,exact
+61100,6110,Wired telecommunications activities,class
+612,612,Wireless telecommunications activities,exact
+6120,6120,Wireless telecommunications activities,exact
+61200,6120,Wireless telecommunications activities,class
+613,613,Satellite telecommunications activities,exact
+6130,6130,Satellite telecommunications activities,exact
+61300,6130,Satellite telecommunications activities,class
+619,619,Other telecommunications activities,exact
+6191,619,Other telecommunications activities,group
+61911,619,Other telecommunications activities,group
+61912,619,Other telecommunications activities,group
+61913,619,Other telecommunications activities,group
+61914,619,Other telecommunications activities,group
+61919,619,Other telecommunications activities,group
+6192,619,Other telecommunications activities,group
+61921,619,Other telecommunications activities,group
+61922,619,Other telecommunications activities,group
+61923,619,Other telecommunications activities,group
+61924,619,Other telecommunications activities,group
+61929,619,Other telecommunications activities,group
+6199,619,Other telecommunications activities,group
+61991,619,Other telecommunications activities,group
+61992,619,Other telecommunications activities,group
+61993,619,Other telecommunications activities,group
+61994,619,Other telecommunications activities,group
+61999,619,Other telecommunications activities,group
+62,62,"Computer programming, consultancy and related activities",exact
+620,620,"Computer programming, consultancy and related activities",exact
+6201,6201,Computer programming activities,exact
+62011,6201,Computer programming activities,class
+62012,6201,Computer programming activities,class
+62013,6201,Computer programming activities,class
+62014,6201,Computer programming activities,class
+62015,6201,Computer programming activities,class
+62019,6201,Computer programming activities,class
+6202,6202,Computer consultancy and computer facilities management activities,exact
+62021,6202,Computer consultancy and computer facilities management activities,class
+62022,6202,Computer consultancy and computer facilities management activities,class
+62023,6202,Computer consultancy and computer facilities management activities,class
+62024,6202,Computer consultancy and computer facilities management activities,class
+62029,6202,Computer consultancy and computer facilities management activities,class
+6209,6209,Other information technology and computer service activities,exact
+62090,6209,Other information technology and computer service activities,class
+63,63,Information service activities,exact
+631,631,"Data processing, hosting and related activities; web portals",exact
+6311,6311,"Data processing, hosting and related activities",exact
+63111,6311,"Data processing, hosting and related activities",class
+63112,6311,"Data processing, hosting and related activities",class
+6312,6312,Web portals,exact
+63121,6312,Web portals,class
+63122,6312,Web portals,class
+639,639,Other information service activities,exact
+6391,6391,News agency activities,exact
+63911,6391,News agency activities,class
+63912,6391,News agency activities,class
+6399,6399,Other information service activities n.e.c.,exact
+63990,6399,Other information service activities n.e.c.,class
+64,64,"Financial service activities, except insurance and pension funding",exact
+641,641,Monetary intermediation,exact
+6411,6411,Central banking,exact
+64110,6411,Central banking,class
+6412,641,Monetary intermediation,group
+64121,641,Monetary intermediation,group
+64122,641,Monetary intermediation,group
+64123,641,Monetary intermediation,group
+6413,641,Monetary intermediation,group
+64131,641,Monetary intermediation,group
+64132,641,Monetary intermediation,group
+6414,641,Monetary intermediation,group
+64141,641,Monetary intermediation,group
+64142,641,Monetary intermediation,group
+64143,641,Monetary intermediation,group
+64144,641,Monetary intermediation,group
+64145,641,Monetary intermediation,group
+64146,641,Monetary intermediation,group
+64147,641,Monetary intermediation,group
+64148,641,Monetary intermediation,group
+6415,641,Monetary intermediation,group
+64151,641,Monetary intermediation,group
+64152,641,Monetary intermediation,group
+6419,6419,Other monetary intermediation,exact
+64190,6419,Other monetary intermediation,class
+642,642,Activities of holding companies,exact
+6420,6420,Activities of holding companies,exact
+64200,6420,Activities of holding companies,class
+643,643,"Trusts, funds and similar financial entities",exact
+6430,6430,"Trusts, funds and similar financial entities",exact
+64300,6430,"Trusts, funds and similar financial entities",class
+644,64,"Financial service activities, except insurance and pension funding",division
+6440,64,"Financial service activities, except insurance and pension funding",division
+64400,64,"Financial service activities, except insurance and pension funding",division
+645,64,"Financial service activities, except insurance and pension funding",division
+6450,64,"Financial service activities, except insurance and pension funding",division
+64500,64,"Financial service activities, except insurance and pension funding",division
+649,649,"Other financial service activities, except insurance and pension funding activities",exact
+6491,6491,Financial leasing,exact
+64911,6491,Financial leasing,class
+64912,6491,Financial leasing,class
+64913,6491,Financial leasing,class
+6492,6492,Other credit granting,exact
+64921,6492,Other credit granting,class
+64922,6492,Other credit granting,class
+64923,6492,Other credit granting,class
+6493,649,"Other financial service activities, except insurance and pension funding activities",group
+64931,649,"Other financial service activities, except insurance and pension funding activities",group
+64932,649,"Other financial service activities, except insurance and pension funding activities",group
+64933,649,"Other financial service activities, except insurance and pension funding activities",group
+6494,649,"Other financial service activities, except insurance and pension funding activities",group
+64941,649,"Other financial service activities, except insurance and pension funding activities",group
+64942,649,"Other financial service activities, except insurance and pension funding activities",group
+64943,649,"Other financial service activities, except insurance and pension funding activities",group
+6495,649,"Other financial service activities, except insurance and pension funding activities",group
+64951,649,"Other financial service activities, except insurance and pension funding activities",group
+64952,649,"Other financial service activities, except insurance and pension funding activities",group
+64953,649,"Other financial service activities, except insurance and pension funding activities",group
+6499,6499,"Other financial service activities, except insurance and pension funding activities, n.e.c.",exact
+64991,6499,"Other financial service activities, except insurance and pension funding activities, n.e.c.",class
+64992,6499,"Other financial service activities, except insurance and pension funding activities, n.e.c.",class
+64999,6499,"Other financial service activities, except insurance and pension funding activities, n.e.c.",class
+65,65,"Insurance, reinsurance and pension funding, except compulsory social security",exact
+651,651,Insurance,exact
+6511,6511,Life insurance,exact
+65111,6511,Life insurance,class
+65112,6511,Life insurance,class
+65113,6511,Life insurance,class
+6512,6512,Non-life insurance,exact
+65121,6512,Non-life insurance,class
+65122,6512,Non-life insurance,class
+65123,6512,Non-life insurance,class
+6513,651,Insurance,group
+65131,651,Insurance,group
+65132,651,Insurance,group
+65133,651,Insurance,group
+652,652,Reinsurance,exact
+6521,652,Reinsurance,group
+65211,652,Reinsurance,group
+65212,652,Reinsurance,group
+65213,652,Reinsurance,group
+6522,652,Reinsurance,group
+65221,652,Reinsurance,group
+65222,652,Reinsurance,group
+653,653,Pension funding,exact
+6531,653,Pension funding,group
+65311,653,Pension funding,group
+65312,653,Pension funding,group
+65313,653,Pension funding,group
+6532,653,Pension funding,group
+65321,653,Pension funding,group
+65322,653,Pension funding,group
+66,66,Activities auxiliary to financial service and insurance activities,exact
+661,661,"Activities auxiliary to financial service activities, except insurance and pension funding",exact
+6611,6611,Administration of financial markets,exact
+66111,6611,Administration of financial markets,class
+66112,6611,Administration of financial markets,class
+66113,6611,Administration of financial markets,class
+66114,6611,Administration of financial markets,class
+66115,6611,Administration of financial markets,class
+66116,6611,Administration of financial markets,class
+66117,6611,Administration of financial markets,class
+66118,6611,Administration of financial markets,class
+66119,6611,Administration of financial markets,class
+6612,6612,Security and commodity contracts brokerage,exact
+66121,6612,Security and commodity contracts brokerage,class
+66122,6612,Security and commodity contracts brokerage,class
+66123,6612,Security and commodity contracts brokerage,class
+66124,6612,Security and commodity contracts brokerage,class
+6613,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66131,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66132,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66139,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+6614,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66141,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66142,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66143,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66144,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66145,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66146,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66147,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66149,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+6615,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66151,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66152,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66153,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66154,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66159,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+6616,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66160,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+6617,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66171,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66172,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66173,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66174,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+66179,661,"Activities auxiliary to financial service activities, except insurance and pension funding",group
+6619,6619,Other activities auxiliary to financial service activities,exact
+66191,6619,Other activities auxiliary to financial service activities,class
+66192,6619,Other activities auxiliary to financial service activities,class
+66193,6619,Other activities auxiliary to financial service activities,class
+66194,6619,Other activities auxiliary to financial service activities,class
+66195,6619,Other activities auxiliary to financial service activities,class
+66199,6619,Other activities auxiliary to financial service activities,class
+662,662,Activities auxiliary to insurance and pension funding,exact
+6621,6621,Risk and damage evaluation,exact
+66211,6621,Risk and damage evaluation,class
+66212,6621,Risk and damage evaluation,class
+6622,6622,Activities of insurance agents and brokers,exact
+66221,6622,Activities of insurance agents and brokers,class
+66222,6622,Activities of insurance agents and brokers,class
+66223,6622,Activities of insurance agents and brokers,class
+66224,6622,Activities of insurance agents and brokers,class
+66225,6622,Activities of insurance agents and brokers,class
+66226,6622,Activities of insurance agents and brokers,class
+6629,6629,Other activities auxiliary to insurance and pension funding,exact
+66291,6629,Other activities auxiliary to insurance and pension funding,class
+66292,6629,Other activities auxiliary to insurance and pension funding,class
+66299,6629,Other activities auxiliary to insurance and pension funding,class
+663,663,Fund management activities,exact
+6631,663,Fund management activities,group
+66311,663,Fund management activities,group
+66312,663,Fund management activities,group
+6632,663,Fund management activities,group
+66321,663,Fund management activities,group
+66322,663,Fund management activities,group
+6639,663,Fund management activities,group
+66390,663,Fund management activities,group
+664,66,Activities auxiliary to financial service and insurance activities,division
+6641,66,Activities auxiliary to financial service and insurance activities,division
+66411,66,Activities auxiliary to financial service and insurance activities,division
+66412,66,Activities auxiliary to financial service and insurance activities,division
+66413,66,Activities auxiliary to financial service and insurance activities,division
+6642,66,Activities auxiliary to financial service and insurance activities,division
+66420,66,Activities auxiliary to financial service and insurance activities,division
+68,68,Real estate activities,exact
+681,681,Real estate activities with own or leased property,exact
+6811,681,Real estate activities with own or leased property,group
+68111,681,Real estate activities with own or leased property,group
+68112,681,Real estate activities with own or leased property,group
+6812,681,Real estate activities with own or leased property,group
+68120,681,Real estate activities with own or leased property,group
+6813,681,Real estate activities with own or leased property,group
+68130,681,Real estate activities with own or leased property,group
+682,682,Real estate activities on a fee or contract basis,exact
+6820,6820,Real estate activities on a fee or contract basis,exact
+68200,6820,Real estate activities on a fee or contract basis,class
+69,69,Legal and accounting activities,exact
+691,691,Legal activities,exact
+6910,6910,Legal activities,exact
+69101,6910,Legal activities,class
+69102,6910,Legal activities,class
+69103,6910,Legal activities,class
+69104,6910,Legal activities,class
+69109,6910,Legal activities,class
+692,692,"Accounting, bookkeeping and auditing activities; tax consultancy",exact
+6920,6920,"Accounting, bookkeeping and auditing activities; tax consultancy",exact
+69201,6920,"Accounting, bookkeeping and auditing activities; tax consultancy",class
+69202,6920,"Accounting, bookkeeping and auditing activities; tax consultancy",class
+70,70,Activities of head offices; management consultancy activities,exact
+701,701,Activities of head offices,exact
+7010,7010,Activities of head offices,exact
+70100,7010,Activities of head offices,class
+702,702,Management consultancy activities,exact
+7020,7020,Management consultancy activities,exact
+70201,7020,Management consultancy activities,class
+70202,7020,Management consultancy activities,class
+70203,7020,Management consultancy activities,class
+70204,7020,Management consultancy activities,class
+70209,7020,Management consultancy activities,class
+71,71,Architectural and engineering activities; technical testing and analysis,exact
+711,711,Architectural and engineering activities and related technical consultancy,exact
+7110,7110,Architectural and engineering activities and related technical consultancy,exact
+71101,7110,Architectural and engineering activities and related technical consultancy,class
+71102,7110,Architectural and engineering activities and related technical consultancy,class
+712,712,Technical testing and analysis,exact
+7120,7120,Technical testing and analysis,exact
+71201,7120,Technical testing and analysis,class
+71202,7120,Technical testing and analysis,class
+71203,7120,Technical testing and analysis,class
+71204,7120,Technical testing and analysis,class
+71205,7120,Technical testing and analysis,class
+71206,7120,Technical testing and analysis,class
+71207,7120,Technical testing and analysis,class
+71208,7120,Technical testing and analysis,class
+71209,7120,Technical testing and analysis,class
+72,72,Scientific research and development,exact
+721,721,Research and experimental development on natural sciences and engineering,exact
+7210,7210,Research and experimental development on natural sciences and engineering,exact
+72101,7210,Research and experimental development on natural sciences and engineering,class
+72102,7210,Research and experimental development on natural sciences and engineering,class
+72103,7210,Research and experimental development on natural sciences and engineering,class
+72104,7210,Research and experimental development on natural sciences and engineering,class
+72105,7210,Research and experimental development on natural sciences and engineering,class
+72106,7210,Research and experimental development on natural sciences and engineering,class
+72107,7210,Research and experimental development on natural sciences and engineering,class
+72109,7210,Research and experimental development on natural sciences and engineering,class
+722,722,Research and experimental development on social sciences and humanities,exact
+7220,7220,Research and experimental development on social sciences and humanities,exact
+72201,7220,Research and experimental development on social sciences and humanities,class
+72202,7220,Research and experimental development on social sciences and humanities,class
+72203,7220,Research and experimental development on social sciences and humanities,class
+72204,7220,Research and experimental development on social sciences and humanities,class
+72205,7220,Research and experimental development on social sciences and humanities,class
+72206,7220,Research and experimental development on social sciences and humanities,class
+72209,7220,Research and experimental development on social sciences and humanities,class
+73,73,Advertising and market research,exact
+731,731,Advertising,exact
+7310,7310,Advertising,exact
+73100,7310,Advertising,class
+732,732,Market research and public opinion polling,exact
+7320,7320,Market research and public opinion polling,exact
+73201,7320,Market research and public opinion polling,class
+73202,7320,Market research and public opinion polling,class
+74,74,"Other professional, scientific and technical activities",exact
+741,741,Specialized design activities,exact
+7411,741,Specialized design activities,group
+74111,741,Specialized design activities,group
+74112,741,Specialized design activities,group
+74113,741,Specialized design activities,group
+74114,741,Specialized design activities,group
+74115,741,Specialized design activities,group
+74116,741,Specialized design activities,group
+74117,741,Specialized design activities,group
+74118,741,Specialized design activities,group
+74119,741,Specialized design activities,group
+7412,741,Specialized design activities,group
+74120,741,Specialized design activities,group
+7413,741,Specialized design activities,group
+74130,741,Specialized design activities,group
+7414,741,Specialized design activities,group
+74141,741,Specialized design activities,group
+74142,741,Specialized design activities,group
+74149,741,Specialized design activities,group
+742,742,Photographic activities,exact
+7420,7420,Photographic activities,exact
+74201,7420,Photographic activities,class
+74202,7420,Photographic activities,class
+743,74,"Other professional, scientific and technical activities",division
+7431,74,"Other professional, scientific and technical activities",division
+74311,74,"Other professional, scientific and technical activities",division
+74312,74,"Other professional, scientific and technical activities",division
+7432,74,"Other professional, scientific and technical activities",division
+74321,74,"Other professional, scientific and technical activities",division
+74322,74,"Other professional, scientific and technical activities",division
+749,749,"Other professional, scientific and technical activities n.e.c.",exact
+7490,7490,"Other professional, scientific and technical activities n.e.c.",exact
+74901,7490,"Other professional, scientific and technical activities n.e.c.",class
+74902,7490,"Other professional, scientific and technical activities n.e.c.",class
+74909,7490,"Other professional, scientific and technical activities n.e.c.",class
+75,75,Veterinary activities,exact
+750,750,Veterinary activities,exact
+7500,7500,Veterinary activities,exact
+75000,7500,Veterinary activities,class
+77,77,Rental and leasing activities,exact
+771,771,Renting and leasing of motor vehicles,exact
+7710,7710,Renting and leasing of motor vehicles,exact
+77100,7710,Renting and leasing of motor vehicles,class
+772,772,Renting and leasing of personal and household goods,exact
+7721,7721,Renting and leasing of recreational and sports goods,exact
+77210,7721,Renting and leasing of recreational and sports goods,class
+7722,7722,Renting of video tapes and disks,exact
+77220,7722,Renting of video tapes and disks,class
+7729,7729,Renting and leasing of other personal and household goods,exact
+77291,7729,Renting and leasing of other personal and household goods,class
+77292,7729,Renting and leasing of other personal and household goods,class
+77293,7729,Renting and leasing of other personal and household goods,class
+77294,7729,Renting and leasing of other personal and household goods,class
+77295,7729,Renting and leasing of other personal and household goods,class
+77299,7729,Renting and leasing of other personal and household goods,class
+773,773,"Renting and leasing of other machinery, equipment and tangible goods",exact
+7731,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+77311,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+77312,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+77313,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+77319,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+7732,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+77321,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+77322,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+77323,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+77329,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+7739,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+77391,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+77392,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+77393,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+77394,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+77395,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+77399,773,"Renting and leasing of other machinery, equipment and tangible goods",group
+774,774,"Leasing of intellectual property and similar products, except copyrighted works",exact
+7740,7740,"Leasing of intellectual property and similar products, except copyrighted works",exact
+77400,7740,"Leasing of intellectual property and similar products, except copyrighted works",class
+78,78,Employment activities,exact
+781,781,Activities of employment placement agencies,exact
+7810,7810,Activities of employment placement agencies,exact
+78101,7810,Activities of employment placement agencies,class
+78102,7810,Activities of employment placement agencies,class
+78103,7810,Activities of employment placement agencies,class
+78104,7810,Activities of employment placement agencies,class
+782,782,Temporary employment agency activities,exact
+7820,7820,Temporary employment agency activities,exact
+78200,7820,Temporary employment agency activities,class
+783,783,Other human resources provision,exact
+7830,7830,Other human resources provision,exact
+78300,7830,Other human resources provision,class
+784,78,Employment activities,division
+7841,78,Employment activities,division
+78411,78,Employment activities,division
+78412,78,Employment activities,division
+78413,78,Employment activities,division
+78414,78,Employment activities,division
+78415,78,Employment activities,division
+78416,78,Employment activities,division
+78417,78,Employment activities,division
+78419,78,Employment activities,division
+7842,78,Employment activities,division
+78421,78,Employment activities,division
+78422,78,Employment activities,division
+78423,78,Employment activities,division
+78424,78,Employment activities,division
+78425,78,Employment activities,division
+78426,78,Employment activities,division
+78427,78,Employment activities,division
+78429,78,Employment activities,division
+7843,78,Employment activities,division
+78431,78,Employment activities,division
+78432,78,Employment activities,division
+78433,78,Employment activities,division
+78434,78,Employment activities,division
+78435,78,Employment activities,division
+78436,78,Employment activities,division
+78437,78,Employment activities,division
+78439,78,Employment activities,division
+79,79,"Travel agency, tour operator, reservation service and related activities",exact
+791,791,Travel agency and tour operator activities,exact
+7911,7911,Travel agency activities,exact
+79111,7911,Travel agency activities,class
+79112,7911,Travel agency activities,class
+79119,7911,Travel agency activities,class
+7912,7912,Tour operator activities,exact
+79121,7912,Tour operator activities,class
+79122,7912,Tour operator activities,class
+79129,7912,Tour operator activities,class
+799,799,Other reservation service and related activities,exact
+7991,799,Other reservation service and related activities,group
+79911,799,Other reservation service and related activities,group
+79912,799,Other reservation service and related activities,group
+7992,799,Other reservation service and related activities,group
+79921,799,Other reservation service and related activities,group
+79922,799,Other reservation service and related activities,group
+7999,799,Other reservation service and related activities,group
+79990,799,Other reservation service and related activities,group
+80,80,Security and investigation activities,exact
+801,801,Private security activities,exact
+8010,8010,Private security activities,exact
+80100,8010,Private security activities,class
+802,802,Security systems service activities,exact
+8020,8020,Security systems service activities,exact
+80200,8020,Security systems service activities,class
+803,803,Investigation activities,exact
+8030,8030,Investigation activities,exact
+80300,8030,Investigation activities,class
+81,81,Services to buildings and landscape activities,exact
+811,811,Combined facilities support activities,exact
+8110,8110,Combined facilities support activities,exact
+81100,8110,Combined facilities support activities,class
+812,812,Cleaning activities,exact
+8121,8121,General cleaning of buildings,exact
+81210,8121,General cleaning of buildings,class
+8129,8129,Other building and industrial cleaning activities,exact
+81290,8129,Other building and industrial cleaning activities,class
+813,813,Landscape care and maintenance service activities,exact
+8130,8130,Landscape care and maintenance service activities,exact
+81300,8130,Landscape care and maintenance service activities,class
+82,82,"Office administrative, office support and other business support activities",exact
+821,821,Office administrative and support activities,exact
+8211,8211,Combined office administrative service activities,exact
+82110,8211,Combined office administrative service activities,class
+8219,8219,"Photocopying, document preparation and other specialized office support activities",exact
+82190,8219,"Photocopying, document preparation and other specialized office support activities",class
+822,822,Activities of call centres,exact
+8220,8220,Activities of call centres,exact
+82200,8220,Activities of call centres,class
+823,823,Organization of conventions and trade shows,exact
+8230,8230,Organization of conventions and trade shows,exact
+82301,8230,Organization of conventions and trade shows,class
+82302,8230,Organization of conventions and trade shows,class
+829,829,Business support service activities n.e.c.,exact
+8291,8291,Activities of collection agencies and credit bureaus,exact
+82911,8291,Activities of collection agencies and credit bureaus,class
+82912,8291,Activities of collection agencies and credit bureaus,class
+8292,8292,Packaging activities,exact
+82920,8292,Packaging activities,class
+8299,8299,Other business support service activities n.e.c.,exact
+82990,8299,Other business support service activities n.e.c.,class
+84,84,Public administration and defence; compulsory social security,exact
+841,841,Administration of the State and the economic and social policy of the community,exact
+8411,8411,General public administration activities,exact
+84111,8411,General public administration activities,class
+84112,8411,General public administration activities,class
+84113,8411,General public administration activities,class
+84114,8411,General public administration activities,class
+84115,8411,General public administration activities,class
+84119,8411,General public administration activities,class
+8412,8412,"Regulation of the activities of providing health care, education, cultural services and other social services, excluding social security",exact
+84121,8412,"Regulation of the activities of providing health care, education, cultural services and other social services, excluding social security",class
+84122,8412,"Regulation of the activities of providing health care, education, cultural services and other social services, excluding social security",class
+84123,8412,"Regulation of the activities of providing health care, education, cultural services and other social services, excluding social security",class
+84124,8412,"Regulation of the activities of providing health care, education, cultural services and other social services, excluding social security",class
+84125,8412,"Regulation of the activities of providing health care, education, cultural services and other social services, excluding social security",class
+84126,8412,"Regulation of the activities of providing health care, education, cultural services and other social services, excluding social security",class
+84127,8412,"Regulation of the activities of providing health care, education, cultural services and other social services, excluding social security",class
+84129,8412,"Regulation of the activities of providing health care, education, cultural services and other social services, excluding social security",class
+8413,8413,Regulation of and contribution to more efficient operation of businesses,exact
+84131,8413,Regulation of and contribution to more efficient operation of businesses,class
+84132,8413,Regulation of and contribution to more efficient operation of businesses,class
+84133,8413,Regulation of and contribution to more efficient operation of businesses,class
+84134,8413,Regulation of and contribution to more efficient operation of businesses,class
+84135,8413,Regulation of and contribution to more efficient operation of businesses,class
+84136,8413,Regulation of and contribution to more efficient operation of businesses,class
+84137,8413,Regulation of and contribution to more efficient operation of businesses,class
+84138,8413,Regulation of and contribution to more efficient operation of businesses,class
+84139,8413,Regulation of and contribution to more efficient operation of businesses,class
+842,842,Provision of services to the community as a whole,exact
+8421,8421,Foreign affairs,exact
+84210,8421,Foreign affairs,class
+8422,8422,Defence activities,exact
+84221,8422,Defence activities,class
+84222,8422,Defence activities,class
+84223,8422,Defence activities,class
+84224,8422,Defence activities,class
+8423,8423,Public order and safety activities,exact
+84231,8423,Public order and safety activities,class
+84232,8423,Public order and safety activities,class
+84233,8423,Public order and safety activities,class
+84234,8423,Public order and safety activities,class
+843,843,Compulsory social security activities,exact
+8430,8430,Compulsory social security activities,exact
+84300,8430,Compulsory social security activities,class
+85,85,Education,exact
+851,851,Pre-primary and primary education,exact
+8511,851,Pre-primary and primary education,group
+85111,851,Pre-primary and primary education,group
+85112,851,Pre-primary and primary education,group
+8512,851,Pre-primary and primary education,group
+85121,851,Pre-primary and primary education,group
+85122,851,Pre-primary and primary education,group
+8513,851,Pre-primary and primary education,group
+85131,851,Pre-primary and primary education,group
+85132,851,Pre-primary and primary education,group
+85133,851,Pre-primary and primary education,group
+85134,851,Pre-primary and primary education,group
+85135,851,Pre-primary and primary education,group
+85139,851,Pre-primary and primary education,group
+8514,851,Pre-primary and primary education,group
+85141,851,Pre-primary and primary education,group
+85142,851,Pre-primary and primary education,group
+85143,851,Pre-primary and primary education,group
+85144,851,Pre-primary and primary education,group
+8515,851,Pre-primary and primary education,group
+85151,851,Pre-primary and primary education,group
+85152,851,Pre-primary and primary education,group
+85153,851,Pre-primary and primary education,group
+85154,851,Pre-primary and primary education,group
+85155,851,Pre-primary and primary education,group
+8516,851,Pre-primary and primary education,group
+85161,851,Pre-primary and primary education,group
+85162,851,Pre-primary and primary education,group
+85163,851,Pre-primary and primary education,group
+852,852,Secondary education,exact
+8521,8521,General secondary education,exact
+85210,8521,General secondary education,class
+8522,8522,Technical and vocational secondary education,exact
+85220,8522,Technical and vocational secondary education,class
+8523,852,Secondary education,group
+85230,852,Secondary education,group
+8524,852,Secondary education,group
+85240,852,Secondary education,group
+8525,852,Secondary education,group
+85251,852,Secondary education,group
+85252,852,Secondary education,group
+8526,852,Secondary education,group
+85261,852,Secondary education,group
+85262,852,Secondary education,group
+85263,852,Secondary education,group
+8527,852,Secondary education,group
+85270,852,Secondary education,group
+853,853,Higher education,exact
+8531,853,Higher education,group
+85311,853,Higher education,group
+85312,853,Higher education,group
+8532,853,Higher education,group
+85321,853,Higher education,group
+85322,853,Higher education,group
+8533,853,Higher education,group
+85331,853,Higher education,group
+85332,853,Higher education,group
+8534,853,Higher education,group
+85340,853,Higher education,group
+854,854,Other education,exact
+8541,8541,Sports and recreation education,exact
+85410,8541,Sports and recreation education,class
+8542,8542,Cultural education,exact
+85420,8542,Cultural education,class
+8543,854,Other education,group
+85430,854,Other education,group
+8544,854,Other education,group
+85440,854,Other education,group
+8545,854,Other education,group
+85451,854,Other education,group
+85452,854,Other education,group
+85459,854,Other education,group
+8549,8549,Other education n.e.c.,exact
+85491,8549,Other education n.e.c.,class
+85492,8549,Other education n.e.c.,class
+85493,8549,Other education n.e.c.,class
+85494,8549,Other education n.e.c.,class
+85495,8549,Other education n.e.c.,class
+85496,8549,Other education n.e.c.,class
+85497,8549,Other education n.e.c.,class
+85498,8549,Other education n.e.c.,class
+85499,8549,Other education n.e.c.,class
+855,855,Educational support activities,exact
+8550,8550,Educational support activities,exact
+85500,8550,Educational support activities,class
+86,86,Human health activities,exact
+861,861,Hospital activities,exact
+8610,8610,Hospital activities,exact
+86101,8610,Hospital activities,class
+86102,8610,Hospital activities,class
+86103,8610,Hospital activities,class
+86104,8610,Hospital activities,class
+86105,8610,Hospital activities,class
+86109,8610,Hospital activities,class
+862,862,Medical and dental practice activities,exact
+8620,8620,Medical and dental practice activities,exact
+86201,8620,Medical and dental practice activities,class
+86202,8620,Medical and dental practice activities,class
+86203,8620,Medical and dental practice activities,class
+869,869,Other human health activities,exact
+8690,8690,Other human health activities,exact
+86901,8690,Other human health activities,class
+86902,8690,Other human health activities,class
+86903,8690,Other human health activities,class
+86904,8690,Other human health activities,class
+87,87,Residential care activities,exact
+871,871,Residential nursing care facilities,exact
+8710,8710,Residential nursing care facilities,exact
+87100,8710,Residential nursing care facilities,class
+872,872,"Residential care activities for mental retardation, mental health and substance abuse",exact
+8720,8720,"Residential care activities for mental retardation, mental health and substance abuse",exact
+87201,8720,"Residential care activities for mental retardation, mental health and substance abuse",class
+87202,8720,"Residential care activities for mental retardation, mental health and substance abuse",class
+87203,8720,"Residential care activities for mental retardation, mental health and substance abuse",class
+873,873,Residential care activities for the elderly and disabled,exact
+8730,8730,Residential care activities for the elderly and disabled,exact
+87301,8730,Residential care activities for the elderly and disabled,class
+87302,8730,Residential care activities for the elderly and disabled,class
+87303,8730,Residential care activities for the elderly and disabled,class
+87304,8730,Residential care activities for the elderly and disabled,class
+87305,8730,Residential care activities for the elderly and disabled,class
+879,879,Other residential care activities,exact
+8790,8790,Other residential care activities,exact
+87901,8790,Other residential care activities,class
+87902,8790,Other residential care activities,class
+87903,8790,Other residential care activities,class
+87904,8790,Other residential care activities,class
+87905,8790,Other residential care activities,class
+87906,8790,Other residential care activities,class
+87907,8790,Other residential care activities,class
+87909,8790,Other residential care activities,class
+88,88,Social work activities without accommodation,exact
+881,881,Social work activities without accommodation for the elderly and disabled,exact
+8810,8810,Social work activities without accommodation for the elderly and disabled,exact
+88101,8810,Social work activities without accommodation for the elderly and disabled,class
+88102,8810,Social work activities without accommodation for the elderly and disabled,class
+889,889,Other social work activities without accommodation,exact
+8891,889,Other social work activities without accommodation,group
+88911,889,Other social work activities without accommodation,group
+88919,889,Other social work activities without accommodation,group
+8899,889,Other social work activities without accommodation,group
+88991,889,Other social work activities without accommodation,group
+88992,889,Other social work activities without accommodation,group
+90,90,"Creative, arts and entertainment activities",exact
+900,900,"Creative, arts and entertainment activities",exact
+9001,900,"Creative, arts and entertainment activities",group
+90011,900,"Creative, arts and entertainment activities",group
+90012,900,"Creative, arts and entertainment activities",group
+9002,900,"Creative, arts and entertainment activities",group
+90021,900,"Creative, arts and entertainment activities",group
+90022,900,"Creative, arts and entertainment activities",group
+90023,900,"Creative, arts and entertainment activities",group
+90024,900,"Creative, arts and entertainment activities",group
+90025,900,"Creative, arts and entertainment activities",group
+90029,900,"Creative, arts and entertainment activities",group
+9003,900,"Creative, arts and entertainment activities",group
+90030,900,"Creative, arts and entertainment activities",group
+9004,900,"Creative, arts and entertainment activities",group
+90040,900,"Creative, arts and entertainment activities",group
+9009,900,"Creative, arts and entertainment activities",group
+90090,900,"Creative, arts and entertainment activities",group
+91,91,"Libraries, archives, museums and other cultural activities",exact
+910,910,"Libraries, archives, museums and other cultural activities",exact
+9101,9101,Library and archives activities,exact
+91011,9101,Library and archives activities,class
+91012,9101,Library and archives activities,class
+9102,9102,Museums activities and operation of historical sites and buildings,exact
+91021,9102,Museums activities and operation of historical sites and buildings,class
+91022,9102,Museums activities and operation of historical sites and buildings,class
+91023,9102,Museums activities and operation of historical sites and buildings,class
+91024,9102,Museums activities and operation of historical sites and buildings,class
+91025,9102,Museums activities and operation of historical sites and buildings,class
+91029,9102,Museums activities and operation of historical sites and buildings,class
+9103,9103,Botanical and zoological gardens and nature reserves activities,exact
+91031,9103,Botanical and zoological gardens and nature reserves activities,class
+91032,9103,Botanical and zoological gardens and nature reserves activities,class
+91033,9103,Botanical and zoological gardens and nature reserves activities,class
+91034,9103,Botanical and zoological gardens and nature reserves activities,class
+91035,9103,Botanical and zoological gardens and nature reserves activities,class
+91036,9103,Botanical and zoological gardens and nature reserves activities,class
+91037,9103,Botanical and zoological gardens and nature reserves activities,class
+91038,9103,Botanical and zoological gardens and nature reserves activities,class
+91039,9103,Botanical and zoological gardens and nature reserves activities,class
+92,92,Gambling and betting activities,exact
+920,920,Gambling and betting activities,exact
+9200,9200,Gambling and betting activities,exact
+92000,9200,Gambling and betting activities,class
+93,93,Sports activities and amusement and recreation activities,exact
+931,931,Sports activities,exact
+9311,9311,Operation of sports facilities,exact
+93111,9311,Operation of sports facilities,class
+93112,9311,Operation of sports facilities,class
+93113,9311,Operation of sports facilities,class
+93114,9311,Operation of sports facilities,class
+93115,9311,Operation of sports facilities,class
+93116,9311,Operation of sports facilities,class
+93119,9311,Operation of sports facilities,class
+9312,9312,Activities of sports clubs,exact
+93121,9312,Activities of sports clubs,class
+93122,9312,Activities of sports clubs,class
+93123,9312,Activities of sports clubs,class
+93124,9312,Activities of sports clubs,class
+93125,9312,Activities of sports clubs,class
+93126,9312,Activities of sports clubs,class
+93127,9312,Activities of sports clubs,class
+93128,9312,Activities of sports clubs,class
+93129,9312,Activities of sports clubs,class
+9319,9319,Other sports activities,exact
+93191,9319,Other sports activities,class
+93192,9319,Other sports activities,class
+93193,9319,Other sports activities,class
+93194,9319,Other sports activities,class
+93195,9319,Other sports activities,class
+93199,9319,Other sports activities,class
+932,932,Other amusement and recreation activities,exact
+9321,9321,Activities of amusement parks and theme parks,exact
+93211,9321,Activities of amusement parks and theme parks,class
+93219,9321,Activities of amusement parks and theme parks,class
+9322,932,Other amusement and recreation activities,group
+93221,932,Other amusement and recreation activities,group
+93222,932,Other amusement and recreation activities,group
+93223,932,Other amusement and recreation activities,group
+93224,932,Other amusement and recreation activities,group
+93229,932,Other amusement and recreation activities,group
+9323,932,Other amusement and recreation activities,group
+93231,932,Other amusement and recreation activities,group
+93232,932,Other amusement and recreation activities,group
+93233,932,Other amusement and recreation activities,group
+93239,932,Other amusement and recreation activities,group
+9324,932,Other amusement and recreation activities,group
+93241,932,Other amusement and recreation activities,group
+93242,932,Other amusement and recreation activities,group
+93243,932,Other amusement and recreation activities,group
+93244,932,Other amusement and recreation activities,group
+93245,932,Other amusement and recreation activities,group
+93246,932,Other amusement and recreation activities,group
+93249,932,Other amusement and recreation activities,group
+9329,9329,Other amusement and recreation activities n.e.c.,exact
+93291,9329,Other amusement and recreation activities n.e.c.,class
+93292,9329,Other amusement and recreation activities n.e.c.,class
+93293,9329,Other amusement and recreation activities n.e.c.,class
+93294,9329,Other amusement and recreation activities n.e.c.,class
+93299,9329,Other amusement and recreation activities n.e.c.,class
+94,94,Activities of membership organizations,exact
+941,941,"Activities of business, employers and professional membership organizations",exact
+9411,9411,Activities of business and employers membership organizations,exact
+94110,9411,Activities of business and employers membership organizations,class
+9412,9412,Activities of professional membership organizations,exact
+94121,9412,Activities of professional membership organizations,class
+94122,9412,Activities of professional membership organizations,class
+942,942,Activities of trade unions,exact
+9420,9420,Activities of trade unions,exact
+94200,9420,Activities of trade unions,class
+949,949,Activities of other membership organizations,exact
+9491,9491,Activities of religious organizations,exact
+94910,9491,Activities of religious organizations,class
+9492,9492,Activities of political organizations,exact
+94920,9492,Activities of political organizations,class
+9499,9499,Activities of other membership organizations n.e.c.,exact
+94990,9499,Activities of other membership organizations n.e.c.,class
+95,95,Repair of computers and personal and household goods,exact
+951,951,Repair of computers and communication equipment,exact
+9511,9511,Repair of computers and peripheral equipment,exact
+95110,9511,Repair of computers and peripheral equipment,class
+9512,9512,Repair of communication equipment,exact
+95120,9512,Repair of communication equipment,class
+952,952,Repair of personal and household goods,exact
+9521,9521,Repair of consumer electronics,exact
+95210,9521,Repair of consumer electronics,class
+9522,9522,Repair of household appliances and home and garden equipment,exact
+95220,9522,Repair of household appliances and home and garden equipment,class
+9523,9523,Repair of footwear and leather goods,exact
+95230,9523,Repair of footwear and leather goods,class
+9524,9524,Repair of furniture and home furnishings,exact
+95240,9524,Repair of furniture and home furnishings,class
+9529,9529,Repair of other personal and household goods,exact
+95291,9529,Repair of other personal and household goods,class
+95299,9529,Repair of other personal and household goods,class
+96,96,Other personal service activities,exact
+961,96,Other personal service activities,division
+9611,96,Other personal service activities,division
+96111,96,Other personal service activities,division
+96112,96,Other personal service activities,division
+9612,96,Other personal service activities,division
+96121,96,Other personal service activities,division
+96122,96,Other personal service activities,division
+96129,96,Other personal service activities,division
+962,96,Other personal service activities,division
+9620,96,Other personal service activities,division
+96200,96,Other personal service activities,division
+969,96,Other personal service activities,division
+9691,96,Other personal service activities,division
+96910,96,Other personal service activities,division
+9699,96,Other personal service activities,division
+96990,96,Other personal service activities,division
+97,97,Activities of households as employers of domestic personnel,exact
+970,970,Activities of households as employers of domestic personnel,exact
+9700,9700,Activities of households as employers of domestic personnel,exact
+97000,9700,Activities of households as employers of domestic personnel,class
+98,98,Undifferentiated goods- and services-producing activities of private households for own use,exact
+981,981,Undifferentiated goods-producing activities of private households for own use,exact
+9810,9810,Undifferentiated goods-producing activities of private households for own use,exact
+98100,9810,Undifferentiated goods-producing activities of private households for own use,class
+982,982,Undifferentiated service-producing activities of private households for own use,exact
+9820,9820,Undifferentiated service-producing activities of private households for own use,exact
+98200,9820,Undifferentiated service-producing activities of private households for own use,class
+99,99,Activities of extraterritorial organizations and bodies,exact
+990,990,Activities of extraterritorial organizations and bodies,exact
+9900,9900,Activities of extraterritorial organizations and bodies,exact

@@ -22,6 +22,7 @@ from mcp_marketing.services.agent.runtime import AgentRuntime
 from mcp_marketing.services.dashboard.agent_api import AgentApiClient
 from mcp_marketing.services.dashboard.outbox import Outbox
 from mcp_marketing.services.dashboard.service_api import DashboardServiceApi
+from mcp_marketing.services.kb.vector import ensure_pgvector
 from mcp_marketing.services.llm.gateway_client import GatewayClient
 from mcp_marketing.services.results.cache import ResultCache
 from mcp_marketing.services.results.result_store import ResultStore
@@ -59,6 +60,12 @@ def build_services(settings: Settings) -> Services:
     return services
 
 
+async def check_pgvector(services: Services) -> None:
+    """MCP-V1-01: tolak start dalam mode cadangan bila `KB_REQUIRE_PGVECTOR=true`."""
+    async with services.db.engine.connect() as conn:
+        await ensure_pgvector(conn, required=services.settings.nlp.kb_require_pgvector)
+
+
 async def close_services(services: Services) -> None:
     if services.llm is not None:
         await services.llm.close()
@@ -76,6 +83,7 @@ def create_app(settings: Settings | None = None) -> Any:
 
     @contextlib.asynccontextmanager
     async def lifespan_extra() -> AsyncIterator[None]:
+        await check_pgvector(services)
         pipeline = services.extras["pipeline"]
         runtime = AgentRuntime(services, pipeline)
         services.runtime = runtime

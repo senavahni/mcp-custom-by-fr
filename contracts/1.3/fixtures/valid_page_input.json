@@ -1,0 +1,9 @@
+{
+  "name": "valid_page_input",
+  "payload": {
+    "cursor": "eyJpIjo1MH0",
+    "limit": 200
+  },
+  "schema": "page_input",
+  "valid": true
+}

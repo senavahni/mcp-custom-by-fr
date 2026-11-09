@@ -133,6 +133,28 @@ class BrowserSettings(_Group):
         return _abs_path(v)
 
 
+class DiscoverySettings(_Group):
+    """Rem volume Google Search/Maps via Chrome (MCP-V1-06, V1-K4). Angka awal; kalibrasi spike."""
+
+    discovery_profile: str = "riset-google"
+    discovery_search_per_hour: int = Field(default=40, ge=1, le=200)
+    discovery_search_per_day: int = Field(default=300, ge=1)
+    discovery_maps_per_hour: int = Field(default=30, ge=1, le=200)
+    discovery_maps_per_day: int = Field(default=200, ge=1)
+    # jeda acak minimal-maksimal antar navigasi Google (detik)
+    discovery_pause_min_s: float = Field(default=20.0, ge=0)
+    discovery_pause_max_s: float = Field(default=60.0, ge=0)
+    discovery_cache_ttl_days: int = Field(default=30, ge=0)
+    # domain tambahan yang dibuang dari hasil Search (dipisah koma), di luar daftar bawaan
+    discovery_blocked_domains: str = ""
+
+    @model_validator(mode="after")
+    def _pause_range(self) -> DiscoverySettings:
+        if self.discovery_pause_max_s < self.discovery_pause_min_s:
+            raise ValueError("DISCOVERY_PAUSE_MAX_S harus >= DISCOVERY_PAUSE_MIN_S")
+        return self
+
+
 class SocialSettings(_Group):
     x_bearer_token: SecretStr | None = None
     x_max_reads_per_day: int = Field(default=2_000, ge=0)
@@ -171,6 +193,8 @@ class NlpSettings(_Group):
     embed_provider: Literal["gateway", "local"] = "gateway"
     embed_dim: int = 1536
     local_embed_model_dir: Path = Path("./models/embed-local")
+    # v1 (MCP-V1-01): pgvector wajib; true = server/worker menolak start dalam mode cadangan real[]
+    kb_require_pgvector: bool = True
 
     @field_validator("sentiment_model_dir", "local_embed_model_dir")
     @classmethod
@@ -201,6 +225,7 @@ class Settings(_Group):
     token: TokenSettings = Field(default_factory=TokenSettings)
     worker: WorkerSettings = Field(default_factory=WorkerSettings)
     browser: BrowserSettings = Field(default_factory=BrowserSettings)
+    discovery: DiscoverySettings = Field(default_factory=DiscoverySettings)
     social: SocialSettings = Field(default_factory=SocialSettings)
     trends: TrendsSettings = Field(default_factory=TrendsSettings)
     nlp: NlpSettings = Field(default_factory=NlpSettings)

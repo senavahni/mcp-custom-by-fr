@@ -1,0 +1,9 @@
+{
+  "name": "valid_page_meta",
+  "payload": {
+    "next_cursor": "eyJpIjoxMDB9",
+    "total_estimate": 3500
+  },
+  "schema": "page_meta",
+  "valid": true
+}

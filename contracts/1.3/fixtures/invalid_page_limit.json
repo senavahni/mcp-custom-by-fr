@@ -1,0 +1,9 @@
+{
+  "expect_path": "limit",
+  "name": "invalid_page_limit",
+  "payload": {
+    "limit": 201
+  },
+  "schema": "page_input",
+  "valid": false
+}

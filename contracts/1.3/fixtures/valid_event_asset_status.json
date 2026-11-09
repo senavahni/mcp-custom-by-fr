@@ -1,0 +1,21 @@
+{
+  "name": "valid_event_asset_status",
+  "payload": {
+    "contract_version": "1.3",
+    "data": {
+      "asset_id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+      "pages_done": 120,
+      "pages_total": 480,
+      "status": "embedding"
+    },
+    "event_id": "66666666-6666-4666-8666-666666666666",
+    "event_type": "kn.asset.status",
+    "job_id": "55555555-5555-4555-8555-555555555555",
+    "mcp_job_id": "j_k3m9x2qa1b",
+    "occurred_at": "2026-11-09T01:00:00Z",
+    "sequence": 1,
+    "workspace_id": "00000000-0000-4000-8000-000000000001"
+  },
+  "schema": "event",
+  "valid": true
+}

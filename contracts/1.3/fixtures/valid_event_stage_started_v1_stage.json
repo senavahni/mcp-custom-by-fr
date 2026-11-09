@@ -1,0 +1,19 @@
+{
+  "name": "valid_event_stage_started_v1_stage",
+  "payload": {
+    "contract_version": "1.3",
+    "data": {
+      "agent_key": "researcher",
+      "stage": "collect"
+    },
+    "event_id": "66666666-6666-4666-8666-666666666666",
+    "event_type": "intel.job.stage.started",
+    "job_id": "55555555-5555-4555-8555-555555555555",
+    "mcp_job_id": "j_k3m9x2qa1b",
+    "occurred_at": "2026-11-09T01:00:00Z",
+    "sequence": 1,
+    "workspace_id": "00000000-0000-4000-8000-000000000001"
+  },
+  "schema": "event",
+  "valid": true
+}

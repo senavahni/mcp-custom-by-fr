@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from mcp_marketing.core.config import ConfigError, get_settings  # noqa: E402
 from mcp_marketing.core.database import set_database  # noqa: E402
 from mcp_marketing.core.logging import configure_logging, get_logger  # noqa: E402
-from mcp_marketing.main import build_services, close_services  # noqa: E402
+from mcp_marketing.main import build_services, check_pgvector, close_services  # noqa: E402
 from mcp_marketing.services.browser.driver_pool import check_versions  # noqa: E402
 from mcp_marketing.worker.handlers import default_registry  # noqa: E402
 from mcp_marketing.worker.runner import Worker  # noqa: E402
@@ -28,6 +28,11 @@ async def run() -> None:
         get_logger("worker").critical("browser.not_ready", **browser)
     services = build_services(settings)
     set_database(services.db)
+    try:
+        await check_pgvector(services)
+    except ConfigError:
+        await close_services(services)
+        raise
     registry = default_registry()
     assert services.jobs is not None
     services.jobs.estimator = registry
@@ -61,6 +66,9 @@ def main() -> int:
         asyncio.run(run())
     except KeyboardInterrupt:
         pass
+    except ConfigError as exc:
+        print(f"GAGAL START: {exc}", file=sys.stderr)
+        return 2
     return 0
 
 

@@ -1,0 +1,25 @@
+{
+  "expect_path": "params",
+  "name": "invalid_params_contact_finder_both_scopes",
+  "payload": {
+    "budget_usd": 1.0,
+    "confirm_cost": true,
+    "contract_version": "1.3",
+    "dashboard_job_id": "55555555-5555-4555-8555-555555555555",
+    "llm_assist": false,
+    "params": {
+      "company_ids": [
+        "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+      ],
+      "import_batch_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "kind": "contact_finder"
+    },
+    "requested_by": {
+      "name": "Member Demo",
+      "user_id": "44444444-4444-4444-8444-444444444444"
+    },
+    "workspace_id": "00000000-0000-4000-8000-000000000001"
+  },
+  "schema": "job_create_input",
+  "valid": false
+}

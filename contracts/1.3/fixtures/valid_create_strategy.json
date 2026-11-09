@@ -1,0 +1,29 @@
+{
+  "name": "valid_create_strategy",
+  "payload": {
+    "budget_usd": 1.0,
+    "confirm_cost": true,
+    "contract_version": "1.3",
+    "dashboard_job_id": "55555555-5555-4555-8555-555555555555",
+    "llm_assist": false,
+    "params": {
+      "kind": "strategy",
+      "objective": "Menambah 20 lead instansi pendidikan di Jawa Barat",
+      "period": {
+        "since": "2026-11-01",
+        "until": "2026-11-30"
+      },
+      "product_id": "77777777-7777-4777-8777-777777777777",
+      "segment_ids": [
+        "88888888-8888-4888-8888-888888888888"
+      ]
+    },
+    "requested_by": {
+      "name": "Member Demo",
+      "user_id": "44444444-4444-4444-8444-444444444444"
+    },
+    "workspace_id": "00000000-0000-4000-8000-000000000001"
+  },
+  "schema": "job_create_input",
+  "valid": true
+}

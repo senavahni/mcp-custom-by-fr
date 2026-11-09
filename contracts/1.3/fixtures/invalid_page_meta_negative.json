@@ -1,0 +1,9 @@
+{
+  "expect_path": "total_estimate",
+  "name": "invalid_page_meta_negative",
+  "payload": {
+    "total_estimate": -1
+  },
+  "schema": "page_meta",
+  "valid": false
+}

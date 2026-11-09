@@ -1,0 +1,42 @@
+{
+  "name": "valid_job_accepted",
+  "payload": {
+    "accepted": true,
+    "estimate": {
+      "llm": {
+        "tokens_est": 30000,
+        "usd_est": 0.05
+      },
+      "requires_confirmation": false,
+      "seconds": 14400,
+      "units": [
+        {
+          "count": 40,
+          "unit": "google_search"
+        },
+        {
+          "count": 30,
+          "unit": "google_maps"
+        },
+        {
+          "count": 800,
+          "unit": "web_page"
+        },
+        {
+          "count": 2400,
+          "unit": "embedding"
+        }
+      ],
+      "warnings": [
+        {
+          "code": "SLOW_SOURCE",
+          "message": "Rem volume Google Maps: perkiraan selesai ±4 jam"
+        }
+      ]
+    },
+    "kind": "company_discovery",
+    "mcp_job_id": "j_k3m9x2qa1b"
+  },
+  "schema": "job_accepted",
+  "valid": true
+}

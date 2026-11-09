@@ -14,6 +14,7 @@ import numpy as np
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
+from mcp_marketing.core.config import ConfigError
 from mcp_marketing.core.logging import get_logger
 
 log = get_logger(__name__)
@@ -24,7 +25,18 @@ HNSW_INDEXES = (
     "USING hnsw ((embedding::vector(1536)) vector_cosine_ops) WHERE embed_dim = 1536",
     "CREATE INDEX IF NOT EXISTS kb_chunks_hnsw_384 ON mcp.kb_chunks "
     "USING hnsw ((embedding::vector(384)) vector_cosine_ops) WHERE embed_dim = 384",
+    # v1 (V1-K7/K8): koleksi embed-local Qwen3-Embedding-0.6B, 1024 dim
+    "CREATE INDEX IF NOT EXISTS kb_chunks_hnsw_1024 ON mcp.kb_chunks "
+    "USING hnsw ((embedding::vector(1024)) vector_cosine_ops) WHERE embed_dim = 1024",
 )
+# tabel v1 dengan kolom embedding berdimensi tetap (migrasi 0005+): tabel -> (dimensi, indeks)
+FIXED_DIM_TABLES: dict[str, tuple[int, str]] = {
+    "mcp.industries": (
+        1024,
+        "CREATE INDEX IF NOT EXISTS industries_embedding_hnsw ON mcp.industries "
+        "USING hnsw (embedding vector_cosine_ops) WHERE embedding IS NOT NULL",
+    ),
+}
 _COLUMN_TYPE_SQL = (
     "SELECT format_type(a.atttypid, a.atttypmod) FROM pg_attribute a "
     "WHERE a.attrelid = to_regclass(:t) AND a.attname = 'embedding' AND NOT a.attisdropped"
@@ -47,6 +59,22 @@ def reset_mode_cache() -> None:
     _mode_cache.clear()
 
 
+PGVECTOR_REQUIRED_MESSAGE = (
+    "KB_REQUIRE_PGVECTOR=true tetapi kolom embedding KB belum bertipe vector (mode cadangan). "
+    "Pasang pgvector, jalankan CREATE EXTENSION vector sebagai superuser, lalu scripts\\migrate.bat"
+)
+
+
+async def ensure_pgvector(session: AsyncSession | AsyncConnection, *, required: bool) -> Mode:
+    """Cek saat startup (MCP-V1-01): mode cadangan ditolak bila `required`."""
+    mode = await vector_mode(session)
+    if required and mode != "vector":
+        raise ConfigError(PGVECTOR_REQUIRED_MESSAGE)
+    if mode != "vector":
+        log.warning("kb.fallback_mode", detail="pgvector tidak aktif; batas ±20.000 chunk")
+    return mode
+
+
 async def promote_to_pgvector(conn: AsyncConnection) -> bool:
     """Ubah kolom `real[]` -> `vector` + buat HNSW bila ekstensi tersedia (idempoten)."""
     has_ext = (
@@ -67,6 +95,19 @@ async def promote_to_pgvector(conn: AsyncConnection) -> bool:
             changed = True
     for statement in HNSW_INDEXES:
         await conn.execute(text(statement))
+    for table, (dim, index_sql) in FIXED_DIM_TABLES.items():
+        kind = (await conn.execute(text(_COLUMN_TYPE_SQL), {"t": table})).scalar()
+        if kind is None:
+            continue  # tabel belum dibuat (migrasi lebih lama)
+        if str(kind).startswith("real"):
+            await conn.execute(
+                text(
+                    f"ALTER TABLE {table} ALTER COLUMN embedding "
+                    f"TYPE vector({dim}) USING embedding::vector({dim})"
+                )
+            )
+            changed = True
+        await conn.execute(text(index_sql))
     reset_mode_cache()
     if changed:
         log.info("kb.promoted_to_pgvector")

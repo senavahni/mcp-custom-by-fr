@@ -1,0 +1,97 @@
+{
+  "name": "valid_job_view_awaiting_review",
+  "payload": {
+    "budget_usd": 1.0,
+    "cost": {
+      "by_stage": [
+        {
+          "agent_key": "analyst",
+          "llm_tokens": 28000,
+          "stage": "product_analysis",
+          "usd_llm": 0.047
+        }
+      ],
+      "external_units": 70,
+      "llm_tokens": 28000,
+      "usd_external": 0.0,
+      "usd_llm": 0.047
+    },
+    "dashboard_job_id": "55555555-5555-4555-8555-555555555555",
+    "error": null,
+    "kind": "company_discovery",
+    "llm_assist": false,
+    "mcp_job_id": "j_k3m9x2qa1b",
+    "paused": null,
+    "result": null,
+    "review": {
+      "stage": "product_analysis",
+      "subject_id": "a1b2c3",
+      "subject_type": "product_analysis"
+    },
+    "stages": [
+      {
+        "agent_key": "analyst",
+        "error": null,
+        "finished_at": "2026-11-09T01:00:00Z",
+        "progress": {
+          "done": 1,
+          "total": 1
+        },
+        "stage": "product_analysis",
+        "started_at": "2026-11-09T01:00:00Z",
+        "status": "awaiting_review"
+      },
+      {
+        "agent_key": "prospector",
+        "error": null,
+        "finished_at": null,
+        "progress": {
+          "done": 0,
+          "total": null
+        },
+        "stage": "discovery",
+        "started_at": null,
+        "status": "pending"
+      },
+      {
+        "agent_key": "prospector",
+        "error": null,
+        "finished_at": null,
+        "progress": {
+          "done": 0,
+          "total": null
+        },
+        "stage": "enrichment",
+        "started_at": null,
+        "status": "pending"
+      },
+      {
+        "agent_key": null,
+        "error": null,
+        "finished_at": null,
+        "progress": {
+          "done": 0,
+          "total": null
+        },
+        "stage": "index",
+        "started_at": null,
+        "status": "pending"
+      },
+      {
+        "agent_key": null,
+        "error": null,
+        "finished_at": null,
+        "progress": {
+          "done": 0,
+          "total": null
+        },
+        "stage": "fit",
+        "started_at": null,
+        "status": "pending"
+      }
+    ],
+    "status": "awaiting_review"
+  },
+  "schema": "job_view",
+  "valid": true
+}

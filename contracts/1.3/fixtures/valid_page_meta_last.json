@@ -1,0 +1,9 @@
+{
+  "name": "valid_page_meta_last",
+  "payload": {
+    "next_cursor": null,
+    "total_estimate": null
+  },
+  "schema": "page_meta",
+  "valid": true
+}

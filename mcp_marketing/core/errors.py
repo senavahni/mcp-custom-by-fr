@@ -37,6 +37,12 @@ ErrorCode = Literal[
     "LLM_UNAVAILABLE",
     "LLM_REQUEST_INVALID",
     "WORKER_LOST",
+    # kontrak 1.3 (v1.0.0)
+    "UPLOAD_TOO_LARGE",
+    "UNSUPPORTED_FILE",
+    "REVIEW_REQUIRED",
+    "CAPTCHA_REQUIRED",
+    "LOCAL_MODEL_UNAVAILABLE",
 ]
 MAX_VALIDATION_FIELDS = 5
 MAX_MESSAGE_CHARS = 500
@@ -166,6 +172,32 @@ class JobNotActive(ToolError):
 
 class ResultExpired(ToolError):
     code = "RESULT_EXPIRED"
+
+
+class UploadTooLarge(ToolError):
+    code = "UPLOAD_TOO_LARGE"
+
+
+class UnsupportedFile(ToolError):
+    code = "UNSUPPORTED_FILE"
+
+
+class ReviewRequired(ToolError):
+    code = "REVIEW_REQUIRED"
+
+
+class CaptchaRequired(ToolError):
+    """Google menampilkan CAPTCHA/consent: job pause, user menyelesaikan manual di Chrome."""
+
+    code = "CAPTCHA_REQUIRED"
+    retryable = True
+
+
+class LocalModelUnavailable(ToolError):
+    """`embed-local` mati: job bulk pause, tidak jatuh ke model berdimensi lain (V1-K7)."""
+
+    code = "LOCAL_MODEL_UNAVAILABLE"
+    retryable = True
 
 
 def validation_error_from(exc: ValidationError) -> ValidationFailed:

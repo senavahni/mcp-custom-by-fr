@@ -278,13 +278,19 @@ async def mcp_session(
     await http.aclose()
 
 
+# data referensi yang di-seed migrasi 0005 (wilayah, KBLI, ISIC) tidak boleh dikosongkan
+REFERENCE_TABLES = ("alembic_version", "regions", "industries", "industry_isic_map")
+
+
 @pytest_asyncio.fixture
 async def clean_db(db: Database) -> Database:
     """Kosongkan tabel mcp (kecuali seed referensi) sebelum test."""
     conn = await asyncpg.connect(_with(ADMIN_URL or "", user=OWNER, password=OWNER_PW, db=TEST_DB))
     try:
         tables = await conn.fetch(
-            "SELECT tablename FROM pg_tables WHERE schemaname = 'mcp' AND tablename <> 'alembic_version'"
+            "SELECT tablename FROM pg_tables WHERE schemaname = 'mcp' "
+            "AND tablename <> ALL($1::text[])",
+            list(REFERENCE_TABLES),
         )
         names = ", ".join(f"mcp.{r['tablename']}" for r in tables)
         await conn.execute(f"TRUNCATE {names} RESTART IDENTITY CASCADE")

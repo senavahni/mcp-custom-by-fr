@@ -1,0 +1,23 @@
+{
+  "name": "valid_event_import_status",
+  "payload": {
+    "contract_version": "1.3",
+    "data": {
+      "batch_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "rows_failed": 2,
+      "rows_ok": 800,
+      "rows_review": 30,
+      "rows_total": 1200,
+      "status": "importing"
+    },
+    "event_id": "66666666-6666-4666-8666-666666666666",
+    "event_type": "ci.import.status",
+    "job_id": "55555555-5555-4555-8555-555555555555",
+    "mcp_job_id": "j_k3m9x2qa1b",
+    "occurred_at": "2026-11-09T01:00:00Z",
+    "sequence": 1,
+    "workspace_id": "00000000-0000-4000-8000-000000000001"
+  },
+  "schema": "event",
+  "valid": true
+}

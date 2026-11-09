@@ -13,6 +13,8 @@
 \endif
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
+-- pencarian nama perusahaan/wilayah berbasis trigram (0005_market_intel, MCP-V1-02)
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- pgvector opsional saat bootstrap: revisi 0002_kb_vector butuh ekstensi ini (TASK-19)
 DO $$
