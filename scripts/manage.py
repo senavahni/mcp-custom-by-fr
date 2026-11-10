@@ -1,7 +1,7 @@
 """CLI operasional MCP Marketing.
 
 python scripts/manage.py migrate [--target head]
-python scripts/manage.py seed [--force]
+python scripts/manage.py seed [--force | --upgrade]
 python scripts/manage.py db-check
 python scripts/manage.py create-client --name claude-desktop --toolsets toolbox,data,job,trends
 python scripts/manage.py list-clients
@@ -92,7 +92,7 @@ async def _with_db(fn):  # type: ignore[no-untyped-def]
 def cmd_seed(args: argparse.Namespace) -> int:
     from mcp_marketing.services.seed import seed
 
-    counts = asyncio.run(_with_db(lambda s: seed(s, force=args.force)))
+    counts = asyncio.run(_with_db(lambda s: seed(s, force=args.force, upgrade=args.upgrade)))
     print("seed OK (baris baru):", counts)
     return 0
 
@@ -564,6 +564,11 @@ def main(argv: list[str] | None = None) -> int:
 
     p = sub.add_parser("seed")
     p.add_argument("--force", action="store_true", help="timpa profil agent yang sudah ada")
+    p.add_argument(
+        "--upgrade",
+        action="store_true",
+        help="tambahkan toolset/denylist v1 ke profil lama (aditif, prompt tidak disentuh)",
+    )
     p.set_defaults(fn=cmd_seed)
 
     sub.add_parser("db-check").set_defaults(fn=cmd_db_check)
@@ -630,7 +635,7 @@ def main(argv: list[str] | None = None) -> int:
 
     p = sub.add_parser("gateway-keys", help="key LLM Gateway per agent (terenkripsi)")
     p.add_argument("action", choices=["gen-secret", "provision", "list", "import", "disable"])
-    p.add_argument("--agents", default="researcher,analyst,strategist")
+    p.add_argument("--agents", default="researcher,analyst,strategist,creative,curator,prospector")
     p.add_argument("--agent", help="untuk import/disable: agent_key atau 'system'")
     p.add_argument("--project", default="marketing-mcp", help="slug project di Gateway")
     p.add_argument("--admin-url", help="default: LLM_GATEWAY_URL tanpa /v1")

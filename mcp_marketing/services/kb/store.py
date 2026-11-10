@@ -21,6 +21,7 @@ from mcp_marketing.services.kb.chunker import (
     chunk_markdown,
 )
 from mcp_marketing.services.kb.embedder import Embedder
+from mcp_marketing.services.kb.identity import max_chunk_tokens
 from mcp_marketing.utils.crypto import sha256_hex
 from mcp_marketing.utils.time import now
 
@@ -79,6 +80,9 @@ async def upsert_document(
             details={"collection": collection.embed_model, "embedder": embedder.model},
         )
     body = doc.content[:MAX_DOC_CHARS]
+    capped = max_chunk_tokens(collection.embed_model, chunk_size)
+    if capped != chunk_size:  # hanya koleksi embed-local; koleksi lama tidak berubah hash-nya
+        chunk_size, overlap = capped, min(overlap, capped // 4)
     digest = content_hash(body, chunk_size, overlap)
     ref = doc.source_ref[:2_000]
     async with db.session() as session:

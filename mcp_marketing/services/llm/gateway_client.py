@@ -15,7 +15,7 @@ import time
 import uuid
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
-from typing import Any, TypeVar
+from typing import Any, Literal, TypeVar
 
 import httpx2
 import openai
@@ -28,6 +28,7 @@ from mcp_marketing.core.config import Settings
 from mcp_marketing.core.database import Database
 from mcp_marketing.core.errors import (
     BudgetExceeded,
+    LocalModelUnavailable,
     RateLimited,
     ToolError,
     UpstreamError,
@@ -54,6 +55,39 @@ RETRY_AFTER_CAP_S = 30.0
 TIMEOUT_TOKEN_FACTOR = 0.7
 EMBED_BATCH = 64
 EMBED_MAX_TOKENS = 8_000
+# embed-local (LGW-V1-04/05): max_batch 8, max_input_tokens 2048 (Gateway memotong sisanya)
+EMBED_LOCAL_ROUTE = "embed-local"
+EMBED_LOCAL_BATCH = 8
+EMBED_LOCAL_MAX_TOKENS = 2_048
+# kode error Gateway 503 yang berarti runtime/model lokal tidak bisa melayani
+LOCAL_DOWN_CODES = frozenset(
+    {
+        "provider_unavailable",
+        "model_load_failed",
+        "model_not_whitelisted",
+        "device_unavailable",
+        "device_oom",
+    }
+)
+EmbedInputType = Literal["query", "document"]
+EmbedPriority = Literal["interactive", "bulk"]
+
+
+def embed_error(exc: openai.APIError, *, local: bool) -> ToolError:
+    """Petakan error embedding Gateway. `model_busy` = sementara (retry), bukan pause."""
+    code = _error_code(exc) if isinstance(exc, openai.APIStatusError) else ""
+    status = getattr(exc, "status_code", None)
+    if local and status == 503 and code in LOCAL_DOWN_CODES:
+        return LocalModelUnavailable(
+            "Model embedding lokal (embed-local) tidak tersedia; job bulk dijeda",
+            details={"gateway_code": code},
+        )
+    return UpstreamError(
+        "Embedding Gateway gagal",
+        details={"reason": type(exc).__name__, **({"gateway_code": code} if code else {})},
+    )
+
+
 REPAIR_PREVIOUS_CHARS = 2_000
 _FENCE_RE = re.compile(r"^```(?:json)?\s*|\s*```$", re.MULTILINE)
 
@@ -457,19 +491,41 @@ class GatewayClient:
 
     # ------------------------------------------------------------------ embed
     async def embed(
-        self, texts: list[str], *, model: str | None = None, budget: BudgetScope | None = None
+        self,
+        texts: list[str],
+        *,
+        model: str | None = None,
+        budget: BudgetScope | None = None,
+        input_type: EmbedInputType | None = None,
+        priority: EmbedPriority | None = None,
     ) -> list[list[float]]:
+        """Embedding lewat Gateway. Untuk `embed-local` (LGW-V1-04): `input_type` query/document
+        (prefix instruksi dipasang Gateway), header `X-Priority`, batch 8, dan model lokal mati
+        -> `LocalModelUnavailable` (tidak jatuh ke model berdimensi lain)."""
         route = model or self.settings.llm.llm_route_embed
+        local = route == EMBED_LOCAL_ROUTE
+        max_tokens = EMBED_LOCAL_MAX_TOKENS if local else EMBED_MAX_TOKENS
         prepared = []
         for text in texts:
-            if count_tokens(text) > EMBED_MAX_TOKENS:
-                log.warning("llm.embed_truncated", max_tokens=EMBED_MAX_TOKENS)
-                text = truncate_to_tokens(text, EMBED_MAX_TOKENS)
+            if count_tokens(text) > max_tokens:
+                log.warning("llm.embed_truncated", max_tokens=max_tokens)
+                text = truncate_to_tokens(text, max_tokens)
             prepared.append(text)
-        cached = await self._embed_cache_get(prepared, route)
+        # vektor query embed-local berprefiks instruksi -> cache terpisah dari dokumen
+        cache_key = f"{route}:query" if local and input_type == "query" else route
+        cached = await self._embed_cache_get(prepared, cache_key)
         missing = [i for i, vec in enumerate(cached) if vec is None]
-        for start in range(0, len(missing), EMBED_BATCH):
-            idxs = missing[start : start + EMBED_BATCH]
+        batch_size = EMBED_LOCAL_BATCH if local else EMBED_BATCH
+        headers = {**caller_headers()}
+        if priority is not None:
+            headers["X-Priority"] = priority
+        extra_body = (
+            {"provider_options": {"input_type": input_type or "document", "truncate": True}}
+            if local
+            else None
+        )
+        for start in range(0, len(missing), batch_size):
+            idxs = missing[start : start + batch_size]
             batch = [prepared[i] for i in idxs]
             estimate = count_tokens(batch)
             reservation = await budget.reserve(estimate) if budget is not None else None
@@ -479,14 +535,13 @@ class GatewayClient:
                 resp = await client.embeddings.create(
                     model=route,
                     input=batch,
-                    extra_headers={"X-Request-Id": str(uuid.uuid4()), **caller_headers()},
+                    extra_headers={"X-Request-Id": str(uuid.uuid4()), **headers},
+                    extra_body=extra_body,
                 )
             except openai.APIError as exc:
                 if reservation is not None and budget is not None:
                     await budget.release(reservation)
-                raise UpstreamError(
-                    "Embedding Gateway gagal", details={"reason": type(exc).__name__}
-                ) from None
+                raise embed_error(exc, local=local) from None
             except BaseException:
                 if reservation is not None and budget is not None:
                     await budget.release(reservation)
@@ -510,7 +565,7 @@ class GatewayClient:
             vectors = [d.embedding for d in sorted(resp.data, key=lambda d: d.index)]
             for i, vec in zip(idxs, vectors, strict=True):
                 cached[i] = vec
-            await self._embed_cache_put([prepared[i] for i in idxs], vectors, route)
+            await self._embed_cache_put([prepared[i] for i in idxs], vectors, cache_key)
         return [vec for vec in cached if vec is not None]
 
     async def _embed_cache_available(self) -> bool:

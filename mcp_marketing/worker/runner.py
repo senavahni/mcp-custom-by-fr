@@ -26,6 +26,8 @@ REAP_EVERY_S = 15.0
 SCHEDULER_EVERY_S = 60.0
 RETRY_BASE_DELAY_S = 30.0
 SHUTDOWN_GRACE_S = 20.0
+PAUSE_CODES = frozenset({"LOCAL_MODEL_UNAVAILABLE"})
+PAUSE_DELAY_S = 300.0
 
 
 class Worker:
@@ -213,6 +215,11 @@ class Worker:
             log.exception("job.internal_error", kind=job.kind, error_type=type(exc).__name__)
             error = {"code": "INTERNAL", "message": "Kesalahan internal job", "retryable": True}
             retryable = True
+        if error["code"] in PAUSE_CODES:
+            # MCP-V1-01: embed-local mati -> job bulk dijeda (bukan gagal, tanpa fallback model)
+            log.warning("job.paused", kind=job.kind, code=error["code"], delay_s=PAUSE_DELAY_S)
+            await self.queue.pause(job.id, self.worker_id, delay_s=PAUSE_DELAY_S, error=error)
+            return
         if retryable and job.attempts < job.max_attempts:
             delay = RETRY_BASE_DELAY_S * job.attempts
             log.warning(

@@ -21,12 +21,17 @@ from mcp_marketing.core import context
 from mcp_marketing.core.errors import BudgetExceeded, RunNotActive, ToolError, to_tool_error
 from mcp_marketing.core.logging import get_logger
 from mcp_marketing.core.metrics import RUNS_TOTAL
-from mcp_marketing.models import AgentProfile, Run
+from mcp_marketing.models import AgentDoctrine, AgentProfile, Run
 from mcp_marketing.server.auth import ClientIdentity
 from mcp_marketing.server.pipeline import ToolPipeline
 from mcp_marketing.server.registry import ToolSpec, all_tools
 from mcp_marketing.server.services import Services
 from mcp_marketing.services.agent import brief
+from mcp_marketing.services.agent.doctrine import (
+    ActiveDoctrine,
+    compose_with_doctrine,
+    load_active_doctrine,
+)
 from mcp_marketing.services.agent.memory import RunMemory, compact_history, messages_from_steps
 from mcp_marketing.services.agent.runs import ACTIVE, RunRegistry
 from mcp_marketing.services.agent.virtual_tools import (
@@ -220,6 +225,25 @@ class AgentRuntime:
         except Exception as exc:  # noqa: BLE001 - non-blocking
             log.warning("run.kb_sync_schedule_failed", error=type(exc).__name__)
 
+    async def _system_prompt(self, run: Run, profile: AgentProfile) -> str:
+        """Prompt profil + doktrin aktif peran (MCP-V1-03). Run yang dilanjutkan memakai versi
+        doktrin yang tercatat saat mulai agar prompt tidak berubah di tengah run."""
+        recorded = run.doctrine or {}
+        async with self.services.db.session() as session:
+            if recorded.get("id"):
+                row = await session.get(AgentDoctrine, uuid.UUID(recorded["id"]))
+                doctrine = (
+                    ActiveDoctrine(row.id, row.role, row.version, row.content, row.tokens)
+                    if row is not None
+                    else None
+                )
+            else:
+                doctrine = await load_active_doctrine(session, run.workspace_id, profile.agent_key)
+        if doctrine is not None and not recorded:
+            await self.registry.update(str(run.run_id), doctrine=doctrine.run_record())
+            log.info("run.doctrine", role=doctrine.role, version=doctrine.version)
+        return compose_with_doctrine(profile.system_prompt, doctrine)
+
     # ------------------------------------------------------------------ loop
     async def run(self, run_id: str) -> None:
         async with self.services.db.session() as session:
@@ -238,8 +262,9 @@ class AgentRuntime:
         assert outbox is not None, "outbox wajib untuk agent runtime"
         virtual = VirtualTools(outbox, self._persist_refs)
         memory = RunMemory(self.services.db, run_id)
+        system_prompt = await self._system_prompt(run, profile)
         head = [
-            brief.system_message(profile.system_prompt, trigger=run.trigger),
+            brief.system_message(system_prompt, trigger=run.trigger),
             {"role": "user", "content": brief.user_brief(state.run_input)},
         ]
         steps = await memory.load()

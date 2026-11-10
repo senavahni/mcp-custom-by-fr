@@ -1,4 +1,4 @@
-"""Embedder KB: Gateway (`embed-default`, 1536 dim) atau ONNX lokal (multilingual-e5-small, 384).
+"""Embedder KB: Gateway (`embed-default` 1536 / `embed-local` 1024) atau ONNX lokal (e5-small, 384).
 
 Model dikunci per koleksi (`kb_collections.embed_model/embed_dim`); embedder dipilih dari koleksi,
 bukan dari setting saat ini, agar vektor dalam satu koleksi selalu sebanding.
@@ -12,8 +12,14 @@ from typing import Any, Literal, Protocol
 
 import numpy as np
 
+from mcp_marketing.core import context
 from mcp_marketing.core.errors import UpstreamError, ValidationFailed
-from mcp_marketing.services.kb.identity import GATEWAY_MODEL, LOCAL_DIM, LOCAL_MODEL
+from mcp_marketing.services.kb.identity import (
+    EMBED_LOCAL_MODEL,
+    GATEWAY_MODEL,
+    LOCAL_DIM,
+    LOCAL_MODEL,
+)
 
 Kind = Literal["query", "passage"]
 LOCAL_BATCH = 32
@@ -29,19 +35,45 @@ class Embedder(Protocol):
     async def embed(self, texts: list[str], kind: Kind) -> list[list[float]]: ...
 
 
-class GatewayEmbedder:
-    """Lewat LLM Gateway; cache `embedding_cache` & pencatatan token ada di GatewayClient."""
+def embed_priority(kind: Kind) -> Literal["interactive", "bulk"]:
+    """Antrean Gateway: pencarian = interactive, ingest = bulk; override lewat context
+    `embed_priority` (mis. klasifikasi interaktif yang meng-embed dokumen)."""
+    override = context.get("embed_priority")
+    if override == "interactive":
+        return "interactive"
+    if override == "bulk":
+        return "bulk"
+    return "interactive" if kind == "query" else "bulk"
 
-    def __init__(self, llm: Any, dim: int, budget: Any = None) -> None:
+
+class GatewayEmbedder:
+    """Lewat LLM Gateway; cache `embedding_cache` & pencatatan token ada di GatewayClient.
+
+    `embed-default` (remote) memakai kontrak lama; `embed-local` mengirim `input_type`
+    (query/document) dan `X-Priority` (MCP-V1-01, LGW-V1-04).
+    """
+
+    def __init__(
+        self, llm: Any, dim: int, budget: Any = None, *, model: str = GATEWAY_MODEL
+    ) -> None:
         self.llm = llm
-        self.model = GATEWAY_MODEL
+        self.model = model
         self.dim = dim
         self.budget = budget
 
     async def embed(self, texts: list[str], kind: Kind) -> list[list[float]]:
         if not texts:
             return []
-        vectors: list[list[float]] = await self.llm.embed(texts, budget=self.budget)
+        if self.model == EMBED_LOCAL_MODEL:
+            vectors: list[list[float]] = await self.llm.embed(
+                texts,
+                model=EMBED_LOCAL_MODEL,
+                budget=self.budget,
+                input_type="query" if kind == "query" else "document",
+                priority=embed_priority(kind),
+            )
+        else:
+            vectors = await self.llm.embed(texts, budget=self.budget)
         if any(len(v) != self.dim for v in vectors):
             raise ValidationFailed(
                 f"Dimensi embedding Gateway tidak sama dengan koleksi ({self.dim})",
@@ -124,8 +156,8 @@ def embedder_for(services: Any, embed_model: str, embed_dim: int, budget: Any = 
         if key not in cache:
             cache[key] = LocalEmbedder(model_dir)
         return cache[key]  # type: ignore[no-any-return]
-    if embed_model == GATEWAY_MODEL:
+    if embed_model in (GATEWAY_MODEL, EMBED_LOCAL_MODEL):
         if services.llm is None:
             raise UpstreamError("LLM Gateway tidak dikonfigurasi untuk embedding", retryable=False)
-        return GatewayEmbedder(services.llm, embed_dim, budget)
+        return GatewayEmbedder(services.llm, embed_dim, budget, model=embed_model)
     raise ValidationFailed(f"Model embedding koleksi tidak dikenal: {embed_model}")

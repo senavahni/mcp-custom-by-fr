@@ -18,7 +18,7 @@ from mcp_marketing.services.db import query as q
 from mcp_marketing.services.db import write as w
 from mcp_marketing.services.kb import store
 from mcp_marketing.services.kb.embedder import embedder_for
-from mcp_marketing.services.kb.identity import embed_identity
+from mcp_marketing.services.kb.identity import EmbedModel, embed_identity
 from mcp_marketing.services.kb.ingest import collection_name_for_project
 from mcp_marketing.services.kb.search import search
 from mcp_marketing.tools._jobs import enqueue_and_wait
@@ -106,6 +106,8 @@ class CollectionCreateIn(ToolInput):
     name: str = Field(min_length=1, max_length=150)
     description: str | None = Field(default=None, max_length=2_000)
     project_id: uuid.UUID | None = None
+    # MCP-V1-01: provider per koleksi; koleksi books:/companies:/social: selalu embed-local
+    embed_model: EmbedModel | None = None
 
 
 class IdOut(BaseModel):
@@ -117,7 +119,8 @@ class IdOut(BaseModel):
     toolset="kb",
     summary="Buat koleksi KB (model embedding dikunci)",
     description="Create a knowledge-base collection in the caller's workspace. The embedding "
-    "model/dimension is locked at creation (EMBED_PROVIDER).",
+    "model/dimension is locked at creation: embed_model (embed-default 1536 | embed-local 1024), "
+    "default EMBED_PROVIDER; names books:/companies:/social: always use embed-local.",
     input_model=CollectionCreateIn,
     output_model=IdOut,
     writes=True,
@@ -126,13 +129,13 @@ async def kb_collection_create(inp: CollectionCreateIn, ctx: ToolContext) -> IdO
     if inp.project_id is not None:
         await project_in_scope(ctx, inp.project_id)
     scope = await workspace_scope(ctx)
-    model, dim = embed_identity(ctx.settings)
+    model, dim = embed_identity(ctx.settings, collection_name=inp.name, embed_model=inp.embed_model)
     async with ctx.services.db.session() as session:
         out = await w.create(
             session,
             COLLECTIONS,
             scope,
-            inp.model_dump(mode="json", exclude_none=True),
+            inp.model_dump(mode="json", exclude_none=True, exclude={"embed_model"}),
             defaults={"embed_model": model, "embed_dim": dim},
         )
     return IdOut(id=out["id"])

@@ -6,10 +6,11 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import BigInteger, ForeignKey, SmallInteger, String, Text
+from sqlalchemy import BigInteger, ForeignKey, SmallInteger, String, Text, Uuid
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
-from mcp_marketing.models.base import Base, ts_default
+from mcp_marketing.models.base import Base, ts_default, uuid_pk
 
 
 class AgentProfile(Base):
@@ -25,6 +26,28 @@ class AgentProfile(Base):
     max_steps: Mapped[int] = mapped_column(SmallInteger, server_default="25")
     is_active: Mapped[bool] = mapped_column(server_default="true")
     version: Mapped[int] = mapped_column(server_default="1")
+    updated_at: Mapped[datetime] = ts_default()
+
+
+class AgentDoctrine(Base):
+    """L2 doktrin per peran (MCP-V1-03 injeksi; isi & review oleh MCP-V1-13)."""
+
+    __tablename__ = "agent_doctrines"
+
+    id: Mapped[uuid.UUID] = uuid_pk()
+    workspace_id: Mapped[uuid.UUID | None]
+    role: Mapped[str] = mapped_column(String(100))
+    version: Mapped[int]
+    content: Mapped[str] = mapped_column(Text)
+    tokens: Mapped[int]
+    card_ids: Mapped[list[uuid.UUID]] = mapped_column(
+        ARRAY(Uuid(as_uuid=True)), server_default="{}"
+    )
+    status: Mapped[str] = mapped_column(String(16), server_default="draft")
+    created_by: Mapped[str] = mapped_column(String(100))
+    approved_by: Mapped[uuid.UUID | None]
+    approved_at: Mapped[datetime | None]
+    created_at: Mapped[datetime] = ts_default()
     updated_at: Mapped[datetime] = ts_default()
 
 
@@ -50,6 +73,8 @@ class Run(Base):
     error: Mapped[dict[str, Any] | None]
     summary: Mapped[str | None] = mapped_column(Text)
     subtask_refs: Mapped[dict[str, Any]] = mapped_column(server_default="{}")
+    # doktrin yang disuntikkan ke prompt run {id, role, version, tokens} (MCP-V1-03)
+    doctrine: Mapped[dict[str, Any] | None]
     last_event_at: Mapped[datetime | None]
     started_at: Mapped[datetime | None]
     finished_at: Mapped[datetime | None]

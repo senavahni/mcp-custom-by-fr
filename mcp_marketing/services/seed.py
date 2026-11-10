@@ -26,9 +26,30 @@ DEFAULT_SCHEDULES: tuple[dict[str, Any], ...] = (
 )
 
 
-async def seed(session: AsyncSession, *, force: bool = False) -> dict[str, int]:
+async def upgrade_profiles(session: AsyncSession) -> int:
+    """MCP-V1-03: tambahkan toolset & denylist bawaan v1 ke profil lama SECARA ADITIF (prompt,
+    route, budget & toolset tambahan admin tidak disentuh). Idempoten."""
+    changed = 0
+    for p in DEFAULT_PROFILES:
+        row = await session.get(AgentProfile, p.agent_key)
+        if row is None:
+            continue
+        toolsets = list(dict.fromkeys([*(row.toolsets or []), *p.toolsets]))
+        denylist = list(dict.fromkeys([*(row.tool_denylist or []), *p.tool_denylist]))
+        if toolsets != list(row.toolsets or []) or denylist != list(row.tool_denylist or []):
+            row.toolsets, row.tool_denylist = toolsets, denylist
+            row.version = row.version + 1
+            row.updated_at = func.now()
+            changed += 1
+    return changed
+
+
+async def seed(
+    session: AsyncSession, *, force: bool = False, upgrade: bool = False
+) -> dict[str, int]:
     counts = {
         "agent_profiles": 0,
+        "agent_profiles_upgraded": 0,
         "clients": 0,
         "schedules": 0,
         "templates": 0,
@@ -55,6 +76,8 @@ async def seed(session: AsyncSession, *, force: bool = False) -> dict[str, int]:
         else:
             stmt = stmt.on_conflict_do_nothing(index_elements=["agent_key"])
         counts["agent_profiles"] += (await session.execute(stmt)).rowcount or 0  # type: ignore[attr-defined]
+    if upgrade and not force:
+        counts["agent_profiles_upgraded"] = await upgrade_profiles(session)
 
     client_stmt = (
         insert(ApiClient)

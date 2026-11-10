@@ -269,6 +269,26 @@ class JobQueue:
                 )
             )
 
+    async def pause(
+        self, job_id: str, worker_id: str, *, delay_s: float, error: dict[str, Any]
+    ) -> None:
+        """Jeda job (mis. `LOCAL_MODEL_UNAVAILABLE`): kembali ke antrean setelah `delay_s` tanpa
+        menghabiskan percobaan; checkpoint tetap sehingga lanjut tanpa kehilangan progres."""
+        async with self.db.session() as session:
+            await session.execute(
+                update(Job)
+                .where(Job.id == job_id, Job.locked_by == worker_id)
+                .values(
+                    status=_queued_unless_cancelled(),
+                    finished_at=case((Job.cancel_requested, now()), else_=None),
+                    locked_by=None,
+                    locked_at=None,
+                    attempts=Job.attempts - 1,
+                    error=error,
+                    run_after=now() + timedelta(seconds=delay_s),
+                )
+            )
+
     async def release(self, job_id: str, worker_id: str) -> None:
         """Shutdown worker: kembalikan job ke antrean tanpa menghabiskan percobaan."""
         async with self.db.session() as session:

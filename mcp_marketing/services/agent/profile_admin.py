@@ -16,12 +16,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from mcp_marketing.core.errors import Conflict, NotFound, ValidationFailed
 from mcp_marketing.models import AgentProfile
+from mcp_marketing.schemas.intel_v13 import TOOLSETS_V13
 from mcp_marketing.services.agent.profiles import PROMPT_VERSION
 from mcp_marketing.services.llm import prompts
 from mcp_marketing.tools import TOOL_MODULES
 
-# `pm` = toolset Dashboard; runtime agent tidak pernah memberikannya ke LLM
-AGENT_TOOLSETS = tuple(t for t in TOOL_MODULES if t != "pm")
+# `pm` = toolset Dashboard; runtime agent tidak pernah memberikannya ke LLM. Toolset v1
+# (kontrak 1.3) boleh dipasang ke profil sebelum modul tool-nya ada; tool muncul saat modul hadir.
+AGENT_TOOLSETS = tuple(dict.fromkeys([*(t for t in TOOL_MODULES if t != "pm"), *TOOLSETS_V13]))
 AGENT_KEY_PATTERN = r"^[a-z][a-z0-9_-]{1,49}$"
 # `fast`/`smart` (tier MCP) atau nama route/alias model Gateway, mis. openrouter/gemma-4-31b
 ROUTE_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,63}$"

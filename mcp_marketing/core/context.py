@@ -19,6 +19,8 @@ CONTEXT_FIELDS = (
     "stage",
     # atribusi non-intel (mis. `mission:<id>` untuk planner misi M3_TASK_013)
     "caller_task",
+    # override antrean embedding Gateway (`interactive`/`bulk`, MCP-V1-01)
+    "embed_priority",
 )
 
 _vars: dict[str, ContextVar[str | None]] = {

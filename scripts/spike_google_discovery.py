@@ -16,11 +16,13 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import contextlib
 import itertools
 import json
 import statistics
 import sys
 import time
+from collections.abc import AsyncIterator
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -35,7 +37,10 @@ from mcp_marketing.core.errors import CaptchaRequired, RateLimited, ToolError  #
 from mcp_marketing.services.browser.driver_pool import (  # noqa: E402
     FetchedPage,
     PageSource,
-    SeleniumLauncher,
+    SeleniumPage,
+    create_driver,
+    kill_driver,
+    require_compatible,
 )
 from mcp_marketing.services.browser.profiles import ProfileStore  # noqa: E402
 from mcp_marketing.services.collectors import google_discovery as gd  # noqa: E402
@@ -121,11 +126,48 @@ class RecordingPage:
         return await self.inner.run_js(script, *args)
 
 
-async def _wait_manual(wait: bool) -> float | None:
-    """Tunggu user menyelesaikan verifikasi di Chrome; None = berhenti."""
-    if not wait:
-        return None
+CAPTCHA_POLL_S = 5.0
+
+
+@contextlib.asynccontextmanager
+async def _headful_session(
+    settings: Any, store: ProfileStore, profile_name: str
+) -> AsyncIterator[PageSource]:
+    """Sesi Chrome SELALU terlihat (user harus bisa menyelesaikan CAPTCHA), apa pun setelan
+    `headless` profil di DB — sama seperti `manage.py profile-open`. Profil dikunci selama sesi."""
+    require_compatible(settings)
+    record = await store.acquire(profile_name, LOCK_ID)
+    record.headless = False
+    driver = None
+    try:
+        driver = await asyncio.to_thread(create_driver, record, settings)
+        yield SeleniumPage(driver, settings)
+    finally:
+        if driver is not None:
+            await asyncio.to_thread(kill_driver, driver)
+        await store.release(profile_name, LOCK_ID)
+
+
+async def _wait_manual(args: argparse.Namespace, page: PageSource) -> float | None:
+    """Tunggu user menyelesaikan verifikasi di jendela Chrome; None = berhenti.
+
+    `--wait-captcha-s N`: tanpa terminal interaktif — cek halaman tiap 5 s sampai blokir hilang
+    (user yang menyelesaikan; skrip tidak pernah mengisi CAPTCHA). Selain itu: tunggu Enter.
+    """
     started = time.monotonic()
+    if args.wait_captcha_s > 0:
+        print(
+            f"\n>>> Google meminta verifikasi. Selesaikan di jendela Chrome "
+            f"(menunggu maks {args.wait_captcha_s} s)...",
+            flush=True,
+        )
+        while time.monotonic() - started < args.wait_captcha_s:
+            await asyncio.sleep(CAPTCHA_POLL_S)
+            if gd.detect_block(await page.current_url(), await page.html()) is None:
+                return time.monotonic() - started
+        return None
+    if args.no_wait:
+        return None
     print("\n>>> Google meminta verifikasi. Selesaikan di jendela Chrome, lalu tekan Enter.")
     print(">>> Ketik 'stop' + Enter untuk mengakhiri spike.")
     answer = await asyncio.to_thread(input, "> ")
@@ -190,8 +232,7 @@ async def run(args: argparse.Namespace) -> int:
                 sites=["google.com"],
             )
             print(f"Profil {args.profile} dibuat (tanpa login).")
-        launcher = SeleniumLauncher(settings, store)
-        async with launcher.session(args.profile, LOCK_ID) as page:
+        async with _headful_session(settings, store, args.profile) as page:
             brake = gd.VolumeBrake(settings.discovery)
             collector = gd.GoogleDiscovery(
                 RecordingPage(page, out if args.save_html else None),
@@ -207,7 +248,7 @@ async def run(args: argparse.Namespace) -> int:
                     i += 1
                 except CaptchaRequired as exc:
                     block = str((exc.details or {}).get("block"))
-                    waited = await _wait_manual(not args.no_wait)
+                    waited = await _wait_manual(args, page)
                     events.append(
                         Event(
                             at=datetime.now().astimezone().isoformat(timespec="seconds"),
@@ -303,6 +344,12 @@ def main() -> int:
     p.add_argument("--queries", help="file teks: satu query per baris")
     p.add_argument("--save-html", action="store_true", help="simpan HTML mentah per jenis halaman")
     p.add_argument("--no-wait", action="store_true", help="berhenti saat CAPTCHA (non-interaktif)")
+    p.add_argument(
+        "--wait-captcha-s",
+        type=int,
+        default=0,
+        help="tunggu user menyelesaikan CAPTCHA di Chrome (cek tiap 5 s), maks N detik",
+    )
     return asyncio.run(run(p.parse_args()))
 
 
