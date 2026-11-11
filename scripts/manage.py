@@ -16,6 +16,8 @@ python scripts/manage.py profile-disable <name>
 python scripts/manage.py threads-token-refresh                  # tulis token baru ke .env
 python scripts/manage.py download-models                        # model ONNX lokal (embedding)
 python scripts/manage.py kb-reembed <collection_id>             # koleksi baru, model saat ini
+python scripts/manage.py industries-embed [--force]             # KBLI -> embed-local (V1-04)
+python scripts/manage.py sentiment-train data.csv [--draft]     # head sentimen lokal (V1-04)
 python scripts/manage.py gateway-keys gen-secret                # nilai MCP_SECRET_KEY baru
 python scripts/manage.py gateway-keys provision [--daily-usd 5]  # project + key per agent
 python scripts/manage.py gateway-keys list | import --agent X | disable --agent X
@@ -458,6 +460,105 @@ def cmd_kb_reembed(args: argparse.Namespace) -> int:
     return 0
 
 
+# ------------------------------------------------------------------ klasifikasi lokal (MCP-V1-04)
+SENTIMENT_TARGET_F1 = 0.80
+
+
+async def _industries_embed(force: bool) -> int:
+    from mcp_marketing.main import build_services, close_services
+    from mcp_marketing.services.kb.embedder import embedder_for
+    from mcp_marketing.services.kb.identity import EMBED_LOCAL_DIM, EMBED_LOCAL_MODEL
+    from mcp_marketing.services.local_ml.kbli import embed_industries
+
+    services = build_services(get_settings())
+    try:
+        embedder = embedder_for(services, EMBED_LOCAL_MODEL, EMBED_LOCAL_DIM)
+        return await embed_industries(services.db, embedder, force=force)
+    finally:
+        await close_services(services)
+
+
+def cmd_industries_embed(args: argparse.Namespace) -> int:
+    n = asyncio.run(_industries_embed(args.force))
+    print(f"{n} kode KBLI di-embed (embed-local, 1024 dim)")
+    return 0
+
+
+def _read_labeled_csv(path: Path) -> tuple[list[str], list[str]]:
+    import csv
+
+    from mcp_marketing.services.local_ml.classifier_store import SENTIMENT_LABELS
+
+    texts, labels = [], []
+    with path.open(encoding="utf-8-sig", newline="") as f:
+        for row in csv.DictReader(f):
+            label = (row.get("label") or "").strip().lower()
+            text_value = (row.get("text") or "").strip()
+            if label in SENTIMENT_LABELS and text_value:
+                texts.append(text_value)
+                labels.append(label)
+    return texts, labels
+
+
+async def _sentiment_train(path: Path, activate: bool) -> dict[str, object]:
+    from mcp_marketing.main import build_services, close_services
+    from mcp_marketing.services.kb.embedder import embedder_for
+    from mcp_marketing.services.kb.identity import EMBED_LOCAL_DIM, EMBED_LOCAL_MODEL
+    from mcp_marketing.services.local_ml import head as hd
+    from mcp_marketing.services.local_ml.classifier_store import (
+        SENTIMENT,
+        SENTIMENT_LABELS,
+        save_head,
+    )
+    from mcp_marketing.utils.crypto import sha256_hex
+
+    texts, labels = _read_labeled_csv(path)
+    services = build_services(get_settings())
+    try:
+        embedder = embedder_for(services, EMBED_LOCAL_MODEL, EMBED_LOCAL_DIM)
+        vectors = await embedder.embed(texts, "query")
+        train_idx, test_idx = hd.stratified_split(labels)
+        model = hd.train(
+            [vectors[i] for i in train_idx],
+            [labels[i] for i in train_idx],
+            label_order=SENTIMENT_LABELS,
+        )
+        predicted = [p[0] for p in model.predict([vectors[i] for i in test_idx])]
+        metrics = hd.macro_f1([labels[i] for i in test_idx], predicted, SENTIMENT_LABELS)
+        ok = float(metrics["macro_f1"]) >= SENTIMENT_TARGET_F1  # type: ignore[arg-type]
+        final = hd.train(vectors, labels, label_order=SENTIMENT_LABELS)  # semua data
+        version = await save_head(
+            services.db,
+            SENTIMENT,
+            final,
+            embed_model=EMBED_LOCAL_MODEL,
+            metrics={**metrics, "target_macro_f1": SENTIMENT_TARGET_F1, "meets_target": ok},
+            dataset={
+                "size": len(texts),
+                "file": path.name,
+                "sha256": sha256_hex(path.read_text(encoding="utf-8-sig")),
+            },
+            activate=activate and ok,
+        )
+        return {"version": version, "active": activate and ok, **metrics}
+    finally:
+        await close_services(services)
+
+
+def cmd_sentiment_train(args: argparse.Namespace) -> int:
+    result = asyncio.run(_sentiment_train(Path(args.csv), not args.draft))
+    print(
+        f"head sentimen v{result['version']}: macro-F1 {result['macro_f1']} "
+        f"(akurasi {result['accuracy']}, n test {result['n']}); aktif={result['active']}"
+    )
+    if not result["active"] and not args.draft:
+        print(
+            f"Belum aktif: macro-F1 < {SENTIMENT_TARGET_F1}. Tambah/koreksi data atau pakai "
+            "LLM assist (method=auto + llm)."
+        )
+    return 0
+
+
 def _secret_key_or_exit() -> str:
     key = get_settings().mcp_secret_key
     if key is None:
@@ -632,6 +733,14 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("kb-reembed", help="embed ulang koleksi ke model saat ini")
     p.add_argument("collection_id")
     p.set_defaults(fn=cmd_kb_reembed)
+
+    p = sub.add_parser("industries-embed", help="embed kode KBLI (embed-local) untuk kNN lokal")
+    p.add_argument("--force", action="store_true", help="embed ulang semua kode")
+    p.set_defaults(fn=cmd_industries_embed)
+    p = sub.add_parser("sentiment-train", help="latih head sentimen lokal dari CSV text,label")
+    p.add_argument("csv", help="CSV UTF-8 kolom text,label (positive/neutral/negative)")
+    p.add_argument("--draft", action="store_true", help="simpan sebagai draft (tidak diaktifkan)")
+    p.set_defaults(fn=cmd_sentiment_train)
 
     p = sub.add_parser("gateway-keys", help="key LLM Gateway per agent (terenkripsi)")
     p.add_argument("action", choices=["gen-secret", "provision", "list", "import", "disable"])

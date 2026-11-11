@@ -19,6 +19,7 @@ from sqlalchemy import text
 
 from mcp_marketing.core.errors import UpstreamError
 from mcp_marketing.core.logging import get_logger
+from mcp_marketing.services.local_ml.classifier_store import sentiment_head
 from mcp_marketing.services.nlp import aspects as aspect_mod
 from mcp_marketing.services.nlp import sentiment_llm
 from mcp_marketing.services.nlp.lang import detect
@@ -74,8 +75,11 @@ class SentimentAnalyzer:
         self.settings = services.settings.nlp
         self.budget = budget
         self._run_cpu = run_cpu
+        self._head: Any = None
 
     async def _predict(self, texts: list[str]) -> list[tuple[str, dict[str, float]]]:
+        if self._head is not None:  # MCP-V1-04: head lokal di atas embed-local
+            return await self._head.predict(texts)
         model_dir = str(self.settings.sentiment_model_dir)
         if self._run_cpu is not None:
             return await self._run_cpu(predict_batch, model_dir, texts)  # type: ignore[no-any-return]
@@ -90,11 +94,13 @@ class SentimentAnalyzer:
         aspects: list[str] | None = None,
     ) -> Outcome:
         notes: list[str] = []
-        has_model = model_available(self.settings.sentiment_model_dir)
+        self._head = await sentiment_head(self.services)
+        has_model = self._head is not None or model_available(self.settings.sentiment_model_dir)
         if method == "model" and not has_model:
             raise UpstreamError(
-                "Model sentimen lokal belum tersedia; jalankan "
-                "`python scripts/manage.py download-models --sentiment-repo …` atau pakai "
+                "Model sentimen lokal belum tersedia; latih head lokal "
+                "(`python scripts/manage.py sentiment-train`), unduh ONNX "
+                "(`python scripts/manage.py download-models --sentiment-repo …`) atau pakai "
                 "method=llm",
                 retryable=False,
             )
@@ -104,9 +110,12 @@ class SentimentAnalyzer:
             notes.append("model_unavailable_fallback_llm")
         if effective != "model" and self.services.llm is None:
             raise UpstreamError("LLM Gateway tidak dikonfigurasi", retryable=False)
-        cache_key = (
-            model_id(self.settings.sentiment_model_dir) if effective != "llm" else LLM_MODEL_KEY
-        )
+        if effective == "llm":
+            cache_key = LLM_MODEL_KEY
+        elif self._head is not None:
+            cache_key = self._head.model_key
+        else:
+            cache_key = model_id(self.settings.sentiment_model_dir)
 
         norm = {it.key: normalize(it.text) for it in items}
         digest = {key: sha256_hex(value) for key, value in norm.items()}
