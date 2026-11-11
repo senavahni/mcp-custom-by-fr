@@ -35,3 +35,6 @@ htmlcov/
 
 graphify-out/*
 graphify-out/
+# ekstraksi PDF buku (MCP-V1-11) output
+pdf-out/*
+pdf-out/
