@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import Any, Literal, Protocol
 
 import orjson
 from sqlalchemy import delete, func, select, text, update
@@ -170,6 +170,87 @@ async def insert_chunks(
                 "m": meta,
             },
         )
+
+
+class PreparedChunk(Protocol):
+    index: int
+    text: str
+    tokens: int
+    metadata: dict[str, Any]
+
+
+async def find_document(
+    db: Any, collection_id: uuid.UUID, source_type: str, source_ref: str
+) -> KbDocument | None:
+    async with db.session() as session:
+        return await session.scalar(  # type: ignore[no-any-return]
+            select(KbDocument).where(
+                KbDocument.collection_id == collection_id,
+                KbDocument.source_type == source_type,
+                KbDocument.source_ref == source_ref[:2_000],
+            )
+        )
+
+
+async def replace_document_chunks(
+    db: Any,
+    collection: KbCollection,
+    *,
+    source_type: str,
+    source_ref: str,
+    title: str | None,
+    metadata: dict[str, Any],
+    digest: str,
+    chunks: list[PreparedChunk],
+    vectors: list[list[float]],
+) -> tuple[str, Status]:
+    """Tulis dokumen + chunk siap pakai (metadata PER chunk, mis. halaman buku — MCP-V1-11).
+    Pemanggil yang meng-embed (agar bisa melapor progres) dan mengecek `digest` lebih dulu."""
+    if any(len(v) != collection.embed_dim for v in vectors):
+        raise ValidationFailed("Dimensi embedding tidak sama dengan koleksi (campur dimensi)")
+    existing = await find_document(db, collection.id, source_type, source_ref)
+    async with db.session() as session:
+        if existing is None:
+            doc_id = uuid.uuid4()
+            session.add(
+                KbDocument(
+                    id=doc_id,
+                    collection_id=collection.id,
+                    source_type=source_type,
+                    source_ref=source_ref[:2_000],
+                    title=(title or "")[:500] or None,
+                    metadata_=metadata,
+                    content_hash=digest,
+                )
+            )
+            await session.flush()
+            status: Status = "created"
+        else:
+            doc_id = existing.id
+            await session.execute(
+                text("DELETE FROM mcp.kb_chunks WHERE document_id = :d"), {"d": doc_id}
+            )
+            await session.execute(
+                update(KbDocument)
+                .where(KbDocument.id == doc_id)
+                .values(content_hash=digest, metadata_=metadata, updated_at=now())
+            )
+            status = "updated"
+        for chunk, vec in zip(chunks, vectors, strict=True):
+            await session.execute(
+                _INSERT_CHUNK,
+                {
+                    "d": doc_id,
+                    "c": collection.id,
+                    "i": chunk.index,
+                    "t": chunk.text,
+                    "n": chunk.tokens,
+                    "dim": collection.embed_dim,
+                    "e": [float(x) for x in vec],
+                    "m": orjson.dumps({**chunk.metadata, "source_type": source_type}).decode(),
+                },
+            )
+    return str(doc_id), status
 
 
 async def delete_document(db: Any, document_id: uuid.UUID) -> int:

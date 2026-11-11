@@ -14,8 +14,10 @@ from mcp_marketing.server.auth import Authenticator
 
 REQUEST_ID_RE = re.compile(r"^[A-Za-z0-9._\-]{1,64}$")
 MAX_BODY_BYTES = 2 * 1024 * 1024
-PROTECTED_PREFIXES = ("/mcp", "/admin")
+PROTECTED_PREFIXES = ("/mcp", "/admin", "/uploads")
 SIGNED_PREFIXES = ("/admin/exports/",)
+# upload file besar (MCP-V1-11): batas ukuran ditegakkan route sendiri per jenis file
+BODY_LIMIT_EXEMPT = ("/uploads",)
 
 
 def _header(scope: Scope, name: bytes) -> str | None:
@@ -62,7 +64,7 @@ class BodyLimitMiddleware:
         self.max_bytes = max_bytes
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if scope["type"] != "http":
+        if scope["type"] != "http" or scope.get("path", "") in BODY_LIMIT_EXEMPT:
             await self.app(scope, receive, send)
             return
         length = _header(scope, b"content-length")

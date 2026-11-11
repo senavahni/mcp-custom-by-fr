@@ -105,6 +105,8 @@ class WebhookOutbox(Base):
     job_id: Mapped[str | None] = mapped_column(
         String(16), ForeignKey("mcp.intel_jobs.id", ondelete="CASCADE")
     )
+    # aliran event entitas kontrak 1.3 (mis. `asset:<id>` untuk kn.asset.status) — 0008
+    stream: Mapped[str | None] = mapped_column(String(80))
     seq: Mapped[int]
     event_type: Mapped[str] = mapped_column(String(48))
     payload: Mapped[dict[str, Any]]

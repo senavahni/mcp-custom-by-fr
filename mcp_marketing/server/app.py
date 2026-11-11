@@ -26,6 +26,7 @@ from mcp_marketing.server.middleware import (
 )
 from mcp_marketing.server.pipeline import ToolPipeline
 from mcp_marketing.server.services import Services
+from mcp_marketing.server.uploads import build_upload_routes
 from mcp_marketing.tools import load_all
 
 log = get_logger(__name__)
@@ -74,6 +75,7 @@ def build_asgi_app(
             *build_admin_routes(services, authenticator),
             *build_console_admin_routes(services, authenticator),
             *build_console_routes(),
+            *build_upload_routes(services),
             Mount("/mcp", app=StreamableHTTPASGIApp(manager)),
         ],
         lifespan=lifespan,

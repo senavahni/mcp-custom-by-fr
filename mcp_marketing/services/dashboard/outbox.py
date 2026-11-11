@@ -31,6 +31,8 @@ from mcp_marketing.models import IntelJob, Run, WebhookOutbox
 from mcp_marketing.schemas.contract import validate_event_data
 from mcp_marketing.schemas.intel import CONTRACT_VERSION as INTEL_CONTRACT_VERSION
 from mcp_marketing.schemas.intel import validate_intel_event_data
+from mcp_marketing.schemas.intel_v13 import CONTRACT_VERSION as CONTRACT_V13
+from mcp_marketing.schemas.intel_v13 import EventEnvelope13, validate_event_data_v13
 from mcp_marketing.services.dashboard import signer
 from mcp_marketing.services.dashboard.origin import same_origin
 from mcp_marketing.utils.text import truncate
@@ -188,6 +190,67 @@ class Outbox:
         self._wake.set()
         return emitted
 
+    async def emit_entity(
+        self,
+        stream: str,
+        workspace_id: uuid.UUID,
+        event_type: str,
+        data: dict[str, Any],
+        *,
+        job_id: uuid.UUID | None = None,
+        mcp_job_id: str | None = None,
+    ) -> EmittedEvent:
+        """Event entitas kontrak 1.3 (`kn.asset.status`, `ci.import.status`, ...) per `stream`
+        (mis. `asset:<id>`); urutan dijaga per stream, envelope `EventEnvelope13`."""
+        event_id = str(uuid.uuid4())
+        try:
+            clean = validate_event_data_v13(event_type, data)
+            payload: dict[str, Any] = {
+                "contract_version": CONTRACT_V13,
+                "event_id": event_id,
+                "event_type": event_type,
+                "occurred_at": _iso(now()),
+                "workspace_id": str(workspace_id),
+                "job_id": str(job_id) if job_id else None,
+                "mcp_job_id": mcp_job_id,
+                "sequence": 1,
+                "data": clean,
+            }
+        except ValueError as exc:
+            raise ValidationFailed(
+                f"Data event {event_type} tidak valid: {truncate(str(exc), 300)}"
+            ) from None
+        async with self.db.session() as session:
+            # kunci advisory per stream: seq unik walau dua proses emit bersamaan
+            await session.execute(
+                text("SELECT pg_advisory_xact_lock(hashtext(:s))"), {"s": f"outbox:{stream}"}
+            )
+            seq = int(
+                (
+                    await session.execute(
+                        text(
+                            "SELECT COALESCE(max(seq), 0) + 1 FROM mcp.webhook_outbox "
+                            "WHERE stream = :s"
+                        ),
+                        {"s": stream},
+                    )
+                ).scalar_one()
+            )
+            payload["sequence"] = seq
+            EventEnvelope13.model_validate(payload)
+            row = WebhookOutbox(
+                event_id=uuid.UUID(event_id),
+                stream=stream,
+                seq=seq,
+                event_type=event_type,
+                payload=payload,
+            )
+            session.add(row)
+            await session.flush()
+            emitted = EmittedEvent(id=row.id, event_id=event_id, seq=seq, run_id=None)
+        self._wake.set()
+        return emitted
+
     async def discard_job(self, job_id: str, reason: str = "job_not_active") -> int:
         async with self.db.session() as session:
             result = await session.execute(
@@ -280,7 +343,7 @@ class Outbox:
                 SELECT DISTINCT ON (stream) id, stream, next_attempt_at <= now() AS due
                 FROM (
                   SELECT id, seq, next_attempt_at,
-                         COALESCE(run_id::text, 'job:' || job_id) AS stream
+                         COALESCE(run_id::text, 'job:' || job_id, 'entity:' || stream) AS stream
                   FROM mcp.webhook_outbox WHERE status IN ('pending', 'sending')
                 ) pending
                 ORDER BY stream, seq

@@ -17,6 +17,7 @@ TOOL_MODULES = (
     "kb",
     "analysis",
     "intel",
+    "kn",
 )
 # modul tambahan untuk toolset yang sudah ada (bukan toolset baru di Admin Console)
 EXTRA_MODULES = ("intel_keys",)

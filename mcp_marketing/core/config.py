@@ -155,6 +155,16 @@ class DiscoverySettings(_Group):
         return self
 
 
+class UploadSettings(_Group):
+    """`POST /uploads` & ingest PDF (MCP-V1-11, V1-K9)."""
+
+    upload_pdf_max_mb: int = Field(default=100, ge=1, le=500)
+    upload_sheet_max_mb: int = Field(default=20, ge=1, le=100)
+    pdf_max_pages: int = Field(default=2_000, ge=1)
+    # batas waktu ekstraksi teks seluruh PDF (detik); lewat -> asset failed
+    pdf_extract_timeout_s: int = Field(default=1_800, ge=10)
+
+
 class SocialSettings(_Group):
     x_bearer_token: SecretStr | None = None
     x_max_reads_per_day: int = Field(default=2_000, ge=0)
@@ -226,6 +236,7 @@ class Settings(_Group):
     worker: WorkerSettings = Field(default_factory=WorkerSettings)
     browser: BrowserSettings = Field(default_factory=BrowserSettings)
     discovery: DiscoverySettings = Field(default_factory=DiscoverySettings)
+    upload: UploadSettings = Field(default_factory=UploadSettings)
     social: SocialSettings = Field(default_factory=SocialSettings)
     trends: TrendsSettings = Field(default_factory=TrendsSettings)
     nlp: NlpSettings = Field(default_factory=NlpSettings)

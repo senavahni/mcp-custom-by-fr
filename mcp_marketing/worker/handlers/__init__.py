@@ -2,6 +2,7 @@
 
 from mcp_marketing.worker.handlers.base import HandlerRegistry
 from mcp_marketing.worker.handlers.kb import KbIngestHandler, KbSyncDashboardHandler
+from mcp_marketing.worker.handlers.knowledge import KnAssetIngestHandler
 from mcp_marketing.worker.handlers.maintenance import (
     CacheCleanupHandler,
     RetentionHandler,
@@ -44,6 +45,7 @@ def default_registry() -> HandlerRegistry:
         TrendsRelatedHandler(),
         KbIngestHandler(),
         KbSyncDashboardHandler(),
+        KnAssetIngestHandler(),
         SentimentAnalyzeHandler(),
         IntelPipelineHandler(),
     )
